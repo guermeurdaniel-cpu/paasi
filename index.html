@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icon.png">
+<title>PAASI — Moteurs de l'indice</title>
+<style>
+  :root {
+    --bg: #10131a; --panel: #181c26; --txt: #e8eaf0; --dim: #8a91a3;
+    --pos: #2ecc71; --neg: #e74c3c; --line: #2a3040;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { background: var(--bg); color: var(--txt);
+         font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+         padding: 12px 10px 30px; }
+  h1 { font-size: 17px; font-weight: 700; }
+  .sub { font-size: 11.5px; color: var(--dim); margin: 4px 0 10px; line-height: 1.5; }
+  .kpis { display: flex; gap: 8px; margin-bottom: 12px; }
+  .kpi { flex: 1; background: var(--panel); border-radius: 10px; padding: 8px 10px; }
+  .kpi .v { font-size: 16px; font-weight: 700; }
+  .kpi .l { font-size: 10px; color: var(--dim); margin-top: 2px; }
+  .kpi .v.pos { color: var(--pos); } .kpi .v.neg { color: var(--neg); }
+  .panel { background: var(--panel); border-radius: 12px; padding: 12px 8px; }
+  canvas { display: block; width: 100%; }
+  .foot { font-size: 10px; color: var(--dim); margin-top: 10px; line-height: 1.6; }
+  #status { font-size: 11px; color: var(--dim); padding: 20px; text-align: center; }
+  .tip { position: fixed; display: none; background: #000c; color: #fff;
+         font-size: 11px; padding: 6px 9px; border-radius: 7px;
+         pointer-events: none; z-index: 9; max-width: 240px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<h1>PAASI — Moteurs de l'indice sur 30 jours</h1>
+<div class="sub" id="subtitle">Chargement…</div>
+<div class="kpis" id="kpis" style="display:none">
+  <div class="kpi"><div class="v" id="kSum">–</div><div class="l">Somme contributions (pts %)</div></div>
+  <div class="kpi"><div class="v" id="kCov">–</div><div class="l">Poids couvert</div></div>
+  <div class="kpi"><div class="v" id="kN">–</div><div class="l">Valeurs suivies</div></div>
+</div>
+<div class="panel"><canvas id="chart"></canvas></div>
+<div id="status">Chargement de contributions.json…</div>
+<div class="foot">
+  Contribution = poids d'indice &times; performance 30 j en EUR (change inclus).
+  Composition proxy : iShares MSCI EM Asia (physique) — l'indice de PAASI
+  (Screened Select ex Thermal Coal) applique des filtres supplémentaires
+  marginaux sur les grandes capitalisations. PAASI &eacute;tant &agrave;
+  r&eacute;plication synth&eacute;tique, Amundi ne publie pas les constituants.
+</div>
+<div class="tip" id="tip"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  var TOP = 20;
+  var tip = document.getElementById("tip");
+
+  function fmtPct(x, dec) {
+    var s = (x >= 0 ? "+" : "") + x.toFixed(dec === undefined ? 2 : dec);
+    return s.replace(".", ",");
+  }
+
+  function draw(data) {
+    var ok = data.stocks.filter(function (s) { return s.status === "ok"; });
+    ok.sort(function (a, b) { return Math.abs(b.contrib) - Math.abs(a.contrib); });
+    var top = ok.slice(0, TOP);
+    top.sort(function (a, b) { return b.contrib - a.contrib; });
+
+    var sum = ok.reduce(function (a, s) { return a + s.contrib; }, 0);
+    document.getElementById("subtitle").textContent =
+      "Composition du " + (data.holdings_date || "?") +
+      " — calcul du " + (data.generated || "").slice(0, 10) +
+      " — top " + TOP + " par |contribution|";
+    var kS = document.getElementById("kSum");
+    kS.textContent = fmtPct(sum);
+    kS.className = "v " + (sum >= 0 ? "pos" : "neg");
+    document.getElementById("kCov").textContent =
+      String(data.covered_weight).replace(".", ",") + " %";
+    document.getElementById("kN").textContent =
+      ok.length + "/" + data.stocks.length;
+    document.getElementById("kpis").style.display = "flex";
+    document.getElementById("status").style.display = "none";
+
+    var cv = document.getElementById("chart");
+    var dpr = window.devicePixelRatio || 1;
+    var W = cv.parentNode.clientWidth - 16;
+    var rowH = 26, padT = 8, padB = 22;
+    var H = padT + top.length * rowH + padB;
+    cv.width = W * dpr; cv.height = H * dpr;
+    cv.style.height = H + "px";
+    var ctx = cv.getContext("2d");
+    ctx.scale(dpr, dpr);
+
+    var maxAbs = 0;
+    top.forEach(function (s) { maxAbs = Math.max(maxAbs, Math.abs(s.contrib)); });
+    if (maxAbs === 0) maxAbs = 1;
+
+    var labelW = Math.min(120, W * 0.34);
+    var valW = 52;
+    var zeroX = labelW + (W - labelW - valW) / 2;
+    var scale = (W - labelW - valW) / 2 / maxAbs * 0.96;
+
+    ctx.strokeStyle = "#2a3040";
+    ctx.beginPath();
+    ctx.moveTo(zeroX, padT);
+    ctx.lineTo(zeroX, H - padB);
+    ctx.stroke();
+
+    var hitboxes = [];
+    top.forEach(function (s, i) {
+      var y = padT + i * rowH;
+      var bh = rowH - 8;
+      var w = s.contrib * scale;
+
+      ctx.fillStyle = "#e8eaf0";
+      ctx.font = "10.5px -apple-system, sans-serif";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      var nm = s.name.length > 17 ? s.name.slice(0, 16) + "…" : s.name;
+      ctx.fillText(nm, 2, y + rowH / 2);
+
+      ctx.fillStyle = s.contrib >= 0 ? "#2ecc71" : "#e74c3c";
+      if (w >= 0) ctx.fillRect(zeroX, y + 4, w, bh);
+      else ctx.fillRect(zeroX + w, y + 4, -w, bh);
+
+      ctx.fillStyle = s.contrib >= 0 ? "#2ecc71" : "#e74c3c";
+      ctx.font = "bold 10.5px -apple-system, sans-serif";
+      if (w >= 0) {
+        ctx.textAlign = "left";
+        ctx.fillText(fmtPct(s.contrib), zeroX + w + 5, y + rowH / 2);
+      } else {
+        ctx.textAlign = "right";
+        ctx.fillText(fmtPct(s.contrib), zeroX + w - 5, y + rowH / 2);
+      }
+      hitboxes.push({ y0: y, y1: y + rowH, s: s });
+    });
+
+    ctx.fillStyle = "#8a91a3";
+    ctx.font = "9.5px -apple-system, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("contribution en points de % d'indice (30 j, EUR)",
+                 zeroX, H - 8);
+
+    function showTip(ev) {
+      var r = cv.getBoundingClientRect();
+      var cy = (ev.touches ? ev.touches[0].clientY : ev.clientY) - r.top;
+      var cx = (ev.touches ? ev.touches[0].clientX : ev.clientX);
+      var hit = null;
+      for (var i = 0; i < hitboxes.length; i++)
+        if (cy >= hitboxes[i].y0 && cy < hitboxes[i].y1) { hit = hitboxes[i].s; break; }
+      if (!hit) { tip.style.display = "none"; return; }
+      tip.innerHTML = "<b>" + hit.name + "</b><br>" +
+        "Poids : " + String(hit.weight).replace(".", ",") + " %<br>" +
+        "Perf 30 j locale : " + fmtPct(hit.perf_local * 100) + " %<br>" +
+        "Perf 30 j EUR : " + fmtPct(hit.perf_eur * 100) + " %<br>" +
+        "Contribution : " + fmtPct(hit.contrib) + " pt<br>" +
+        (hit.yahoo || "") + " — " + hit.country + " — " + hit.sector;
+      tip.style.display = "block";
+      tip.style.left = Math.min(cx + 10, window.innerWidth - 250) + "px";
+      tip.style.top = (ev.touches ? ev.touches[0].clientY : ev.clientY) + 12 + "px";
+      ev.preventDefault();
+    }
+    cv.addEventListener("mousemove", showTip);
+    cv.addEventListener("touchstart", showTip, { passive: false });
+    cv.addEventListener("touchmove", showTip, { passive: false });
+    cv.addEventListener("mouseleave", function () { tip.style.display = "none"; });
+    cv.addEventListener("touchend", function () {
+      setTimeout(function () { tip.style.display = "none"; }, 1500);
+    });
+  }
+
+  fetch("contributions.json?t=" + Date.now())
+    .then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    })
+    .then(draw)
+    .catch(function (e) {
+      document.getElementById("status").textContent =
+        "Erreur de chargement : " + e.message +
+        " — contributions.json pas encore généré ? Lancer le workflow.";
+    });
+})();
+</script>
+</body>
+</html>
