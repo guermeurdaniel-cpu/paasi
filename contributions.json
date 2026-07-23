@@ -1,5 +1,5 @@
 {
- "generated": "2026-07-22T20:04:20Z",
+ "generated": "2026-07-23T07:42:56Z",
  "holdings_date": null,
  "window_days": 30,
  "source": "iShares MSCI EM Asia UCITS ETF (proxy de composition)",
@@ -13,9 +13,9 @@
    "country": "Taiwan",
    "sector": "Information Technology",
    "weight": 18.49,
-   "perf_local": -0.03984,
-   "perf_eur": -0.06132,
-   "contrib": -1.1337,
+   "perf_local": -0.03414,
+   "perf_eur": -0.05604,
+   "contrib": -1.0362,
    "status": "ok"
   },
   {
@@ -26,9 +26,9 @@
    "country": "Korea (South)",
    "sector": "Information Technology",
    "weight": 8.3,
-   "perf_local": -0.26733,
-   "perf_eur": -0.23773,
-   "contrib": -1.9732,
+   "perf_local": -0.12903,
+   "perf_eur": -0.09709,
+   "contrib": -0.8059,
    "status": "ok"
   },
   {
@@ -39,9 +39,9 @@
    "country": "Korea (South)",
    "sector": "Information Technology",
    "weight": 6.95,
-   "perf_local": -0.37102,
-   "perf_eur": -0.34561,
-   "contrib": -2.402,
+   "perf_local": -0.24892,
+   "perf_eur": -0.22138,
+   "contrib": -1.5386,
    "status": "ok"
   },
   {
@@ -52,9 +52,9 @@
    "country": "Ireland",
    "sector": "Financials",
    "weight": 4.44,
-   "perf_local": -0.07422,
-   "perf_eur": -0.07317,
-   "contrib": -0.3249,
+   "perf_local": -0.07241,
+   "perf_eur": -0.07639,
+   "contrib": -0.3392,
    "status": "ok"
   },
   {
@@ -65,9 +65,9 @@
    "country": "China",
    "sector": "Communication",
    "weight": 3.75,
-   "perf_local": 0.09469,
-   "perf_eur": 0.09576,
-   "contrib": 0.3591,
+   "perf_local": 0.06798,
+   "perf_eur": 0.0635,
+   "contrib": 0.2381,
    "status": "ok"
   },
   {
@@ -78,9 +78,9 @@
    "country": "China",
    "sector": "Consumer Discretionary",
    "weight": 2.52,
-   "perf_local": 0.13703,
-   "perf_eur": 0.13814,
-   "contrib": 0.3481,
+   "perf_local": 0.15917,
+   "perf_eur": 0.1543,
+   "contrib": 0.3888,
    "status": "ok"
   },
   {
@@ -91,9 +91,9 @@
    "country": "Taiwan",
    "sector": "Information Technology",
    "weight": 1.64,
-   "perf_local": -0.17805,
-   "perf_eur": -0.19644,
-   "contrib": -0.3222,
+   "perf_local": -0.14553,
+   "perf_eur": -0.16491,
+   "contrib": -0.2705,
    "status": "ok"
   },
   {
@@ -104,9 +104,9 @@
    "country": "Taiwan",
    "sector": "Information Technology",
    "weight": 1.12,
-   "perf_local": -0.14651,
-   "perf_eur": -0.1656,
-   "contrib": -0.1855,
+   "perf_local": -0.09615,
+   "perf_eur": -0.11665,
+   "contrib": -0.1307,
    "status": "ok"
   },
   {
@@ -117,9 +117,9 @@
    "country": "Korea (South)",
    "sector": "Information Technology",
    "weight": 0.99,
-   "perf_local": -0.19196,
-   "perf_eur": -0.15933,
-   "contrib": -0.1577,
+   "perf_local": -0.0563,
+   "perf_eur": -0.02169,
+   "contrib": -0.0215,
    "status": "ok"
   },
   {
@@ -130,9 +130,9 @@
    "country": "Taiwan",
    "sector": "Information Technology",
    "weight": 0.94,
-   "perf_local": -0.0838,
-   "perf_eur": -0.10429,
-   "contrib": -0.098,
+   "perf_local": -0.00771,
+   "perf_eur": -0.03021,
+   "contrib": -0.0284,
    "status": "ok"
   },
   {
@@ -143,9 +143,9 @@
    "country": "China",
    "sector": "Financials",
    "weight": 0.93,
-   "perf_local": -0.00582,
-   "perf_eur": -0.00484,
-   "contrib": -0.0045,
+   "perf_local": 0.00811,
+   "perf_eur": 0.00388,
+   "contrib": 0.0036,
    "status": "ok"
   },
   {
@@ -156,9 +156,9 @@
    "country": "India",
    "sector": "Financials",
    "weight": 0.9,
-   "perf_local": -0.03173,
-   "perf_eur": -0.05012,
-   "contrib": -0.0451,
+   "perf_local": -0.03976,
+   "perf_eur": -0.06186,
+   "contrib": -0.0557,
    "status": "ok"
   },
   {
@@ -169,9 +169,9 @@
    "country": "India",
    "sector": "Financials",
    "weight": 0.8,
-   "perf_local": 0.08185,
-   "perf_eur": 0.0613,
-   "contrib": 0.049,
+   "perf_local": 0.06859,
+   "perf_eur": 0.044,
+   "contrib": 0.0352,
    "status": "ok"
   },
   {
@@ -182,9 +182,9 @@
    "country": "Korea (South)",
    "sector": "Industrials",
    "weight": 0.8,
-   "perf_local": -0.36396,
-   "perf_eur": -0.33827,
-   "contrib": -0.2706,
+   "perf_local": -0.33352,
+   "perf_eur": -0.30907,
+   "contrib": -0.2473,
    "status": "ok"
   },
   {
@@ -195,9 +195,9 @@
    "country": "India",
    "sector": "Energy",
    "weight": 0.7,
-   "perf_local": -0.01719,
-   "perf_eur": -0.03586,
-   "contrib": -0.0251,
+   "perf_local": -0.0265,
+   "perf_eur": -0.0489,
+   "contrib": -0.0342,
    "status": "ok"
   },
   {
@@ -208,9 +208,9 @@
    "country": "Taiwan",
    "sector": "Information Technology",
    "weight": 0.65,
-   "perf_local": -0.06083,
-   "perf_eur": -0.08184,
-   "contrib": -0.0532,
+   "perf_local": -0.01964,
+   "perf_eur": -0.04187,
+   "contrib": -0.0272,
    "status": "ok"
   },
   {
@@ -221,9 +221,9 @@
    "country": "China",
    "sector": "Information Technology",
    "weight": 0.61,
-   "perf_local": 0.15599,
-   "perf_eur": 0.15712,
-   "contrib": 0.0958,
+   "perf_local": 0.19363,
+   "perf_eur": 0.18862,
+   "contrib": 0.1151,
    "status": "ok"
   },
   {
@@ -234,9 +234,9 @@
    "country": "China",
    "sector": "Financials",
    "weight": 0.59,
-   "perf_local": 0.02035,
-   "perf_eur": 0.02135,
-   "contrib": 0.0126,
+   "perf_local": 0.02586,
+   "perf_eur": 0.02155,
+   "contrib": 0.0127,
    "status": "ok"
   },
   {
@@ -247,9 +247,9 @@
    "country": "India",
    "sector": "Communication",
    "weight": 0.56,
-   "perf_local": 0.01659,
-   "perf_eur": -0.00272,
-   "contrib": -0.0015,
+   "perf_local": 0.01567,
+   "perf_eur": -0.0077,
+   "contrib": -0.0043,
    "status": "ok"
   },
   {
@@ -260,9 +260,9 @@
    "country": "China",
    "sector": "Consumer Discretionary",
    "weight": 0.55,
-   "perf_local": 0.18333,
-   "perf_eur": 0.1845,
-   "contrib": 0.1015,
+   "perf_local": 0.26868,
+   "perf_eur": 0.26335,
+   "contrib": 0.1448,
    "status": "ok"
   },
   {
@@ -273,9 +273,9 @@
    "country": "Korea (South)",
    "sector": "Information Technology",
    "weight": 0.51,
-   "perf_local": -0.41203,
-   "perf_eur": -0.38828,
-   "contrib": -0.198,
+   "perf_local": -0.27236,
+   "perf_eur": -0.24568,
+   "contrib": -0.1253,
    "status": "ok"
   },
   {
@@ -287,8 +287,8 @@
    "sector": "Consumer Discretionary",
    "weight": 0.49,
    "perf_local": 0.07016,
-   "perf_eur": 0.07137,
-   "contrib": 0.035,
+   "perf_eur": 0.06557,
+   "contrib": 0.0321,
    "status": "ok"
   },
   {
@@ -299,9 +299,9 @@
    "country": "Taiwan",
    "sector": "Information Technology",
    "weight": 0.47,
-   "perf_local": -0.15938,
-   "perf_eur": -0.17818,
-   "contrib": -0.0837,
+   "perf_local": -0.18529,
+   "perf_eur": -0.20377,
+   "contrib": -0.0958,
    "status": "ok"
   },
   {
@@ -312,9 +312,9 @@
    "country": "China",
    "sector": "Communication",
    "weight": 0.47,
-   "perf_local": 0.09569,
-   "perf_eur": 0.09677,
-   "contrib": 0.0455,
+   "perf_local": 0.02636,
+   "perf_eur": 0.02205,
+   "contrib": 0.0104,
    "status": "ok"
   },
   {
@@ -325,9 +325,9 @@
    "country": "China",
    "sector": "Financials",
    "weight": 0.47,
-   "perf_local": 0.02366,
-   "perf_eur": 0.02466,
-   "contrib": 0.0116,
+   "perf_local": 0.06157,
+   "perf_eur": 0.05711,
+   "contrib": 0.0268,
    "status": "ok"
   },
   {
@@ -338,9 +338,9 @@
    "country": "China",
    "sector": "Financials",
    "weight": 0.45,
-   "perf_local": -0.01518,
-   "perf_eur": -0.01421,
-   "contrib": -0.0064,
+   "perf_local": -0.00936,
+   "perf_eur": -0.01352,
+   "contrib": -0.0061,
    "status": "ok"
   },
   {
@@ -351,9 +351,9 @@
    "country": "Taiwan",
    "sector": "Information Technology",
    "weight": 0.44,
-   "perf_local": -0.17082,
-   "perf_eur": -0.18936,
-   "contrib": -0.0833,
+   "perf_local": -0.10614,
+   "perf_eur": -0.12641,
+   "contrib": -0.0556,
    "status": "ok"
   },
   {
@@ -364,9 +364,9 @@
    "country": "China",
    "sector": "Consumer Discretionary",
    "weight": 0.43,
-   "perf_local": 0.14614,
-   "perf_eur": 0.14727,
-   "contrib": 0.0633,
+   "perf_local": 0.16941,
+   "perf_eur": 0.1645,
+   "contrib": 0.0707,
    "status": "ok"
   },
   {
@@ -377,9 +377,9 @@
    "country": "Korea (South)",
    "sector": "Financials",
    "weight": 0.42,
-   "perf_local": 0.10828,
-   "perf_eur": 0.15305,
-   "contrib": 0.0643,
+   "perf_local": 0.14704,
+   "perf_eur": 0.1891,
+   "contrib": 0.0794,
    "status": "ok"
   },
   {
@@ -390,9 +390,9 @@
    "country": "Korea (South)",
    "sector": "Consumer Discretionary",
    "weight": 0.36,
-   "perf_local": -0.31325,
-   "perf_eur": -0.28551,
-   "contrib": -0.1028,
+   "perf_local": -0.1546,
+   "perf_eur": -0.1236,
+   "contrib": -0.0445,
    "status": "ok"
   },
   {
@@ -403,9 +403,9 @@
    "country": "China",
    "sector": "Consumer Discretionary",
    "weight": 0.36,
-   "perf_local": 0.12651,
-   "perf_eur": 0.12762,
-   "contrib": 0.0459,
+   "perf_local": 0.16245,
+   "perf_eur": 0.15757,
+   "contrib": 0.0567,
    "status": "ok"
   },
   {
@@ -416,9 +416,9 @@
    "country": "Taiwan",
    "sector": "Information Technology",
    "weight": 0.35,
-   "perf_local": -0.14451,
-   "perf_eur": -0.16364,
-   "contrib": -0.0573,
+   "perf_local": -0.04517,
+   "perf_eur": -0.06683,
+   "contrib": -0.0234,
    "status": "ok"
   },
   {
@@ -429,9 +429,9 @@
    "country": "India",
    "sector": "Information Technology",
    "weight": 0.35,
-   "perf_local": 0.0076,
-   "perf_eur": -0.01154,
-   "contrib": -0.004,
+   "perf_local": 0.01418,
+   "perf_eur": -0.00916,
+   "contrib": -0.0032,
    "status": "ok"
   },
   {
@@ -442,9 +442,9 @@
    "country": "Taiwan",
    "sector": "Information Technology",
    "weight": 0.34,
-   "perf_local": -0.1791,
-   "perf_eur": -0.19747,
-   "contrib": -0.0671,
+   "perf_local": -0.08008,
+   "perf_eur": -0.10094,
+   "contrib": -0.0343,
    "status": "ok"
   },
   {
@@ -455,9 +455,9 @@
    "country": "Taiwan",
    "sector": "Financials",
    "weight": 0.33,
-   "perf_local": -0.11064,
-   "perf_eur": -0.13053,
-   "contrib": -0.0431,
+   "perf_local": -0.12293,
+   "perf_eur": -0.14282,
+   "contrib": -0.0471,
    "status": "ok"
   },
   {
@@ -468,9 +468,9 @@
    "country": "Taiwan",
    "sector": "Information Technology",
    "weight": 0.32,
-   "perf_local": -0.37089,
-   "perf_eur": -0.38496,
-   "contrib": -0.1232,
+   "perf_local": -0.31765,
+   "perf_eur": -0.33312,
+   "contrib": -0.1066,
    "status": "ok"
   },
   {
@@ -481,9 +481,9 @@
    "country": "Taiwan",
    "sector": "Financials",
    "weight": 0.32,
-   "perf_local": -0.1083,
-   "perf_eur": -0.12825,
-   "contrib": -0.041,
+   "perf_local": -0.06545,
+   "perf_eur": -0.08665,
+   "contrib": -0.0277,
    "status": "ok"
   },
   {
@@ -494,9 +494,9 @@
    "country": "Korea (South)",
    "sector": "Financials",
    "weight": 0.3,
-   "perf_local": 0.07385,
-   "perf_eur": 0.11722,
-   "contrib": 0.0352,
+   "perf_local": 0.06244,
+   "perf_eur": 0.1014,
+   "contrib": 0.0304,
    "status": "ok"
   },
   {
@@ -507,9 +507,9 @@
    "country": "India",
    "sector": "Consumer Discretionary",
    "weight": 0.29,
-   "perf_local": 0.04515,
-   "perf_eur": 0.02529,
-   "contrib": 0.0073,
+   "perf_local": 0.06213,
+   "perf_eur": 0.03768,
+   "contrib": 0.0109,
    "status": "ok"
   },
   {
@@ -520,9 +520,9 @@
    "country": "China",
    "sector": "Communication",
    "weight": 0.29,
-   "perf_local": -0.0138,
-   "perf_eur": -0.01283,
-   "contrib": -0.0037,
+   "perf_local": 0.01337,
+   "perf_eur": 0.00912,
+   "contrib": 0.0026,
    "status": "ok"
   },
   {
@@ -533,9 +533,9 @@
    "country": "Taiwan",
    "sector": "Materials",
    "weight": 0.29,
-   "perf_local": 0.28197,
-   "perf_eur": 0.25329,
-   "contrib": 0.0735,
+   "perf_local": 0.27508,
+   "perf_eur": 0.24616,
+   "contrib": 0.0714,
    "status": "ok"
   },
   {
@@ -546,9 +546,9 @@
    "country": "India",
    "sector": "Financials",
    "weight": 0.28,
-   "perf_local": -0.0739,
-   "perf_eur": -0.09149,
-   "contrib": -0.0256,
+   "perf_local": -0.10297,
+   "perf_eur": -0.12361,
+   "contrib": -0.0346,
    "status": "ok"
   },
   {
@@ -572,9 +572,9 @@
    "country": "Taiwan",
    "sector": "Financials",
    "weight": 0.28,
-   "perf_local": -0.15221,
-   "perf_eur": -0.17117,
-   "contrib": -0.0479,
+   "perf_local": -0.14273,
+   "perf_eur": -0.16217,
+   "contrib": -0.0454,
    "status": "ok"
   },
   {
@@ -585,9 +585,9 @@
    "country": "India",
    "sector": "Financials",
    "weight": 0.28,
-   "perf_local": 0.1042,
-   "perf_eur": 0.08323,
-   "contrib": 0.0233,
+   "perf_local": 0.08832,
+   "perf_eur": 0.06327,
+   "contrib": 0.0177,
    "status": "ok"
   },
   {
@@ -598,9 +598,9 @@
    "country": "Taiwan",
    "sector": "Information Technology",
    "weight": 0.27,
-   "perf_local": -0.14737,
-   "perf_eur": -0.16644,
-   "contrib": -0.0449,
+   "perf_local": -0.09799,
+   "perf_eur": -0.11844,
+   "contrib": -0.032,
    "status": "ok"
   },
   {
@@ -611,9 +611,9 @@
    "country": "China",
    "sector": "Energy",
    "weight": 0.27,
-   "perf_local": 0.07205,
-   "perf_eur": 0.07311,
-   "contrib": 0.0197,
+   "perf_local": 0.12864,
+   "perf_eur": 0.1239,
+   "contrib": 0.0335,
    "status": "ok"
   },
   {
@@ -624,9 +624,9 @@
    "country": "China",
    "sector": "Financials",
    "weight": 0.26,
-   "perf_local": -0.09253,
-   "perf_eur": -0.09164,
-   "contrib": -0.0238,
+   "perf_local": -0.02867,
+   "perf_eur": -0.03275,
+   "contrib": -0.0085,
    "status": "ok"
   },
   {
@@ -637,9 +637,9 @@
    "country": "China",
    "sector": "Consumer Discretionary",
    "weight": 0.26,
-   "perf_local": -0.01473,
-   "perf_eur": -0.01376,
-   "contrib": -0.0036,
+   "perf_local": -0.00632,
+   "perf_eur": -0.01049,
+   "contrib": -0.0027,
    "status": "ok"
   },
   {
@@ -650,9 +650,9 @@
    "country": "Korea (South)",
    "sector": "Financials",
    "weight": 0.25,
-   "perf_local": 0.10777,
-   "perf_eur": 0.15251,
-   "contrib": 0.0381,
+   "perf_local": 0.12987,
+   "perf_eur": 0.1713,
+   "contrib": 0.0428,
    "status": "ok"
   },
   {
@@ -663,9 +663,9 @@
    "country": "China",
    "sector": "Materials",
    "weight": 0.24,
-   "perf_local": -0.00316,
-   "perf_eur": -0.00218,
-   "contrib": -0.0005,
+   "perf_local": 0.13396,
+   "perf_eur": 0.1292,
+   "contrib": 0.031,
    "status": "ok"
   },
   {
@@ -676,9 +676,9 @@
    "country": "Taiwan",
    "sector": "Information Technology",
    "weight": 0.24,
-   "perf_local": -0.04132,
-   "perf_eur": -0.06276,
-   "contrib": -0.0151,
+   "perf_local": 0.00619,
+   "perf_eur": -0.01663,
+   "contrib": -0.004,
    "status": "ok"
   },
   {
@@ -689,9 +689,9 @@
    "country": "China",
    "sector": "Financials",
    "weight": 0.23,
-   "perf_local": 0.02742,
-   "perf_eur": 0.02843,
-   "contrib": 0.0065,
+   "perf_local": 0.03854,
+   "perf_eur": 0.03418,
+   "contrib": 0.0079,
    "status": "ok"
   },
   {
@@ -702,9 +702,9 @@
    "country": "Korea (South)",
    "sector": "Consumer Discretionary",
    "weight": 0.23,
-   "perf_local": -0.04491,
-   "perf_eur": -0.00634,
-   "contrib": -0.0015,
+   "perf_local": 0.09025,
+   "perf_eur": 0.13023,
+   "contrib": 0.03,
    "status": "ok"
   },
   {
@@ -715,9 +715,9 @@
    "country": "Taiwan",
    "sector": "Information Technology",
    "weight": 0.23,
-   "perf_local": -0.12771,
-   "perf_eur": -0.14722,
-   "contrib": -0.0339,
+   "perf_local": -0.04857,
+   "perf_eur": -0.07014,
+   "contrib": -0.0161,
    "status": "ok"
   },
   {
@@ -728,9 +728,9 @@
    "country": "India",
    "sector": "Financials",
    "weight": 0.23,
-   "perf_local": -0.04028,
-   "perf_eur": -0.05851,
-   "contrib": -0.0135,
+   "perf_local": -0.04618,
+   "perf_eur": -0.06814,
+   "contrib": -0.0157,
    "status": "ok"
   },
   {
@@ -741,9 +741,9 @@
    "country": "Taiwan",
    "sector": "Financials",
    "weight": 0.23,
-   "perf_local": 0.09351,
-   "perf_eur": 0.06905,
-   "contrib": 0.0159,
+   "perf_local": 0.08383,
+   "perf_eur": 0.05925,
+   "contrib": 0.0136,
    "status": "ok"
   },
   {
@@ -754,9 +754,9 @@
    "country": "China",
    "sector": "Information Technology",
    "weight": 0.22,
-   "perf_local": -0.00258,
-   "perf_eur": -0.00159,
-   "contrib": -0.0004,
+   "perf_local": 0.10233,
+   "perf_eur": 0.09771,
+   "contrib": 0.0215,
    "status": "ok"
   },
   {
@@ -767,9 +767,9 @@
    "country": "Taiwan",
    "sector": "Financials",
    "weight": 0.21,
-   "perf_local": -0.10901,
-   "perf_eur": -0.12894,
-   "contrib": -0.0271,
+   "perf_local": -0.07321,
+   "perf_eur": -0.09423,
+   "contrib": -0.0198,
    "status": "ok"
   },
   {
@@ -780,9 +780,9 @@
    "country": "Korea (South)",
    "sector": "Industrials",
    "weight": 0.21,
-   "perf_local": -0.29087,
-   "perf_eur": -0.26223,
-   "contrib": -0.0551,
+   "perf_local": -0.17937,
+   "perf_eur": -0.14928,
+   "contrib": -0.0313,
    "status": "ok"
   }
  ]
