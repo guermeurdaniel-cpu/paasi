@@ -25,6 +25,14 @@
   .kpi .v.pos { color: var(--pos); } .kpi .v.neg { color: var(--neg); }
   .panel { background: var(--panel); border-radius: 12px; padding: 12px 8px; }
   canvas { display: block; width: 100%; }
+  .seg { display: inline-flex; background: var(--panel); border: 1px solid var(--line);
+         border-radius: 9px; overflow: hidden; margin-bottom: 10px; }
+  .seg button { background: transparent; border: 0; color: var(--dim); font-size: 11.5px;
+                font-weight: 600; padding: 7px 14px; }
+  .seg button.on { background: #222838; color: var(--txt); }
+  .upd { font-size: 10px; color: var(--dim); text-align: right; margin: -4px 0 8px; }
+  .upd button { background: none; border: 0; color: var(--dim); font-size: 12px;
+                padding: 0 0 0 6px; }
   .foot { font-size: 10px; color: var(--dim); margin-top: 10px; line-height: 1.6; }
   #status { font-size: 11px; color: var(--dim); padding: 20px; text-align: center; }
   .tip { position: fixed; display: none; background: #000c; color: #fff;
@@ -35,6 +43,11 @@
 <body>
 <h1>PAASI — Moteurs de l'indice sur 30 jours</h1>
 <div class="sub" id="subtitle">Chargement…</div>
+<div class="seg" id="modeSeg">
+  <button data-m="30j" class="on">30 jours</button>
+  <button data-m="jour">Journée</button>
+</div>
+<div class="upd" id="upd" style="display:none"></div>
 <div class="kpis" id="kpis" style="display:none">
   <div class="kpi"><div class="v" id="kSum">–</div><div class="l">Somme contributions (pts %)</div></div>
   <div class="kpi"><div class="v" id="kCov">–</div><div class="l">Poids couvert</div></div>
@@ -42,7 +55,7 @@
 </div>
 <div class="panel"><canvas id="chart"></canvas></div>
 <div id="status">Chargement de contributions.json…</div>
-<div class="foot">
+<div class="foot" id="foot">
   Contribution = poids d'indice &times; performance 30 j en EUR (change inclus).
   Composition proxy : iShares MSCI EM Asia (physique) — l'indice de PAASI
   (Screened Select ex Thermal Coal) applique des filtres supplémentaires
@@ -63,27 +76,13 @@
     return s.replace(".", ",");
   }
 
-  function draw(data) {
-    var ok = data.stocks.filter(function (s) { return s.status === "ok"; });
-    ok.sort(function (a, b) { return Math.abs(b.contrib) - Math.abs(a.contrib); });
-    var top = ok.slice(0, TOP);
-    top.sort(function (a, b) { return b.contrib - a.contrib; });
-
-    var sum = ok.reduce(function (a, s) { return a + s.contrib; }, 0);
-    document.getElementById("subtitle").textContent =
-      "Composition du " + (data.holdings_date || "?") +
-      " — calcul du " + (data.generated || "").slice(0, 10) +
-      " — top " + TOP + " par |contribution|";
-    var kS = document.getElementById("kSum");
-    kS.textContent = fmtPct(sum);
-    kS.className = "v " + (sum >= 0 ? "pos" : "neg");
-    document.getElementById("kCov").textContent =
-      String(data.covered_weight).replace(".", ",") + " %";
-    document.getElementById("kN").textContent =
-      ok.length + "/" + data.stocks.length;
+  // items : [{name, contrib, tip:"html du tooltip"}], deja tries/tronques par l'appelant
+  function renderBars(items, footerHtml, axisCaption) {
     document.getElementById("kpis").style.display = "flex";
     document.getElementById("status").style.display = "none";
+    document.getElementById("foot").innerHTML = footerHtml;
 
+    var top = items;
     var cv = document.getElementById("chart");
     var dpr = window.devicePixelRatio || 1;
     var W = cv.parentNode.clientWidth - 16;
@@ -141,8 +140,7 @@
     ctx.fillStyle = "#8a91a3";
     ctx.font = "9.5px -apple-system, sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("contribution en points de % d'indice (30 j, EUR)",
-                 zeroX, H - 8);
+    ctx.fillText(axisCaption, zeroX, H - 8);
 
     function showTip(ev) {
       var r = cv.getBoundingClientRect();
@@ -152,12 +150,7 @@
       for (var i = 0; i < hitboxes.length; i++)
         if (cy >= hitboxes[i].y0 && cy < hitboxes[i].y1) { hit = hitboxes[i].s; break; }
       if (!hit) { tip.style.display = "none"; return; }
-      tip.innerHTML = "<b>" + hit.name + "</b><br>" +
-        "Poids : " + String(hit.weight).replace(".", ",") + " %<br>" +
-        "Perf 30 j locale : " + fmtPct(hit.perf_local * 100) + " %<br>" +
-        "Perf 30 j EUR : " + fmtPct(hit.perf_eur * 100) + " %<br>" +
-        "Contribution : " + fmtPct(hit.contrib) + " pt<br>" +
-        (hit.yahoo || "") + " — " + hit.country + " — " + hit.sector;
+      tip.innerHTML = hit.tip;
       tip.style.display = "block";
       tip.style.left = Math.min(cx + 10, window.innerWidth - 250) + "px";
       tip.style.top = (ev.touches ? ev.touches[0].clientY : ev.clientY) + 12 + "px";
@@ -172,12 +165,232 @@
     });
   }
 
+  // ===== 30 jours (donnees precalculees par le scraper, inchange) =========
+  function build30j(data) {
+    var ok = data.stocks.filter(function (s) { return s.status === "ok"; });
+    ok.sort(function (a, b) { return Math.abs(b.contrib) - Math.abs(a.contrib); });
+    var top = ok.slice(0, TOP);
+    top.sort(function (a, b) { return b.contrib - a.contrib; });
+    top.forEach(function (s) {
+      s.tip = "<b>" + s.name + "</b><br>" +
+        "Poids : " + String(s.weight).replace(".", ",") + " %<br>" +
+        "Perf 30 j locale : " + fmtPct(s.perf_local * 100) + " %<br>" +
+        "Perf 30 j EUR : " + fmtPct(s.perf_eur * 100) + " %<br>" +
+        "Contribution : " + fmtPct(s.contrib) + " pt<br>" +
+        (s.yahoo || "") + " — " + s.country + " — " + s.sector;
+    });
+
+    var sum = ok.reduce(function (a, s) { return a + s.contrib; }, 0);
+    document.getElementById("subtitle").textContent =
+      "Composition du " + (data.holdings_date || "?") +
+      " — calcul du " + (data.generated || "").slice(0, 10) +
+      " — top " + TOP + " par |contribution|";
+    var kS = document.getElementById("kSum");
+    kS.textContent = fmtPct(sum);
+    kS.className = "v " + (sum >= 0 ? "pos" : "neg");
+    document.getElementById("kCov").textContent =
+      String(data.covered_weight).replace(".", ",") + " %";
+    document.getElementById("kN").textContent = ok.length + "/" + data.stocks.length;
+    document.getElementById("upd").style.display = "none";
+
+    renderBars(top,
+      "Contribution = poids d'indice &times; performance 30 j en EUR (change inclus). " +
+      "Composition proxy : iShares MSCI EM Asia (physique) — l'indice de PAASI " +
+      "(Screened Select ex Thermal Coal) applique des filtres suppl&eacute;mentaires " +
+      "marginaux sur les grandes capitalisations. PAASI &eacute;tant &agrave; " +
+      "r&eacute;plication synth&eacute;tique, Amundi ne publie pas les constituants.",
+      "contribution en points de % d'indice (30 j, EUR)");
+  }
+
+  // ===== Journee — variation en direct vs cloture de la veille ==============
+  // Relais perso Cloudflare Worker (meme role que sur mes-actions / telemesure-zone-euro).
+  // Le suffixe /?url= fait partie de la valeur (convention mes-actions).
+  var MON_PROXY = "https://flat-bread-4d06.guermeur-daniel.workers.dev/?url=";
+  var YH_PROXIES = [
+    { u: "https://api.codetabs.com/v1/proxy/?quest=", enc: true },
+    { u: "https://api.allorigins.win/raw?url=",       enc: true }
+  ];
+  var GOOD_PROXY = -1; // index du dernier proxy qui a fonctionne (essaye en premier ensuite)
+
+  function fetchChart(yahooUrl) {
+    var proxies = [];
+    if (MON_PROXY) proxies.push({ u: MON_PROXY, enc: true });
+    YH_PROXIES.forEach(function (p) { proxies.push(p); });
+    var order = [];
+    if (GOOD_PROXY >= 0 && GOOD_PROXY < proxies.length) order.push(GOOD_PROXY);
+    for (var k = 0; k < proxies.length; k++) if (k !== GOOD_PROXY) order.push(k);
+
+    var i = 0;
+    function tryNext() {
+      if (i >= order.length) return Promise.reject(new Error("proxies indisponibles"));
+      var idx = order[i++], p = proxies[idx];
+      var target = p.u + (p.enc ? encodeURIComponent(yahooUrl) : yahooUrl);
+      var ctl = null; try { ctl = new AbortController(); } catch (e) {}
+      var timer = ctl ? setTimeout(function () { ctl.abort(); }, 3000) : 0;
+      return fetch(target, Object.assign({ cache: "no-store" }, ctl ? { signal: ctl.signal } : {}))
+        .then(function (r) {
+          clearTimeout(timer);
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          return r.json();
+        })
+        .then(function (j) {
+          var res = j && j.chart && j.chart.result && j.chart.result[0];
+          if (!res) throw new Error("payload vide");
+          var m = res.meta || {};
+          var closes = ((res.indicators || {}).quote || [{}])[0].close || [];
+          var last = null;
+          for (var n = closes.length - 1; n >= 0; n--) { if (closes[n] != null) { last = closes[n]; break; } }
+          var price = (m.regularMarketPrice != null) ? m.regularMarketPrice : last;
+          var prev = (m.previousClose != null) ? m.previousClose
+                    : (m.chartPreviousClose != null) ? m.chartPreviousClose : null;
+          if (prev == null) {
+            // repli : avant-derniere cloture de la serie journaliere
+            var vals = closes.filter(function (v) { return v != null; });
+            prev = vals.length > 1 ? vals[vals.length - 2] : null;
+          }
+          if (price == null || prev == null) throw new Error("donnees incompletes");
+          GOOD_PROXY = idx;
+          return { price: price, prev: prev };
+        })
+        .catch(function () { clearTimeout(timer); return tryNext(); });
+    }
+    return tryNext();
+  }
+
+  function yahooChartUrl(symbol) {
+    return "https://query1.finance.yahoo.com/v8/finance/chart/" + symbol + "?range=5d&interval=1d";
+  }
+
+  var JOUR_CACHE = null; // resultat du dernier calcul Journee, pour eviter de tout re-fetcher
+
+  function buildJour(force) {
+    if (JOUR_CACHE && !force) { renderJour(JOUR_CACHE); return; }
+    document.getElementById("kpis").style.display = "none";
+    document.getElementById("upd").style.display = "none";
+    document.getElementById("status").style.display = "block";
+    document.getElementById("status").textContent = "Chargement de contributions.json…";
+
+    fetch("contributions.json?t=" + Date.now())
+      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(function (data) {
+        var ok = data.stocks.filter(function (s) { return s.status === "ok"; });
+        var currencies = Array.from(new Set(ok.map(function (s) { return s.currency; })))
+          .filter(function (c) { return c && c !== "EUR"; });
+
+        document.getElementById("status").textContent =
+          "Cours en direct : 0/" + (ok.length + currencies.length) + "…";
+        var done = 0, total = ok.length + currencies.length;
+        function tick() {
+          done++;
+          document.getElementById("status").textContent =
+            "Cours en direct : " + done + "/" + total + "…";
+        }
+
+        var fx = {}; // devise -> {price, prev} = unites de devise pour 1 EUR
+        var fxPromises = currencies.map(function (cur) {
+          return fetchChart(yahooChartUrl("EUR" + cur + "=X"))
+            .then(function (q) { fx[cur] = q; tick(); })
+            .catch(function () { tick(); });
+        });
+
+        var stocks = [];
+        var stockPromises = ok.map(function (s) {
+          return fetchChart(yahooChartUrl(s.yahoo))
+            .then(function (q) { stocks.push({ s: s, q: q }); tick(); })
+            .catch(function () { tick(); });
+        });
+
+        return Promise.all(fxPromises.concat(stockPromises)).then(function () {
+          return { data: data, ok: ok, fx: fx, stocks: stocks };
+        });
+      })
+      .then(function (res) {
+        var items = [];
+        res.stocks.forEach(function (o) {
+          var s = o.s, q = o.q;
+          var perfLocal = q.price / q.prev - 1;
+          var perfEur = perfLocal; // devise EUR ou repli si FX indisponible
+          if (s.currency && s.currency !== "EUR") {
+            var r = res.fx[s.currency];
+            if (r && r.price && r.prev) {
+              perfEur = (q.price * r.prev) / (q.prev * r.price) - 1;
+            }
+          }
+          var contrib = s.weight * perfEur;
+          items.push({
+            name: s.name, contrib: contrib, weight: s.weight,
+            tip: "<b>" + s.name + "</b><br>" +
+              "Poids : " + String(s.weight).replace(".", ",") + " %<br>" +
+              "Variation locale (jour) : " + fmtPct(perfLocal * 100) + " %<br>" +
+              "Variation EUR (jour) : " + fmtPct(perfEur * 100) + " %<br>" +
+              "Contribution : " + fmtPct(contrib) + " pt<br>" +
+              (s.yahoo || "") + " — " + s.country + " — " + s.sector
+          });
+        });
+
+        if (!items.length) throw new Error("aucun cours recupere");
+
+        items.sort(function (a, b) { return Math.abs(b.contrib) - Math.abs(a.contrib); });
+        var top = items.slice(0, TOP);
+        top.sort(function (a, b) { return b.contrib - a.contrib; });
+
+        var sumAll = items.reduce(function (a, it) { return a + it.contrib; }, 0);
+        var covWeight = items.reduce(function (a, it) { return a + it.weight; }, 0);
+
+        var cache = {
+          top: top, sumAll: sumAll, covWeight: covWeight,
+          n: items.length, nTotal: res.ok.length, ts: new Date()
+        };
+        JOUR_CACHE = cache;
+        renderJour(cache);
+      })
+      .catch(function (e) {
+        document.getElementById("status").textContent =
+          "Erreur cours en direct : " + e.message;
+      });
+  }
+
+  function renderJour(cache) {
+    document.getElementById("subtitle").textContent =
+      "Variation en direct vs clôture de la veille — top " + TOP + " par |contribution|";
+    var kS = document.getElementById("kSum");
+    kS.textContent = fmtPct(cache.sumAll);
+    kS.className = "v " + (cache.sumAll >= 0 ? "pos" : "neg");
+    document.getElementById("kCov").textContent =
+      cache.covWeight.toFixed(1).replace(".", ",") + " %";
+    document.getElementById("kN").textContent = cache.n + "/" + cache.nTotal;
+
+    var updEl = document.getElementById("upd");
+    updEl.style.display = "block";
+    var hh = cache.ts.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+    updEl.innerHTML = "maj " + hh + '<button id="jourRefresh">&#8635;</button>';
+    document.getElementById("jourRefresh").addEventListener("click", function () { buildJour(true); });
+
+    renderBars(cache.top,
+      "Variation estimée de l'indice depuis la clôture de la veille, en EUR (change inclus), " +
+      "recalculée en direct à partir des cours actuels des " + cache.nTotal +
+      " principales lignes. Les marchés asiatiques ferment souvent avant l'après-midi en France : " +
+      "hors séance, la variation reflète la dernière clôture disponible.",
+      "contribution en points de % d'indice (jour, EUR)");
+  }
+
+  document.getElementById("modeSeg").addEventListener("click", function (e) {
+    var btn = e.target.closest("button"); if (!btn) return;
+    var mode = btn.getAttribute("data-m");
+    var bs = this.querySelectorAll("button");
+    for (var i = 0; i < bs.length; i++) bs[i].classList.toggle("on", bs[i] === btn);
+    document.getElementById("status").style.display = "none";
+    if (mode === "30j") { if (COMPDATA) build30j(COMPDATA); }
+    else { buildJour(false); }
+  });
+
+  var COMPDATA = null;
   fetch("contributions.json?t=" + Date.now())
     .then(function (r) {
       if (!r.ok) throw new Error("HTTP " + r.status);
       return r.json();
     })
-    .then(draw)
+    .then(function (data) { COMPDATA = data; build30j(data); })
     .catch(function (e) {
       document.getElementById("status").textContent =
         "Erreur de chargement : " + e.message +
