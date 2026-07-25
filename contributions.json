@@ -1,5 +1,5 @@
 {
- "generated": "2026-07-24T20:07:33Z",
+ "generated": "2026-07-25T08:13:33Z",
  "holdings_date": null,
  "window_days": 30,
  "source": "iShares MSCI EM Asia UCITS ETF (proxy de composition)",
@@ -13,9 +13,9 @@
    "country": "Taiwan",
    "sector": "Information Technology",
    "weight": 18.27,
-   "perf_local": -0.03414,
-   "perf_eur": -0.05221,
-   "contrib": -0.9539,
+   "perf_local": -0.01674,
+   "perf_eur": -0.03453,
+   "contrib": -0.6309,
    "status": "ok"
   },
   {
@@ -26,9 +26,9 @@
    "country": "Korea (South)",
    "sector": "Information Technology",
    "weight": 8.57,
-   "perf_local": -0.12903,
-   "perf_eur": -0.08305,
-   "contrib": -0.7117,
+   "perf_local": -0.26725,
+   "perf_eur": -0.22796,
+   "contrib": -1.9536,
    "status": "ok"
   },
   {
@@ -39,9 +39,9 @@
    "country": "Korea (South)",
    "sector": "Information Technology",
    "weight": 7.2,
-   "perf_local": -0.24892,
-   "perf_eur": -0.20927,
-   "contrib": -1.5067,
+   "perf_local": -0.32888,
+   "perf_eur": -0.2929,
+   "contrib": -2.1089,
    "status": "ok"
   },
   {
@@ -52,9 +52,9 @@
    "country": "Ireland",
    "sector": "Financials",
    "weight": 4.35,
-   "perf_local": -0.06288,
-   "perf_eur": -0.06451,
-   "contrib": -0.2806,
+   "perf_local": -0.06342,
+   "perf_eur": -0.06515,
+   "contrib": -0.2834,
    "status": "ok"
   },
   {
@@ -65,9 +65,9 @@
    "country": "China",
    "sector": "Communication",
    "weight": 3.48,
-   "perf_local": 0.07329,
-   "perf_eur": 0.07112,
-   "contrib": 0.2475,
+   "perf_local": 0.01353,
+   "perf_eur": 0.01298,
+   "contrib": 0.0452,
    "status": "ok"
   },
   {
@@ -78,9 +78,9 @@
    "country": "China",
    "sector": "Consumer Discretionary",
    "weight": 2.44,
-   "perf_local": 0.16119,
-   "perf_eur": 0.15885,
-   "contrib": 0.3876,
+   "perf_local": 0.10664,
+   "perf_eur": 0.10604,
+   "contrib": 0.2587,
    "status": "ok"
   },
   {
@@ -91,9 +91,9 @@
    "country": "Taiwan",
    "sector": "Information Technology",
    "weight": 1.72,
-   "perf_local": -0.14553,
-   "perf_eur": -0.16153,
-   "contrib": -0.2778,
+   "perf_local": -0.12485,
+   "perf_eur": -0.14069,
+   "contrib": -0.242,
    "status": "ok"
   },
   {
@@ -104,9 +104,9 @@
    "country": "Taiwan",
    "sector": "Information Technology",
    "weight": 1.13,
-   "perf_local": -0.09615,
-   "perf_eur": -0.11307,
-   "contrib": -0.1278,
+   "perf_local": -0.1075,
+   "perf_eur": -0.12365,
+   "contrib": -0.1397,
    "status": "ok"
   },
   {
@@ -117,9 +117,9 @@
    "country": "Korea (South)",
    "sector": "Information Technology",
    "weight": 1.04,
-   "perf_local": -0.0563,
-   "perf_eur": -0.00647,
-   "contrib": -0.0067,
+   "perf_local": -0.17049,
+   "perf_eur": -0.12601,
+   "contrib": -0.1311,
    "status": "ok"
   },
   {
@@ -130,9 +130,9 @@
    "country": "Taiwan",
    "sector": "Information Technology",
    "weight": 0.97,
-   "perf_local": -0.00771,
-   "perf_eur": -0.02628,
-   "contrib": -0.0255,
+   "perf_local": -0.01367,
+   "perf_eur": -0.03152,
+   "contrib": -0.0306,
    "status": "ok"
   },
   {
@@ -143,9 +143,9 @@
    "country": "China",
    "sector": "Financials",
    "weight": 0.94,
-   "perf_local": 0.01275,
-   "perf_eur": 0.0107,
-   "contrib": 0.0101,
+   "perf_local": 0.03416,
+   "perf_eur": 0.0336,
+   "contrib": 0.0316,
    "status": "ok"
   },
   {
@@ -156,9 +156,9 @@
    "country": "India",
    "sector": "Financials",
    "weight": 0.87,
-   "perf_local": -0.03537,
-   "perf_eur": -0.05657,
-   "contrib": -0.0492,
+   "perf_local": -0.06354,
+   "perf_eur": -0.08554,
+   "contrib": -0.0744,
    "status": "ok"
   },
   {
@@ -170,8 +170,8 @@
    "sector": "Financials",
    "weight": 0.77,
    "perf_local": 0.07196,
-   "perf_eur": 0.0484,
-   "contrib": 0.0373,
+   "perf_eur": 0.04677,
+   "contrib": 0.036,
    "status": "ok"
   },
   {
@@ -182,9 +182,9 @@
    "country": "Korea (South)",
    "sector": "Industrials",
    "weight": 0.77,
-   "perf_local": -0.33352,
-   "perf_eur": -0.29833,
-   "contrib": -0.2297,
+   "perf_local": -0.38355,
+   "perf_eur": -0.35049,
+   "contrib": -0.2699,
    "status": "ok"
   },
   {
@@ -195,9 +195,9 @@
    "country": "India",
    "sector": "Energy",
    "weight": 0.68,
-   "perf_local": -0.02848,
-   "perf_eur": -0.04983,
-   "contrib": -0.0339,
+   "perf_local": -0.0271,
+   "perf_eur": -0.04996,
+   "contrib": -0.034,
    "status": "ok"
   },
   {
@@ -208,9 +208,9 @@
    "country": "Taiwan",
    "sector": "Information Technology",
    "weight": 0.66,
-   "perf_local": -0.01964,
-   "perf_eur": -0.03798,
-   "contrib": -0.0251,
+   "perf_local": -0.06126,
+   "perf_eur": -0.07825,
+   "contrib": -0.0516,
    "status": "ok"
   },
   {
@@ -221,9 +221,9 @@
    "country": "China",
    "sector": "Financials",
    "weight": 0.59,
-   "perf_local": 0.03017,
-   "perf_eur": 0.02809,
-   "contrib": 0.0166,
+   "perf_local": 0.06204,
+   "perf_eur": 0.06146,
+   "contrib": 0.0363,
    "status": "ok"
   },
   {
@@ -234,9 +234,9 @@
    "country": "China",
    "sector": "Information Technology",
    "weight": 0.59,
-   "perf_local": 0.19982,
-   "perf_eur": 0.1974,
-   "contrib": 0.1165,
+   "perf_local": 0.16376,
+   "perf_eur": 0.16313,
+   "contrib": 0.0962,
    "status": "ok"
   },
   {
@@ -247,9 +247,9 @@
    "country": "China",
    "sector": "Consumer Discretionary",
    "weight": 0.56,
-   "perf_local": 0.25431,
-   "perf_eur": 0.25178,
-   "contrib": 0.141,
+   "perf_local": 0.2797,
+   "perf_eur": 0.27901,
+   "contrib": 0.1562,
    "status": "ok"
   },
   {
@@ -260,9 +260,9 @@
    "country": "Korea (South)",
    "sector": "Information Technology",
    "weight": 0.56,
-   "perf_local": -0.27236,
-   "perf_eur": -0.23395,
-   "contrib": -0.131,
+   "perf_local": -0.32485,
+   "perf_eur": -0.28864,
+   "contrib": -0.1616,
    "status": "ok"
   },
   {
@@ -274,8 +274,8 @@
    "sector": "Communication",
    "weight": 0.55,
    "perf_local": 0.01546,
-   "perf_eur": -0.00685,
-   "contrib": -0.0038,
+   "perf_eur": -0.0084,
+   "contrib": -0.0046,
    "status": "ok"
   },
   {
@@ -286,9 +286,9 @@
    "country": "Taiwan",
    "sector": "Information Technology",
    "weight": 0.48,
-   "perf_local": -0.18529,
-   "perf_eur": -0.20054,
-   "contrib": -0.0963,
+   "perf_local": -0.2809,
+   "perf_eur": -0.29391,
+   "contrib": -0.1411,
    "status": "ok"
   },
   {
@@ -300,8 +300,8 @@
    "sector": "Consumer Discretionary",
    "weight": 0.47,
    "perf_local": 0.09137,
-   "perf_eur": 0.08947,
-   "contrib": 0.0421,
+   "perf_eur": 0.08935,
+   "contrib": 0.042,
    "status": "ok"
   },
   {
@@ -312,9 +312,9 @@
    "country": "China",
    "sector": "Financials",
    "weight": 0.47,
-   "perf_local": 0.06437,
-   "perf_eur": 0.06222,
-   "contrib": 0.0292,
+   "perf_local": 0.07663,
+   "perf_eur": 0.07605,
+   "contrib": 0.0357,
    "status": "ok"
   },
   {
@@ -325,9 +325,9 @@
    "country": "China",
    "sector": "Financials",
    "weight": 0.46,
-   "perf_local": -0.00562,
-   "perf_eur": -0.00763,
-   "contrib": -0.0035,
+   "perf_local": 0.01139,
+   "perf_eur": 0.01084,
+   "contrib": 0.005,
    "status": "ok"
   },
   {
@@ -338,9 +338,9 @@
    "country": "Taiwan",
    "sector": "Information Technology",
    "weight": 0.45,
-   "perf_local": -0.10614,
-   "perf_eur": -0.12287,
-   "contrib": -0.0553,
+   "perf_local": -0.14478,
+   "perf_eur": -0.16026,
+   "contrib": -0.0721,
    "status": "ok"
   },
   {
@@ -351,9 +351,9 @@
    "country": "China",
    "sector": "Communication",
    "weight": 0.42,
-   "perf_local": 0.02743,
-   "perf_eur": 0.02536,
-   "contrib": 0.0107,
+   "perf_local": 0.01131,
+   "perf_eur": 0.01077,
+   "contrib": 0.0045,
    "status": "ok"
   },
   {
@@ -364,9 +364,9 @@
    "country": "Korea (South)",
    "sector": "Financials",
    "weight": 0.42,
-   "perf_local": 0.14704,
-   "perf_eur": 0.2076,
-   "contrib": 0.0872,
+   "perf_local": 0.12978,
+   "perf_eur": 0.19036,
+   "contrib": 0.0799,
    "status": "ok"
   },
   {
@@ -377,9 +377,9 @@
    "country": "China",
    "sector": "Consumer Discretionary",
    "weight": 0.41,
-   "perf_local": 0.16875,
-   "perf_eur": 0.16639,
-   "contrib": 0.0682,
+   "perf_local": 0.16722,
+   "perf_eur": 0.16658,
+   "contrib": 0.0683,
    "status": "ok"
   },
   {
@@ -390,9 +390,9 @@
    "country": "Korea (South)",
    "sector": "Consumer Discretionary",
    "weight": 0.39,
-   "perf_local": -0.1546,
-   "perf_eur": -0.10997,
-   "contrib": -0.0429,
+   "perf_local": -0.21218,
+   "perf_eur": -0.16994,
+   "contrib": -0.0663,
    "status": "ok"
   },
   {
@@ -403,9 +403,9 @@
    "country": "Taiwan",
    "sector": "Information Technology",
    "weight": 0.37,
-   "perf_local": -0.08008,
-   "perf_eur": -0.0973,
-   "contrib": -0.036,
+   "perf_local": -0.09882,
+   "perf_eur": -0.11513,
+   "contrib": -0.0426,
    "status": "ok"
   },
   {
@@ -416,9 +416,9 @@
    "country": "Taiwan",
    "sector": "Information Technology",
    "weight": 0.36,
-   "perf_local": -0.04517,
-   "perf_eur": -0.06304,
-   "contrib": -0.0227,
+   "perf_local": -0.06526,
+   "perf_eur": -0.08218,
+   "contrib": -0.0296,
    "status": "ok"
   },
   {
@@ -429,9 +429,9 @@
    "country": "China",
    "sector": "Consumer Discretionary",
    "weight": 0.35,
-   "perf_local": 0.16342,
-   "perf_eur": 0.16108,
-   "contrib": 0.0564,
+   "perf_local": 0.16815,
+   "perf_eur": 0.16752,
+   "contrib": 0.0586,
    "status": "ok"
   },
   {
@@ -442,9 +442,9 @@
    "country": "Taiwan",
    "sector": "Financials",
    "weight": 0.33,
-   "perf_local": -0.06545,
-   "perf_eur": -0.08294,
-   "contrib": -0.0274,
+   "perf_local": -0.05204,
+   "perf_eur": -0.0692,
+   "contrib": -0.0228,
    "status": "ok"
   },
   {
@@ -455,9 +455,9 @@
    "country": "Taiwan",
    "sector": "Information Technology",
    "weight": 0.33,
-   "perf_local": -0.31765,
-   "perf_eur": -0.33042,
-   "contrib": -0.109,
+   "perf_local": -0.38857,
+   "perf_eur": -0.39964,
+   "contrib": -0.1319,
    "status": "ok"
   },
   {
@@ -468,9 +468,9 @@
    "country": "India",
    "sector": "Information Technology",
    "weight": 0.33,
-   "perf_local": 0.01758,
-   "perf_eur": -0.00477,
-   "contrib": -0.0016,
+   "perf_local": -0.01486,
+   "perf_eur": -0.03801,
+   "contrib": -0.0125,
    "status": "ok"
   },
   {
@@ -481,9 +481,9 @@
    "country": "Taiwan",
    "sector": "Financials",
    "weight": 0.33,
-   "perf_local": -0.12293,
-   "perf_eur": -0.13934,
-   "contrib": -0.046,
+   "perf_local": -0.09013,
+   "perf_eur": -0.1066,
+   "contrib": -0.0352,
    "status": "ok"
   },
   {
@@ -495,8 +495,8 @@
    "sector": "Consumer Discretionary",
    "weight": 0.29,
    "perf_local": 0.06335,
-   "perf_eur": 0.03998,
-   "contrib": 0.0116,
+   "perf_eur": 0.03836,
+   "contrib": 0.0111,
    "status": "ok"
   },
   {
@@ -507,9 +507,9 @@
    "country": "Korea (South)",
    "sector": "Financials",
    "weight": 0.29,
-   "perf_local": 0.06244,
-   "perf_eur": 0.11853,
-   "contrib": 0.0344,
+   "perf_local": 0.09091,
+   "perf_eur": 0.1494,
+   "contrib": 0.0433,
    "status": "ok"
   },
   {
@@ -520,9 +520,9 @@
    "country": "Taiwan",
    "sector": "Materials",
    "weight": 0.29,
-   "perf_local": 0.27508,
-   "perf_eur": 0.25122,
-   "contrib": 0.0729,
+   "perf_local": 0.13782,
+   "perf_eur": 0.11723,
+   "contrib": 0.034,
    "status": "ok"
   },
   {
@@ -546,9 +546,9 @@
    "country": "Taiwan",
    "sector": "Financials",
    "weight": 0.28,
-   "perf_local": -0.14273,
-   "perf_eur": -0.15877,
-   "contrib": -0.0445,
+   "perf_local": -0.11818,
+   "perf_eur": -0.13414,
+   "contrib": -0.0376,
    "status": "ok"
   },
   {
@@ -559,9 +559,9 @@
    "country": "China",
    "sector": "Communication",
    "weight": 0.28,
-   "perf_local": 0.02006,
-   "perf_eur": 0.018,
-   "contrib": 0.005,
+   "perf_local": -0.02614,
+   "perf_eur": -0.02667,
+   "contrib": -0.0075,
    "status": "ok"
   },
   {
@@ -572,9 +572,9 @@
    "country": "Taiwan",
    "sector": "Information Technology",
    "weight": 0.28,
-   "perf_local": -0.09799,
-   "perf_eur": -0.11487,
-   "contrib": -0.0322,
+   "perf_local": -0.11828,
+   "perf_eur": -0.13424,
+   "contrib": -0.0376,
    "status": "ok"
   },
   {
@@ -585,9 +585,9 @@
    "country": "China",
    "sector": "Energy",
    "weight": 0.27,
-   "perf_local": 0.13087,
-   "perf_eur": 0.12859,
-   "contrib": 0.0347,
+   "perf_local": 0.14078,
+   "perf_eur": 0.14016,
+   "contrib": 0.0378,
    "status": "ok"
   },
   {
@@ -599,8 +599,8 @@
    "sector": "Financials",
    "weight": 0.27,
    "perf_local": -0.10304,
-   "perf_eur": -0.12275,
-   "contrib": -0.0331,
+   "perf_eur": -0.12412,
+   "contrib": -0.0335,
    "status": "ok"
   },
   {
@@ -611,9 +611,9 @@
    "country": "China",
    "sector": "Financials",
    "weight": 0.27,
-   "perf_local": -0.02389,
-   "perf_eur": -0.02586,
-   "contrib": -0.007,
+   "perf_local": 0.00424,
+   "perf_eur": 0.00369,
+   "contrib": 0.001,
    "status": "ok"
   },
   {
@@ -625,8 +625,8 @@
    "sector": "Financials",
    "weight": 0.27,
    "perf_local": 0.08042,
-   "perf_eur": 0.05668,
-   "contrib": 0.0153,
+   "perf_eur": 0.05504,
+   "contrib": 0.0149,
    "status": "ok"
   },
   {
@@ -637,9 +637,9 @@
    "country": "China",
    "sector": "Consumer Discretionary",
    "weight": 0.26,
-   "perf_local": -0.00747,
-   "perf_eur": -0.00947,
-   "contrib": -0.0025,
+   "perf_local": -0.03111,
+   "perf_eur": -0.03163,
+   "contrib": -0.0082,
    "status": "ok"
   },
   {
@@ -650,9 +650,9 @@
    "country": "China",
    "sector": "Materials",
    "weight": 0.25,
-   "perf_local": 0.13396,
-   "perf_eur": 0.13168,
-   "contrib": 0.0329,
+   "perf_local": 0.09986,
+   "perf_eur": 0.09927,
+   "contrib": 0.0248,
    "status": "ok"
   },
   {
@@ -663,9 +663,9 @@
    "country": "Taiwan",
    "sector": "Information Technology",
    "weight": 0.25,
-   "perf_local": 0.00619,
-   "perf_eur": -0.01264,
-   "contrib": -0.0032,
+   "perf_local": -0.05929,
+   "perf_eur": -0.07632,
+   "contrib": -0.0191,
    "status": "ok"
   },
   {
@@ -676,9 +676,9 @@
    "country": "Korea (South)",
    "sector": "Financials",
    "weight": 0.24,
-   "perf_local": 0.12987,
-   "perf_eur": 0.18952,
-   "contrib": 0.0455,
+   "perf_local": 0.15937,
+   "perf_eur": 0.22154,
+   "contrib": 0.0532,
    "status": "ok"
   },
   {
@@ -689,9 +689,9 @@
    "country": "Taiwan",
    "sector": "Information Technology",
    "weight": 0.24,
-   "perf_local": -0.04857,
-   "perf_eur": -0.06637,
-   "contrib": -0.0159,
+   "perf_local": -0.03704,
+   "perf_eur": -0.05447,
+   "contrib": -0.0131,
    "status": "ok"
   },
   {
@@ -702,9 +702,9 @@
    "country": "Korea (South)",
    "sector": "Consumer Discretionary",
    "weight": 0.24,
-   "perf_local": 0.09025,
-   "perf_eur": 0.14781,
-   "contrib": 0.0355,
+   "perf_local": -0.06048,
+   "perf_eur": -0.0101,
+   "contrib": -0.0024,
    "status": "ok"
   },
   {
@@ -715,9 +715,9 @@
    "country": "China",
    "sector": "Financials",
    "weight": 0.23,
-   "perf_local": 0.03897,
-   "perf_eur": 0.03687,
-   "contrib": 0.0085,
+   "perf_local": 0.06603,
+   "perf_eur": 0.06545,
+   "contrib": 0.0151,
    "status": "ok"
   },
   {
@@ -728,9 +728,9 @@
    "country": "China",
    "sector": "Information Technology",
    "weight": 0.23,
-   "perf_local": 0.10503,
-   "perf_eur": 0.1028,
-   "contrib": 0.0236,
+   "perf_local": 0.06195,
+   "perf_eur": 0.06138,
+   "contrib": 0.0141,
    "status": "ok"
   },
   {
@@ -741,9 +741,9 @@
    "country": "Taiwan",
    "sector": "Financials",
    "weight": 0.22,
-   "perf_local": 0.08383,
-   "perf_eur": 0.06354,
-   "contrib": 0.014,
+   "perf_local": 0.0915,
+   "perf_eur": 0.07175,
+   "contrib": 0.0158,
    "status": "ok"
   },
   {
@@ -754,9 +754,9 @@
    "country": "Korea (South)",
    "sector": "Industrials",
    "weight": 0.22,
-   "perf_local": -0.17937,
-   "perf_eur": -0.13605,
-   "contrib": -0.0299,
+   "perf_local": -0.20419,
+   "perf_eur": -0.16152,
+   "contrib": -0.0355,
    "status": "ok"
   },
   {
@@ -767,9 +767,9 @@
    "country": "India",
    "sector": "Financials",
    "weight": 0.22,
-   "perf_local": -0.04556,
-   "perf_eur": -0.06653,
-   "contrib": -0.0146,
+   "perf_local": -0.05222,
+   "perf_eur": -0.07449,
+   "contrib": -0.0164,
    "status": "ok"
   },
   {
@@ -780,10 +780,404 @@
    "country": "Korea (South)",
    "sector": "Industrials",
    "weight": 0.22,
-   "perf_local": -0.10718,
-   "perf_eur": -0.06004,
-   "contrib": -0.0132,
+   "perf_local": -0.10512,
+   "perf_eur": -0.05713,
+   "contrib": -0.0126,
    "status": "ok"
+  }
+ ],
+ "series": [
+  {
+   "name": "SK HYNIX INC",
+   "yahoo": "000660.KS",
+   "weight": 7.2,
+   "contrib": -2.1089,
+   "perf_eur": -0.2929,
+   "pts": [
+    [
+     "2026-06-24",
+     100.0
+    ],
+    [
+     "2026-06-25",
+     110.852
+    ],
+    [
+     "2026-06-26",
+     101.579
+    ],
+    [
+     "2026-06-29",
+     99.524
+    ],
+    [
+     "2026-06-30",
+     100.163
+    ],
+    [
+     "2026-07-01",
+     96.64
+    ],
+    [
+     "2026-07-02",
+     83.047
+    ],
+    [
+     "2026-07-03",
+     92.084
+    ],
+    [
+     "2026-07-06",
+     89.338
+    ],
+    [
+     "2026-07-07",
+     84.979
+    ],
+    [
+     "2026-07-08",
+     80.59
+    ],
+    [
+     "2026-07-09",
+     84.719
+    ],
+    [
+     "2026-07-10",
+     84.487
+    ],
+    [
+     "2026-07-13",
+     72.185
+    ],
+    [
+     "2026-07-14",
+     75.103
+    ],
+    [
+     "2026-07-15",
+     81.266
+    ],
+    [
+     "2026-07-16",
+     72.545
+    ],
+    [
+     "2026-07-20",
+     69.856
+    ],
+    [
+     "2026-07-21",
+     72.549
+    ],
+    [
+     "2026-07-22",
+     72.459
+    ],
+    [
+     "2026-07-23",
+     76.305
+    ],
+    [
+     "2026-07-24",
+     70.71
+    ]
+   ]
+  },
+  {
+   "name": "SAMSUNG ELECTRONICS LTD",
+   "yahoo": "005930.KS",
+   "weight": 8.57,
+   "contrib": -1.9536,
+   "perf_eur": -0.22796,
+   "pts": [
+    [
+     "2026-06-24",
+     100.0
+    ],
+    [
+     "2026-06-25",
+     104.869
+    ],
+    [
+     "2026-06-26",
+     99.311
+    ],
+    [
+     "2026-06-29",
+     94.157
+    ],
+    [
+     "2026-06-30",
+     97.176
+    ],
+    [
+     "2026-07-01",
+     91.388
+    ],
+    [
+     "2026-07-02",
+     83.597
+    ],
+    [
+     "2026-07-03",
+     90.466
+    ],
+    [
+     "2026-07-06",
+     93.334
+    ],
+    [
+     "2026-07-07",
+     87.97
+    ],
+    [
+     "2026-07-08",
+     82.921
+    ],
+    [
+     "2026-07-09",
+     82.933
+    ],
+    [
+     "2026-07-10",
+     85.021
+    ],
+    [
+     "2026-07-13",
+     76.646
+    ],
+    [
+     "2026-07-14",
+     79.478
+    ],
+    [
+     "2026-07-15",
+     83.976
+    ],
+    [
+     "2026-07-16",
+     77.305
+    ],
+    [
+     "2026-07-20",
+     74.378
+    ],
+    [
+     "2026-07-21",
+     78.778
+    ],
+    [
+     "2026-07-22",
+     79.396
+    ],
+    [
+     "2026-07-23",
+     82.641
+    ],
+    [
+     "2026-07-24",
+     77.204
+    ]
+   ]
+  },
+  {
+   "name": "TAIWAN SEMICONDUCTOR MANUFACTURING",
+   "yahoo": "2330.TW",
+   "weight": 18.27,
+   "contrib": -0.6309,
+   "perf_eur": -0.03453,
+   "pts": [
+    [
+     "2026-06-24",
+     100.0
+    ],
+    [
+     "2026-06-25",
+     99.768
+    ],
+    [
+     "2026-06-26",
+     97.68
+    ],
+    [
+     "2026-06-29",
+     98.399
+    ],
+    [
+     "2026-06-30",
+     100.23
+    ],
+    [
+     "2026-07-01",
+     104.305
+    ],
+    [
+     "2026-07-02",
+     102.126
+    ],
+    [
+     "2026-07-03",
+     101.298
+    ],
+    [
+     "2026-07-06",
+     101.353
+    ],
+    [
+     "2026-07-07",
+     100.636
+    ],
+    [
+     "2026-07-08",
+     101.566
+    ],
+    [
+     "2026-07-09",
+     99.435
+    ],
+    [
+     "2026-07-10",
+     99.435
+    ],
+    [
+     "2026-07-13",
+     100.704
+    ],
+    [
+     "2026-07-14",
+     99.616
+    ],
+    [
+     "2026-07-15",
+     99.778
+    ],
+    [
+     "2026-07-16",
+     101.079
+    ],
+    [
+     "2026-07-17",
+     93.713
+    ],
+    [
+     "2026-07-20",
+     95.166
+    ],
+    [
+     "2026-07-21",
+     98.799
+    ],
+    [
+     "2026-07-22",
+     98.137
+    ],
+    [
+     "2026-07-23",
+     98.899
+    ],
+    [
+     "2026-07-24",
+     96.547
+    ]
+   ]
+  },
+  {
+   "name": "ISH MSCI CHINA A ETF USD ACC",
+   "yahoo": "CNYA",
+   "weight": 4.35,
+   "contrib": -0.2834,
+   "perf_eur": -0.06515,
+   "pts": [
+    [
+     "2026-06-24",
+     100.0
+    ],
+    [
+     "2026-06-25",
+     101.851
+    ],
+    [
+     "2026-06-26",
+     99.721
+    ],
+    [
+     "2026-06-29",
+     100.042
+    ],
+    [
+     "2026-06-30",
+     101.523
+    ],
+    [
+     "2026-07-01",
+     101.041
+    ],
+    [
+     "2026-07-02",
+     97.017
+    ],
+    [
+     "2026-07-06",
+     97.783
+    ],
+    [
+     "2026-07-07",
+     96.912
+    ],
+    [
+     "2026-07-08",
+     95.804
+    ],
+    [
+     "2026-07-09",
+     98.408
+    ],
+    [
+     "2026-07-10",
+     97.323
+    ],
+    [
+     "2026-07-13",
+     94.777
+    ],
+    [
+     "2026-07-14",
+     97.027
+    ],
+    [
+     "2026-07-15",
+     96.535
+    ],
+    [
+     "2026-07-16",
+     94.134
+    ],
+    [
+     "2026-07-17",
+     91.623
+    ],
+    [
+     "2026-07-20",
+     92.313
+    ],
+    [
+     "2026-07-21",
+     95.161
+    ],
+    [
+     "2026-07-22",
+     95.095
+    ],
+    [
+     "2026-07-23",
+     94.642
+    ],
+    [
+     "2026-07-24",
+     93.485
+    ]
+   ]
   }
  ]
 }
