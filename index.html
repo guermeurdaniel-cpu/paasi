@@ -35,6 +35,12 @@
                 padding: 0 0 0 6px; }
   .foot { font-size: 10px; color: var(--dim); margin-top: 10px; line-height: 1.6; }
   #status { font-size: 11px; color: var(--dim); padding: 20px; text-align: center; }
+  .h2 { font-size: 12.5px; font-weight: 700; margin: 16px 0 6px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: 8px;
+            font-size: 10.5px; color: var(--dim); }
+  .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px;
+              margin-right: 5px; vertical-align: -1px; }
+  .legend b { color: var(--txt); font-weight: 600; }
   .tip { position: fixed; display: none; background: #000c; color: #fff;
          font-size: 11px; padding: 6px 9px; border-radius: 7px;
          pointer-events: none; z-index: 9; max-width: 240px; line-height: 1.5; }
@@ -54,6 +60,11 @@
   <div class="kpi"><div class="v" id="kN">–</div><div class="l">Valeurs suivies</div></div>
 </div>
 <div class="panel"><canvas id="chart"></canvas></div>
+<div id="linesBlock" style="display:none">
+  <div class="h2" id="linesTitle">Historique 30 jours des 4 plus gros contributeurs</div>
+  <div class="panel"><canvas id="lines"></canvas></div>
+  <div class="legend" id="linesLegend"></div>
+</div>
 <div id="status">Chargement de contributions.json…</div>
 <div class="foot" id="foot">
   Contribution = poids d'indice &times; performance 30 j en EUR (change inclus).
@@ -165,6 +176,179 @@
     });
   }
 
+  // ===== Historique des plus gros contributeurs (points d'indice) =========
+  // Chaque courbe = poids d'indice x perf EUR depuis J-30, en points de % d'indice.
+  // Les quatre courbes partent donc de zero et s'additionnent.
+  var LINE_COLORS = ["#4da3ff", "#ffb454", "#c678dd", "#3ddad7"];
+
+  function fmtDay(ms) {
+    var d = new Date(ms);
+    return ("0" + d.getUTCDate()).slice(-2) + "/" + ("0" + (d.getUTCMonth() + 1)).slice(-2);
+  }
+
+  function renderLines(series) {
+    var block = document.getElementById("linesBlock");
+    if (!series || !series.length) { block.style.display = "none"; return; }
+
+    var curves = [];
+    series.forEach(function (s, i) {
+      var w = (s.weight == null) ? 0 : s.weight;
+      var pts = [];
+      (s.pts || []).forEach(function (p) {
+        var t = Date.parse(p[0] + "T00:00:00Z");
+        // base 100 -> contribution cumulee en points d'indice
+        if (!isNaN(t) && p[1] != null) pts.push({ t: t, v: w * (p[1] / 100 - 1) });
+      });
+      pts.sort(function (a, b) { return a.t - b.t; });
+      if (pts.length > 1) {
+        curves.push({
+          name: s.name, color: LINE_COLORS[i % LINE_COLORS.length], pts: pts,
+          weight: w, contrib: s.contrib
+        });
+      }
+    });
+    if (!curves.length) { block.style.display = "none"; return; }
+    block.style.display = "block";
+
+    var tMin = Infinity, tMax = -Infinity, vMin = 0, vMax = 0;
+    curves.forEach(function (c) {
+      c.pts.forEach(function (p) {
+        if (p.t < tMin) tMin = p.t;
+        if (p.t > tMax) tMax = p.t;
+        if (p.v < vMin) vMin = p.v;
+        if (p.v > vMax) vMax = p.v;
+      });
+    });
+    if (tMax <= tMin) { block.style.display = "none"; return; }
+    var pad = (vMax - vMin) * 0.08 || 0.05;
+    var vLo = vMin - pad, vHi = vMax + pad;
+
+    // canvas remplace a chaque rendu : evite d'empiler les ecouteurs
+    // quand on fait des aller-retours entre les onglets 30 jours / Journee
+    var oldCv = document.getElementById("lines");
+    var cv = oldCv.cloneNode(false);
+    oldCv.parentNode.replaceChild(cv, oldCv);
+
+    var dpr = window.devicePixelRatio || 1;
+    var W = cv.parentNode.clientWidth - 16;
+    var H = 200;
+    var padL = 40, padR = 8, padT = 10, padB = 20;
+    cv.width = W * dpr; cv.height = H * dpr;
+    cv.style.height = H + "px";
+    var ctx = cv.getContext("2d");
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, W, H);
+
+    function X(t) { return padL + (t - tMin) / (tMax - tMin) * (W - padL - padR); }
+    function Y(v) { return padT + (vHi - v) / (vHi - vLo) * (H - padT - padB); }
+
+    // grille horizontale
+    ctx.font = "9px -apple-system, sans-serif";
+    ctx.textBaseline = "middle";
+    for (var g = 0; g <= 4; g++) {
+      var vv = vLo + (vHi - vLo) * g / 4;
+      var yy = Y(vv);
+      ctx.strokeStyle = "#2a3040";
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(W - padR, yy); ctx.stroke();
+      ctx.fillStyle = "#8a91a3";
+      ctx.textAlign = "right";
+      ctx.fillText(vv.toFixed(2).replace(".", ","), padL - 4, yy);
+    }
+
+    // reference zero
+    if (0 > vLo && 0 < vHi) {
+      ctx.strokeStyle = "#5a6379";
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(padL, Y(0)); ctx.lineTo(W - padR, Y(0)); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // axe des dates
+    ctx.fillStyle = "#8a91a3";
+    ctx.textBaseline = "alphabetic";
+    ctx.textAlign = "left";
+    ctx.fillText(fmtDay(tMin), padL, H - 6);
+    ctx.textAlign = "center";
+    ctx.fillText(fmtDay((tMin + tMax) / 2), (padL + W - padR) / 2, H - 6);
+    ctx.textAlign = "right";
+    ctx.fillText(fmtDay(tMax), W - padR, H - 6);
+
+    // courbes
+    ctx.lineWidth = 1.7;
+    ctx.lineJoin = "round";
+    curves.forEach(function (c) {
+      ctx.strokeStyle = c.color;
+      ctx.beginPath();
+      c.pts.forEach(function (p, k) {
+        var x = X(p.t), y = Y(p.v);
+        if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+    });
+
+    // legende
+    document.getElementById("linesLegend").innerHTML = curves.map(function (c) {
+      var last = c.pts[c.pts.length - 1].v;
+      return '<span><i style="background:' + c.color + '"></i><b>' + c.name +
+        "</b> " + fmtPct(last) + " pt · " +
+        String(c.weight).replace(".", ",") + " %</span>";
+    }).join("");
+
+    // curseur + infobulle
+    var snapshot = ctx.getImageData(0, 0, cv.width, cv.height);
+
+    function hide() {
+      ctx.putImageData(snapshot, 0, 0);
+      tip.style.display = "none";
+    }
+
+    function move(ev) {
+      var r = cv.getBoundingClientRect();
+      var cx = (ev.touches ? ev.touches[0].clientX : ev.clientX);
+      var cyAbs = (ev.touches ? ev.touches[0].clientY : ev.clientY);
+      var px = cx - r.left;
+      if (px < padL || px > W - padR) { hide(); return; }
+      var t = tMin + (px - padL) / (W - padL - padR) * (tMax - tMin);
+
+      ctx.putImageData(snapshot, 0, 0);
+      var rows = [], tShown = null, tot = 0;
+      curves.forEach(function (c) {
+        var best = null;
+        c.pts.forEach(function (p) {
+          if (!best || Math.abs(p.t - t) < Math.abs(best.t - t)) best = p;
+        });
+        if (!best) return;
+        if (tShown === null) tShown = best.t;
+        tot += best.v;
+        ctx.fillStyle = c.color;
+        ctx.beginPath();
+        ctx.arc(X(best.t), Y(best.v), 3, 0, Math.PI * 2);
+        ctx.fill();
+        rows.push('<span style="color:' + c.color + '">&#9679;</span> ' +
+          (c.name.length > 16 ? c.name.slice(0, 15) + "…" : c.name) +
+          " " + fmtPct(best.v) + " pt");
+      });
+      rows.push("Total 4 : <b>" + fmtPct(tot) + " pt</b>");
+      ctx.strokeStyle = "#8a91a3";
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(px, padT); ctx.lineTo(px, H - padB); ctx.stroke();
+
+      tip.innerHTML = "<b>" + fmtDay(tShown === null ? t : tShown) + "</b><br>" + rows.join("<br>");
+      tip.style.display = "block";
+      tip.style.left = Math.min(cx + 10, window.innerWidth - 250) + "px";
+      tip.style.top = (cyAbs + 12) + "px";
+      ev.preventDefault();
+    }
+
+    cv.addEventListener("mousemove", move);
+    cv.addEventListener("touchstart", move, { passive: false });
+    cv.addEventListener("touchmove", move, { passive: false });
+    cv.addEventListener("mouseleave", hide);
+    cv.addEventListener("touchend", function () { setTimeout(hide, 1800); });
+  }
+
   // ===== 30 jours (donnees precalculees par le scraper, inchange) =========
   function build30j(data) {
     var ok = data.stocks.filter(function (s) { return s.status === "ok"; });
@@ -200,6 +384,12 @@
       "marginaux sur les grandes capitalisations. PAASI &eacute;tant &agrave; " +
       "r&eacute;plication synth&eacute;tique, Amundi ne publie pas les constituants.",
       "contribution en points de % d'indice (30 j, EUR)");
+
+    var ser = (data.series || []).slice(0, 4);
+    document.getElementById("linesTitle").textContent =
+      "Contribution cumulée sur 30 jours des " + ser.length +
+      " plus gros contributeurs (points d'indice, EUR)";
+    renderLines(ser);
   }
 
   // ===== Journee — variation en direct vs cloture de la veille ==============
@@ -264,6 +454,7 @@
   var JOUR_CACHE = null; // resultat du dernier calcul Journee, pour eviter de tout re-fetcher
 
   function buildJour(force) {
+    document.getElementById("linesBlock").style.display = "none";
     if (JOUR_CACHE && !force) { renderJour(JOUR_CACHE); return; }
     document.getElementById("kpis").style.display = "none";
     document.getElementById("upd").style.display = "none";
