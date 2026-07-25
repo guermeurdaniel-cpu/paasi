@@ -51,6 +51,7 @@ except ImportError:
 # ----------------------------------------------------------------------
 TOP_N = 60           # nb de lignes gardées (couvre l'essentiel du poids)
 WINDOW_DAYS = 30     # fenêtre de contribution
+SERIES_N = 4         # nb de courbes historiques exportées (plus gros contributeurs)
 OUT_FILE = "contributions.json"
 
 ISHARES_PRODUCT_PAGE = (
@@ -222,6 +223,54 @@ def yahoo_history(symbol, range_="3mo"):
         return None
 
 
+def fx_rate_at(fx_series, day):
+    """Taux (unites de devise pour 1 EUR) le plus proche de `day`,
+    en privilegiant la derniere cotation anterieure ou egale."""
+    if not fx_series:
+        return None
+    prev = None
+    for d, r in fx_series:
+        if r is None:
+            continue
+        if d <= day:
+            prev = r
+        else:
+            break
+    if prev is not None:
+        return prev
+    for d, r in fx_series:
+        if r is not None:
+            return r
+    return None
+
+
+def base100_eur(local_series, fx_series, window_days):
+    """Serie base 100 en EUR sur la fenetre.
+    Retourne [[\"YYYY-MM-DD\", valeur], ...] ou None."""
+    if not local_series:
+        return None
+    s = sorted(local_series)
+    start = s[-1][0] - dt.timedelta(days=window_days)
+    pts = []
+    for d, c in s:
+        if d < start or c in (None, 0):
+            continue
+        if fx_series is None:          # devise EUR
+            v = c
+        else:
+            r = fx_rate_at(fx_series, d)
+            if not r:
+                continue
+            v = c / r
+        pts.append((d, v))
+    if len(pts) < 3:
+        return None
+    base = pts[0][1]
+    if not base:
+        return None
+    return [[d.isoformat(), round(v / base * 100.0, 3)] for d, v in pts]
+
+
 def perf_over_window(series, window_days):
     """Perf entre la clôture la plus récente et la clôture la plus proche
     de (dernière date - window_days). Retourne None si données insuffisantes."""
@@ -249,22 +298,32 @@ def main():
     print(f"[compo] {len(holdings)} lignes actions, top {TOP_N} = "
           f"{covered:.1f}% du fonds, date {hdate}")
 
-    # FX : une seule série par devise
-    fx_cache = {}
+    # FX : une seule série par devise, conservée en entier (perf + conversion jour par jour)
+    fx_hist = {}   # devise -> [(date, taux)] ; taux = unites de devise pour 1 EUR
+    fx_cache = {}  # devise -> perf de la devise contre EUR sur la fenetre
+
+    def fx_series(ccy):
+        """Serie EUR<ccy>=X (None si devise EUR ou serie indisponible)."""
+        if ccy in ("EUR", "", None):
+            return None
+        if ccy not in fx_hist:
+            # EURTWD=X = TWD par EUR ; si TWD s'apprécie, EURTWD baisse
+            fx_hist[ccy] = yahoo_history(f"EUR{ccy}=X")
+            time.sleep(0.4)
+        return fx_hist[ccy]
 
     def fx_perf(ccy):
         """Perf de la devise locale contre EUR sur la fenêtre."""
         if ccy in ("EUR", "", None):
             return 0.0
         if ccy not in fx_cache:
-            # EURTWD=X = TWD par EUR ; si TWD s'apprécie, EURTWD baisse
-            s = yahoo_history(f"EUR{ccy}=X")
+            s = fx_series(ccy)
             p = perf_over_window(s, WINDOW_DAYS) if s else None
             fx_cache[ccy] = None if p is None else (1.0 / (1.0 + p) - 1.0)
-            time.sleep(0.4)
         return fx_cache[ccy]
 
     stocks = []
+    hist_by_yahoo = {}   # ticker Yahoo -> serie locale [(date, cloture)]
     for h in top:
         y = yahoo_ticker(h["ticker_local"], h["currency"], h["exchange"], h["name"])
         entry = {
@@ -276,6 +335,8 @@ def main():
         }
         if y:
             series = yahoo_history(y)
+            if series:
+                hist_by_yahoo[y] = series
             p_loc = perf_over_window(series, WINDOW_DAYS) if series else None
             if p_loc is None:
                 entry["status"] = "no_history"
@@ -297,6 +358,23 @@ def main():
     ok = [s for s in stocks if s["status"] == "ok"]
     print(f"[calc] {len(ok)}/{len(stocks)} lignes ok")
 
+    # --- courbes base 100 EUR des plus gros contributeurs -----------------
+    ranked = sorted(ok, key=lambda s: -abs(s["contrib"]))
+    series_out = []
+    for s in ranked:
+        if len(series_out) >= SERIES_N:
+            break
+        pts = base100_eur(hist_by_yahoo.get(s["yahoo"]),
+                          fx_series(s["currency"]), WINDOW_DAYS)
+        if not pts:
+            print(f"[serie] ignoree (donnees insuffisantes) : {s['yahoo']}")
+            continue
+        series_out.append({
+            "name": s["name"], "yahoo": s["yahoo"], "weight": s["weight"],
+            "contrib": s["contrib"], "perf_eur": s["perf_eur"], "pts": pts,
+        })
+    print(f"[serie] {len(series_out)} courbes exportees")
+
     data = {
         "generated": dt.datetime.now(dt.timezone.utc)
                        .strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -305,6 +383,7 @@ def main():
         "source": "iShares MSCI EM Asia UCITS ETF (proxy de composition)",
         "covered_weight": round(covered, 2),
         "stocks": stocks,
+        "series": series_out,
     }
     with open(OUT_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)
