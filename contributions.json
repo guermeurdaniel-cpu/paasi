@@ -1,9 +1,9 @@
 {
- "generated": "2026-07-25T08:13:33Z",
+ "generated": "2026-07-27T20:12:47Z",
  "holdings_date": null,
  "window_days": 30,
  "source": "iShares MSCI EM Asia UCITS ETF (proxy de composition)",
- "covered_weight": 68.98,
+ "covered_weight": 68.42,
  "stocks": [
   {
    "name": "TAIWAN SEMICONDUCTOR MANUFACTURING",
@@ -12,10 +12,10 @@
    "currency": "TWD",
    "country": "Taiwan",
    "sector": "Information Technology",
-   "weight": 18.27,
+   "weight": 18.35,
    "perf_local": -0.01674,
-   "perf_eur": -0.03453,
-   "contrib": -0.6309,
+   "perf_eur": -0.03006,
+   "contrib": -0.5516,
    "status": "ok"
   },
   {
@@ -25,10 +25,10 @@
    "currency": "KRW",
    "country": "Korea (South)",
    "sector": "Information Technology",
-   "weight": 8.57,
+   "weight": 8.18,
    "perf_local": -0.26725,
-   "perf_eur": -0.22796,
-   "contrib": -1.9536,
+   "perf_eur": -0.23217,
+   "contrib": -1.8991,
    "status": "ok"
   },
   {
@@ -38,10 +38,10 @@
    "currency": "KRW",
    "country": "Korea (South)",
    "sector": "Information Technology",
-   "weight": 7.2,
+   "weight": 6.81,
    "perf_local": -0.32888,
-   "perf_eur": -0.2929,
-   "contrib": -2.1089,
+   "perf_eur": -0.29675,
+   "contrib": -2.0208,
    "status": "ok"
   },
   {
@@ -51,10 +51,10 @@
    "currency": "USD",
    "country": "Ireland",
    "sector": "Financials",
-   "weight": 4.35,
-   "perf_local": -0.06342,
-   "perf_eur": -0.06515,
-   "contrib": -0.2834,
+   "weight": 4.44,
+   "perf_local": -0.04913,
+   "perf_eur": -0.04827,
+   "contrib": -0.2143,
    "status": "ok"
   },
   {
@@ -64,10 +64,10 @@
    "currency": "HKD",
    "country": "China",
    "sector": "Communication",
-   "weight": 3.48,
+   "weight": 3.5,
    "perf_local": 0.01353,
-   "perf_eur": 0.01298,
-   "contrib": 0.0452,
+   "perf_eur": 0.01483,
+   "contrib": 0.0519,
    "status": "ok"
   },
   {
@@ -77,10 +77,10 @@
    "currency": "HKD",
    "country": "China",
    "sector": "Consumer Discretionary",
-   "weight": 2.44,
+   "weight": 2.41,
    "perf_local": 0.10664,
-   "perf_eur": 0.10604,
-   "contrib": 0.2587,
+   "perf_eur": 0.10807,
+   "contrib": 0.2604,
    "status": "ok"
   },
   {
@@ -90,10 +90,10 @@
    "currency": "TWD",
    "country": "Taiwan",
    "sector": "Information Technology",
-   "weight": 1.72,
+   "weight": 1.71,
    "perf_local": -0.12485,
-   "perf_eur": -0.14069,
-   "contrib": -0.242,
+   "perf_eur": -0.13671,
+   "contrib": -0.2338,
    "status": "ok"
   },
   {
@@ -103,10 +103,10 @@
    "currency": "TWD",
    "country": "Taiwan",
    "sector": "Information Technology",
-   "weight": 1.13,
+   "weight": 1.1,
    "perf_local": -0.1075,
-   "perf_eur": -0.12365,
-   "contrib": -0.1397,
+   "perf_eur": -0.1196,
+   "contrib": -0.1316,
    "status": "ok"
   },
   {
@@ -116,10 +116,10 @@
    "currency": "KRW",
    "country": "Korea (South)",
    "sector": "Information Technology",
-   "weight": 1.04,
+   "weight": 0.99,
    "perf_local": -0.17049,
-   "perf_eur": -0.12601,
-   "contrib": -0.1311,
+   "perf_eur": -0.13077,
+   "contrib": -0.1295,
    "status": "ok"
   },
   {
@@ -129,10 +129,10 @@
    "currency": "TWD",
    "country": "Taiwan",
    "sector": "Information Technology",
-   "weight": 0.97,
+   "weight": 0.98,
    "perf_local": -0.01367,
-   "perf_eur": -0.03152,
-   "contrib": -0.0306,
+   "perf_eur": -0.02704,
+   "contrib": -0.0265,
    "status": "ok"
   },
   {
@@ -142,10 +142,10 @@
    "currency": "HKD",
    "country": "China",
    "sector": "Financials",
-   "weight": 0.94,
+   "weight": 0.97,
    "perf_local": 0.03416,
-   "perf_eur": 0.0336,
-   "contrib": 0.0316,
+   "perf_eur": 0.03549,
+   "contrib": 0.0344,
    "status": "ok"
   },
   {
@@ -155,10 +155,10 @@
    "currency": "INR",
    "country": "India",
    "sector": "Financials",
-   "weight": 0.87,
+   "weight": 0.89,
    "perf_local": -0.06354,
-   "perf_eur": -0.08554,
-   "contrib": -0.0744,
+   "perf_eur": -0.07833,
+   "contrib": -0.0697,
    "status": "ok"
   },
   {
@@ -168,10 +168,10 @@
    "currency": "INR",
    "country": "India",
    "sector": "Financials",
-   "weight": 0.77,
-   "perf_local": 0.07196,
-   "perf_eur": 0.04677,
-   "contrib": 0.036,
+   "weight": 0.8,
+   "perf_local": 0.04317,
+   "perf_eur": 0.0267,
+   "contrib": 0.0214,
    "status": "ok"
   },
   {
@@ -181,10 +181,10 @@
    "currency": "KRW",
    "country": "Korea (South)",
    "sector": "Industrials",
-   "weight": 0.77,
+   "weight": 0.72,
    "perf_local": -0.38355,
-   "perf_eur": -0.35049,
-   "contrib": -0.2699,
+   "perf_eur": -0.35403,
+   "contrib": -0.2549,
    "status": "ok"
   },
   {
@@ -194,10 +194,10 @@
    "currency": "INR",
    "country": "India",
    "sector": "Energy",
-   "weight": 0.68,
+   "weight": 0.7,
    "perf_local": -0.0271,
-   "perf_eur": -0.04996,
-   "contrib": -0.034,
+   "perf_eur": -0.04247,
+   "contrib": -0.0297,
    "status": "ok"
   },
   {
@@ -207,10 +207,10 @@
    "currency": "TWD",
    "country": "Taiwan",
    "sector": "Information Technology",
-   "weight": 0.66,
+   "weight": 0.64,
    "perf_local": -0.06126,
-   "perf_eur": -0.07825,
-   "contrib": -0.0516,
+   "perf_eur": -0.07398,
+   "contrib": -0.0473,
    "status": "ok"
   },
   {
@@ -220,10 +220,10 @@
    "currency": "HKD",
    "country": "China",
    "sector": "Financials",
-   "weight": 0.59,
+   "weight": 0.61,
    "perf_local": 0.06204,
-   "perf_eur": 0.06146,
-   "contrib": 0.0363,
+   "perf_eur": 0.06341,
+   "contrib": 0.0387,
    "status": "ok"
   },
   {
@@ -233,10 +233,10 @@
    "currency": "HKD",
    "country": "China",
    "sector": "Information Technology",
-   "weight": 0.59,
+   "weight": 0.6,
    "perf_local": 0.16376,
-   "perf_eur": 0.16313,
-   "contrib": 0.0962,
+   "perf_eur": 0.16526,
+   "contrib": 0.0992,
    "status": "ok"
   },
   {
@@ -246,23 +246,10 @@
    "currency": "HKD",
    "country": "China",
    "sector": "Consumer Discretionary",
-   "weight": 0.56,
+   "weight": 0.57,
    "perf_local": 0.2797,
-   "perf_eur": 0.27901,
-   "contrib": 0.1562,
-   "status": "ok"
-  },
-  {
-   "name": "SAMSUNG ELECTRO MECHANICS LTD",
-   "yahoo": "009150.KS",
-   "isin": "",
-   "currency": "KRW",
-   "country": "Korea (South)",
-   "sector": "Information Technology",
-   "weight": 0.56,
-   "perf_local": -0.32485,
-   "perf_eur": -0.28864,
-   "contrib": -0.1616,
+   "perf_eur": 0.28135,
+   "contrib": 0.1604,
    "status": "ok"
   },
   {
@@ -272,36 +259,23 @@
    "currency": "INR",
    "country": "India",
    "sector": "Communication",
-   "weight": 0.55,
-   "perf_local": 0.01546,
-   "perf_eur": -0.0084,
-   "contrib": -0.0046,
+   "weight": 0.56,
+   "perf_local": 0.01113,
+   "perf_eur": -0.00484,
+   "contrib": -0.0027,
    "status": "ok"
   },
   {
-   "name": "UNITED MICRO ELECTRONICS CORP",
-   "yahoo": "2303.TW",
+   "name": "SAMSUNG ELECTRO MECHANICS LTD",
+   "yahoo": "009150.KS",
    "isin": "",
-   "currency": "TWD",
-   "country": "Taiwan",
+   "currency": "KRW",
+   "country": "Korea (South)",
    "sector": "Information Technology",
-   "weight": 0.48,
-   "perf_local": -0.2809,
-   "perf_eur": -0.29391,
-   "contrib": -0.1411,
-   "status": "ok"
-  },
-  {
-   "name": "PDD HOLDINGS ADS INC",
-   "yahoo": "PDD",
-   "isin": "",
-   "currency": "USD",
-   "country": "China",
-   "sector": "Consumer Discretionary",
-   "weight": 0.47,
-   "perf_local": 0.09137,
-   "perf_eur": 0.08935,
-   "contrib": 0.042,
+   "weight": 0.52,
+   "perf_local": -0.32485,
+   "perf_eur": -0.29252,
+   "contrib": -0.1521,
    "status": "ok"
   },
   {
@@ -311,10 +285,23 @@
    "currency": "HKD",
    "country": "China",
    "sector": "Financials",
-   "weight": 0.47,
+   "weight": 0.48,
    "perf_local": 0.07663,
-   "perf_eur": 0.07605,
-   "contrib": 0.0357,
+   "perf_eur": 0.07802,
+   "contrib": 0.0374,
+   "status": "ok"
+  },
+  {
+   "name": "PDD HOLDINGS ADS INC",
+   "yahoo": "PDD",
+   "isin": "",
+   "currency": "USD",
+   "country": "China",
+   "sector": "Consumer Discretionary",
+   "weight": 0.48,
+   "perf_local": 0.10843,
+   "perf_eur": 0.10944,
+   "contrib": 0.0525,
    "status": "ok"
   },
   {
@@ -324,10 +311,23 @@
    "currency": "HKD",
    "country": "China",
    "sector": "Financials",
-   "weight": 0.46,
+   "weight": 0.47,
    "perf_local": 0.01139,
-   "perf_eur": 0.01084,
-   "contrib": 0.005,
+   "perf_eur": 0.01269,
+   "contrib": 0.006,
+   "status": "ok"
+  },
+  {
+   "name": "UNITED MICRO ELECTRONICS CORP",
+   "yahoo": "2303.TW",
+   "isin": "",
+   "currency": "TWD",
+   "country": "Taiwan",
+   "sector": "Information Technology",
+   "weight": 0.46,
+   "perf_local": -0.2809,
+   "perf_eur": -0.29064,
+   "contrib": -0.1337,
    "status": "ok"
   },
   {
@@ -337,10 +337,10 @@
    "currency": "TWD",
    "country": "Taiwan",
    "sector": "Information Technology",
-   "weight": 0.45,
+   "weight": 0.44,
    "perf_local": -0.14478,
-   "perf_eur": -0.16026,
-   "contrib": -0.0721,
+   "perf_eur": -0.15637,
+   "contrib": -0.0688,
    "status": "ok"
   },
   {
@@ -350,10 +350,23 @@
    "currency": "HKD",
    "country": "China",
    "sector": "Communication",
-   "weight": 0.42,
+   "weight": 0.43,
    "perf_local": 0.01131,
-   "perf_eur": 0.01077,
-   "contrib": 0.0045,
+   "perf_eur": 0.01262,
+   "contrib": 0.0054,
+   "status": "ok"
+  },
+  {
+   "name": "BYD LTD H",
+   "yahoo": "1211.HK",
+   "isin": "",
+   "currency": "HKD",
+   "country": "China",
+   "sector": "Consumer Discretionary",
+   "weight": 0.43,
+   "perf_local": 0.16722,
+   "perf_eur": 0.16872,
+   "contrib": 0.0725,
    "status": "ok"
   },
   {
@@ -365,21 +378,8 @@
    "sector": "Financials",
    "weight": 0.42,
    "perf_local": 0.12978,
-   "perf_eur": 0.19036,
-   "contrib": 0.0799,
-   "status": "ok"
-  },
-  {
-   "name": "BYD LTD H",
-   "yahoo": "1211.HK",
-   "isin": "",
-   "currency": "HKD",
-   "country": "China",
-   "sector": "Consumer Discretionary",
-   "weight": 0.41,
-   "perf_local": 0.16722,
-   "perf_eur": 0.16658,
-   "contrib": 0.0683,
+   "perf_eur": 0.18387,
+   "contrib": 0.0772,
    "status": "ok"
   },
   {
@@ -389,23 +389,10 @@
    "currency": "KRW",
    "country": "Korea (South)",
    "sector": "Consumer Discretionary",
-   "weight": 0.39,
-   "perf_local": -0.21218,
-   "perf_eur": -0.16994,
-   "contrib": -0.0663,
-   "status": "ok"
-  },
-  {
-   "name": "UNIMICRON TECHNOLOGY CORP",
-   "yahoo": "3037.TW",
-   "isin": "",
-   "currency": "TWD",
-   "country": "Taiwan",
-   "sector": "Information Technology",
    "weight": 0.37,
-   "perf_local": -0.09882,
-   "perf_eur": -0.11513,
-   "contrib": -0.0426,
+   "perf_local": -0.21218,
+   "perf_eur": -0.17446,
+   "contrib": -0.0645,
    "status": "ok"
   },
   {
@@ -417,8 +404,21 @@
    "sector": "Information Technology",
    "weight": 0.36,
    "perf_local": -0.06526,
-   "perf_eur": -0.08218,
-   "contrib": -0.0296,
+   "perf_eur": -0.07793,
+   "contrib": -0.0281,
+   "status": "ok"
+  },
+  {
+   "name": "UNIMICRON TECHNOLOGY CORP",
+   "yahoo": "3037.TW",
+   "isin": "",
+   "currency": "TWD",
+   "country": "Taiwan",
+   "sector": "Information Technology",
+   "weight": 0.35,
+   "perf_local": -0.09882,
+   "perf_eur": -0.11103,
+   "contrib": -0.0389,
    "status": "ok"
   },
   {
@@ -430,8 +430,8 @@
    "sector": "Consumer Discretionary",
    "weight": 0.35,
    "perf_local": 0.16815,
-   "perf_eur": 0.16752,
-   "contrib": 0.0586,
+   "perf_eur": 0.16966,
+   "contrib": 0.0594,
    "status": "ok"
   },
   {
@@ -441,23 +441,10 @@
    "currency": "TWD",
    "country": "Taiwan",
    "sector": "Financials",
-   "weight": 0.33,
+   "weight": 0.34,
    "perf_local": -0.05204,
-   "perf_eur": -0.0692,
-   "contrib": -0.0228,
-   "status": "ok"
-  },
-  {
-   "name": "YAGEO CORP",
-   "yahoo": "2327.TW",
-   "isin": "",
-   "currency": "TWD",
-   "country": "Taiwan",
-   "sector": "Information Technology",
-   "weight": 0.33,
-   "perf_local": -0.38857,
-   "perf_eur": -0.39964,
-   "contrib": -0.1319,
+   "perf_eur": -0.06489,
+   "contrib": -0.0221,
    "status": "ok"
   },
   {
@@ -467,10 +454,10 @@
    "currency": "INR",
    "country": "India",
    "sector": "Information Technology",
-   "weight": 0.33,
+   "weight": 0.34,
    "perf_local": -0.01486,
-   "perf_eur": -0.03801,
-   "contrib": -0.0125,
+   "perf_eur": -0.03042,
+   "contrib": -0.0103,
    "status": "ok"
   },
   {
@@ -480,23 +467,23 @@
    "currency": "TWD",
    "country": "Taiwan",
    "sector": "Financials",
-   "weight": 0.33,
+   "weight": 0.34,
    "perf_local": -0.09013,
-   "perf_eur": -0.1066,
-   "contrib": -0.0352,
+   "perf_eur": -0.10246,
+   "contrib": -0.0348,
    "status": "ok"
   },
   {
-   "name": "MAHINDRA AND MAHINDRA LTD",
-   "yahoo": "M&M.NS",
+   "name": "YAGEO CORP",
+   "yahoo": "2327.TW",
    "isin": "",
-   "currency": "INR",
-   "country": "India",
-   "sector": "Consumer Discretionary",
-   "weight": 0.29,
-   "perf_local": 0.06335,
-   "perf_eur": 0.03836,
-   "contrib": 0.0111,
+   "currency": "TWD",
+   "country": "Taiwan",
+   "sector": "Information Technology",
+   "weight": 0.32,
+   "perf_local": -0.38857,
+   "perf_eur": -0.39686,
+   "contrib": -0.127,
    "status": "ok"
   },
   {
@@ -506,23 +493,23 @@
    "currency": "KRW",
    "country": "Korea (South)",
    "sector": "Financials",
-   "weight": 0.29,
+   "weight": 0.3,
    "perf_local": 0.09091,
-   "perf_eur": 0.1494,
-   "contrib": 0.0433,
+   "perf_eur": 0.14315,
+   "contrib": 0.0429,
    "status": "ok"
   },
   {
-   "name": "NAN YA PLASTICS CORP",
-   "yahoo": "1303.TW",
+   "name": "MAHINDRA AND MAHINDRA LTD",
+   "yahoo": "M&M.NS",
    "isin": "",
-   "currency": "TWD",
-   "country": "Taiwan",
-   "sector": "Materials",
-   "weight": 0.29,
-   "perf_local": 0.13782,
-   "perf_eur": 0.11723,
-   "contrib": 0.034,
+   "currency": "INR",
+   "country": "India",
+   "sector": "Consumer Discretionary",
+   "weight": 0.3,
+   "perf_local": 0.03162,
+   "perf_eur": 0.01533,
+   "contrib": 0.0046,
    "status": "ok"
   },
   {
@@ -545,10 +532,10 @@
    "currency": "TWD",
    "country": "Taiwan",
    "sector": "Financials",
-   "weight": 0.28,
+   "weight": 0.29,
    "perf_local": -0.11818,
-   "perf_eur": -0.13414,
-   "contrib": -0.0376,
+   "perf_eur": -0.13013,
+   "contrib": -0.0377,
    "status": "ok"
   },
   {
@@ -560,8 +547,34 @@
    "sector": "Communication",
    "weight": 0.28,
    "perf_local": -0.02614,
-   "perf_eur": -0.02667,
-   "contrib": -0.0075,
+   "perf_eur": -0.02489,
+   "contrib": -0.007,
+   "status": "ok"
+  },
+  {
+   "name": "PETROCHINA LTD H",
+   "yahoo": "0857.HK",
+   "isin": "",
+   "currency": "HKD",
+   "country": "China",
+   "sector": "Energy",
+   "weight": 0.28,
+   "perf_local": 0.14078,
+   "perf_eur": 0.14225,
+   "contrib": 0.0398,
+   "status": "ok"
+  },
+  {
+   "name": "AXIS BANK LTD",
+   "yahoo": "AXISBANK.NS",
+   "isin": "",
+   "currency": "INR",
+   "country": "India",
+   "sector": "Financials",
+   "weight": 0.28,
+   "perf_local": -0.11354,
+   "perf_eur": -0.12754,
+   "contrib": -0.0357,
    "status": "ok"
   },
   {
@@ -573,34 +586,8 @@
    "sector": "Information Technology",
    "weight": 0.28,
    "perf_local": -0.11828,
-   "perf_eur": -0.13424,
-   "contrib": -0.0376,
-   "status": "ok"
-  },
-  {
-   "name": "PETROCHINA LTD H",
-   "yahoo": "0857.HK",
-   "isin": "",
-   "currency": "HKD",
-   "country": "China",
-   "sector": "Energy",
-   "weight": 0.27,
-   "perf_local": 0.14078,
-   "perf_eur": 0.14016,
-   "contrib": 0.0378,
-   "status": "ok"
-  },
-  {
-   "name": "AXIS BANK LTD",
-   "yahoo": "AXISBANK.NS",
-   "isin": "",
-   "currency": "INR",
-   "country": "India",
-   "sector": "Financials",
-   "weight": 0.27,
-   "perf_local": -0.10304,
-   "perf_eur": -0.12412,
-   "contrib": -0.0335,
+   "perf_eur": -0.13023,
+   "contrib": -0.0365,
    "status": "ok"
   },
   {
@@ -610,10 +597,10 @@
    "currency": "HKD",
    "country": "China",
    "sector": "Financials",
-   "weight": 0.27,
+   "weight": 0.28,
    "perf_local": 0.00424,
-   "perf_eur": 0.00369,
-   "contrib": 0.001,
+   "perf_eur": 0.00553,
+   "contrib": 0.0015,
    "status": "ok"
   },
   {
@@ -624,9 +611,22 @@
    "country": "India",
    "sector": "Financials",
    "weight": 0.27,
-   "perf_local": 0.08042,
-   "perf_eur": 0.05504,
-   "contrib": 0.0149,
+   "perf_local": 0.02205,
+   "perf_eur": 0.00591,
+   "contrib": 0.0016,
+   "status": "ok"
+  },
+  {
+   "name": "NAN YA PLASTICS CORP",
+   "yahoo": "1303.TW",
+   "isin": "",
+   "currency": "TWD",
+   "country": "Taiwan",
+   "sector": "Materials",
+   "weight": 0.27,
+   "perf_local": 0.13782,
+   "perf_eur": 0.1224,
+   "contrib": 0.033,
    "status": "ok"
   },
   {
@@ -638,8 +638,21 @@
    "sector": "Consumer Discretionary",
    "weight": 0.26,
    "perf_local": -0.03111,
-   "perf_eur": -0.03163,
-   "contrib": -0.0082,
+   "perf_eur": -0.02986,
+   "contrib": -0.0078,
+   "status": "ok"
+  },
+  {
+   "name": "HANA FINANCIAL GROUP INC",
+   "yahoo": "086790.KS",
+   "isin": "",
+   "currency": "KRW",
+   "country": "Korea (South)",
+   "sector": "Financials",
+   "weight": 0.25,
+   "perf_local": 0.15937,
+   "perf_eur": 0.21489,
+   "contrib": 0.0537,
    "status": "ok"
   },
   {
@@ -651,8 +664,8 @@
    "sector": "Materials",
    "weight": 0.25,
    "perf_local": 0.09986,
-   "perf_eur": 0.09927,
-   "contrib": 0.0248,
+   "perf_eur": 0.10128,
+   "contrib": 0.0253,
    "status": "ok"
   },
   {
@@ -664,21 +677,21 @@
    "sector": "Information Technology",
    "weight": 0.25,
    "perf_local": -0.05929,
-   "perf_eur": -0.07632,
-   "contrib": -0.0191,
+   "perf_eur": -0.07204,
+   "contrib": -0.018,
    "status": "ok"
   },
   {
-   "name": "HANA FINANCIAL GROUP INC",
-   "yahoo": "086790.KS",
+   "name": "CHINA MERCHANTS BANK LTD H",
+   "yahoo": "3968.HK",
    "isin": "",
-   "currency": "KRW",
-   "country": "Korea (South)",
+   "currency": "HKD",
+   "country": "China",
    "sector": "Financials",
    "weight": 0.24,
-   "perf_local": 0.15937,
-   "perf_eur": 0.22154,
-   "contrib": 0.0532,
+   "perf_local": 0.06603,
+   "perf_eur": 0.0674,
+   "contrib": 0.0162,
    "status": "ok"
   },
   {
@@ -690,34 +703,8 @@
    "sector": "Information Technology",
    "weight": 0.24,
    "perf_local": -0.03704,
-   "perf_eur": -0.05447,
-   "contrib": -0.0131,
-   "status": "ok"
-  },
-  {
-   "name": "KIA CORPORATION",
-   "yahoo": "000270.KS",
-   "isin": "",
-   "currency": "KRW",
-   "country": "Korea (South)",
-   "sector": "Consumer Discretionary",
-   "weight": 0.24,
-   "perf_local": -0.06048,
-   "perf_eur": -0.0101,
-   "contrib": -0.0024,
-   "status": "ok"
-  },
-  {
-   "name": "CHINA MERCHANTS BANK LTD H",
-   "yahoo": "3968.HK",
-   "isin": "",
-   "currency": "HKD",
-   "country": "China",
-   "sector": "Financials",
-   "weight": 0.23,
-   "perf_local": 0.06603,
-   "perf_eur": 0.06545,
-   "contrib": 0.0151,
+   "perf_eur": -0.05009,
+   "contrib": -0.012,
    "status": "ok"
   },
   {
@@ -727,36 +714,10 @@
    "currency": "HKD",
    "country": "China",
    "sector": "Information Technology",
-   "weight": 0.23,
+   "weight": 0.24,
    "perf_local": 0.06195,
-   "perf_eur": 0.06138,
-   "contrib": 0.0141,
-   "status": "ok"
-  },
-  {
-   "name": "TS FINANCIAL HOLDING LTD",
-   "yahoo": "2887.TW",
-   "isin": "",
-   "currency": "TWD",
-   "country": "Taiwan",
-   "sector": "Financials",
-   "weight": 0.22,
-   "perf_local": 0.0915,
-   "perf_eur": 0.07175,
-   "contrib": 0.0158,
-   "status": "ok"
-  },
-  {
-   "name": "DOOSAN ENERBILITY LTD",
-   "yahoo": "034020.KS",
-   "isin": "",
-   "currency": "KRW",
-   "country": "Korea (South)",
-   "sector": "Industrials",
-   "weight": 0.22,
-   "perf_local": -0.20419,
-   "perf_eur": -0.16152,
-   "contrib": -0.0355,
+   "perf_eur": 0.06332,
+   "contrib": 0.0152,
    "status": "ok"
   },
   {
@@ -766,10 +727,10 @@
    "currency": "INR",
    "country": "India",
    "sector": "Financials",
-   "weight": 0.22,
+   "weight": 0.23,
    "perf_local": -0.05222,
-   "perf_eur": -0.07449,
-   "contrib": -0.0164,
+   "perf_eur": -0.06719,
+   "contrib": -0.0155,
    "status": "ok"
   },
   {
@@ -779,10 +740,49 @@
    "currency": "KRW",
    "country": "Korea (South)",
    "sector": "Industrials",
-   "weight": 0.22,
+   "weight": 0.23,
    "perf_local": -0.10512,
-   "perf_eur": -0.05713,
-   "contrib": -0.0126,
+   "perf_eur": -0.06227,
+   "contrib": -0.0143,
+   "status": "ok"
+  },
+  {
+   "name": "TS FINANCIAL HOLDING LTD",
+   "yahoo": "2887.TW",
+   "isin": "",
+   "currency": "TWD",
+   "country": "Taiwan",
+   "sector": "Financials",
+   "weight": 0.23,
+   "perf_local": 0.0915,
+   "perf_eur": 0.07671,
+   "contrib": 0.0176,
+   "status": "ok"
+  },
+  {
+   "name": "DOOSAN ENERBILITY LTD",
+   "yahoo": "034020.KS",
+   "isin": "",
+   "currency": "KRW",
+   "country": "Korea (South)",
+   "sector": "Industrials",
+   "weight": 0.23,
+   "perf_local": -0.20419,
+   "perf_eur": -0.16609,
+   "contrib": -0.0382,
+   "status": "ok"
+  },
+  {
+   "name": "YUANTA FINANCIAL HOLDING LTD",
+   "yahoo": "2885.TW",
+   "isin": "",
+   "currency": "TWD",
+   "country": "Taiwan",
+   "sector": "Financials",
+   "weight": 0.22,
+   "perf_local": -0.04539,
+   "perf_eur": -0.05832,
+   "contrib": -0.0128,
    "status": "ok"
   }
  ],
@@ -790,9 +790,9 @@
   {
    "name": "SK HYNIX INC",
    "yahoo": "000660.KS",
-   "weight": 7.2,
-   "contrib": -2.1089,
-   "perf_eur": -0.2929,
+   "weight": 6.81,
+   "contrib": -2.0208,
+   "perf_eur": -0.29675,
    "pts": [
     [
      "2026-06-24",
@@ -880,16 +880,16 @@
     ],
     [
      "2026-07-24",
-     70.71
+     69.943
     ]
    ]
   },
   {
    "name": "SAMSUNG ELECTRONICS LTD",
    "yahoo": "005930.KS",
-   "weight": 8.57,
-   "contrib": -1.9536,
-   "perf_eur": -0.22796,
+   "weight": 8.18,
+   "contrib": -1.8991,
+   "perf_eur": -0.23217,
    "pts": [
     [
      "2026-06-24",
@@ -977,16 +977,16 @@
     ],
     [
      "2026-07-24",
-     77.204
+     76.366
     ]
    ]
   },
   {
    "name": "TAIWAN SEMICONDUCTOR MANUFACTURING",
    "yahoo": "2330.TW",
-   "weight": 18.27,
-   "contrib": -0.6309,
-   "perf_eur": -0.03453,
+   "weight": 18.35,
+   "contrib": -0.5516,
+   "perf_eur": -0.03006,
    "pts": [
     [
      "2026-06-24",
@@ -1078,16 +1078,16 @@
     ],
     [
      "2026-07-24",
-     96.547
+     96.637
     ]
    ]
   },
   {
-   "name": "ISH MSCI CHINA A ETF USD ACC",
-   "yahoo": "CNYA",
-   "weight": 4.35,
-   "contrib": -0.2834,
-   "perf_eur": -0.06515,
+   "name": "ALIBABA GROUP HOLDING LTD",
+   "yahoo": "9988.HK",
+   "weight": 2.41,
+   "contrib": 0.2604,
+   "perf_eur": 0.10807,
    "pts": [
     [
      "2026-06-24",
@@ -1095,87 +1095,87 @@
     ],
     [
      "2026-06-25",
-     101.851
+     95.478
     ],
     [
      "2026-06-26",
-     99.721
+     89.951
     ],
     [
      "2026-06-29",
-     100.042
+     92.993
     ],
     [
      "2026-06-30",
-     101.523
-    ],
-    [
-     "2026-07-01",
-     101.041
+     92.869
     ],
     [
      "2026-07-02",
-     97.017
+     94.436
+    ],
+    [
+     "2026-07-03",
+     94.036
     ],
     [
      "2026-07-06",
-     97.783
+     95.735
     ],
     [
      "2026-07-07",
-     96.912
+     95.924
     ],
     [
      "2026-07-08",
-     95.804
+     107.492
     ],
     [
      "2026-07-09",
-     98.408
+     107.92
     ],
     [
      "2026-07-10",
-     97.323
+     110.118
     ],
     [
      "2026-07-13",
-     94.777
+     111.098
     ],
     [
      "2026-07-14",
-     97.027
+     110.784
     ],
     [
      "2026-07-15",
-     96.535
+     112.932
     ],
     [
      "2026-07-16",
-     94.134
+     116.639
     ],
     [
      "2026-07-17",
-     91.623
+     112.349
     ],
     [
      "2026-07-20",
-     92.313
+     116.829
     ],
     [
      "2026-07-21",
-     95.161
+     117.144
     ],
     [
      "2026-07-22",
-     95.095
+     113.684
     ],
     [
      "2026-07-23",
-     94.642
+     115.314
     ],
     [
      "2026-07-24",
-     93.485
+     110.396
     ]
    ]
   }
