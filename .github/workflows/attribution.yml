@@ -11,6 +11,7 @@ permissions:
 jobs:
   attribution:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -22,7 +23,7 @@ jobs:
         run: pip install curl_cffi
 
       - name: Attribution
-        run: python attribution.py
+        run: python -u attribution.py
 
       - name: Commit
         run: |
