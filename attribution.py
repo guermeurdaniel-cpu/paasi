@@ -85,7 +85,7 @@ WORLD = {
     ],
 }
 
-FONDS = [PAASI, WORLD]
+FONDS = [PAASI]          # bissection : World temporairement ecarte
 
 
 # ----------------------------------------------------------------------
