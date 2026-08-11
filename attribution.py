@@ -3,22 +3,20 @@
 """
 paasi / attribution.py — pourquoi PAASI et WPEA montent ou baissent.
 
-Principe :
   contribution d'un agregat = poids dans l'indice x performance de l'agregat
   residu = performance reelle de l'ETF - somme des contributions
 
-Les POIDS viennent de la composition complete d'un ETF physique de reference
-publiee par iShares (CSV), agregee par pays (Asie) ou par secteur (Monde).
-Aucune troncature : on additionne toutes les lignes.
+POIDS : saisis a la main (les indices ne sont rebalances que trimestriellement).
+        Releves sur les pages produit iShares le 07/08/2026.
+        A remettre a jour vers debut novembre 2026.
+PERFS : un ETF cote en EUR par agregat, via Yahoo. Aucune conversion de change.
 
-Les PERFORMANCES viennent d'un ETF cote en euros par agregat (Yahoo).
-Tous les instruments retenus cotent en EUR : aucune conversion de change.
+Aucun acces iShares a l'execution : uniquement des appels Yahoo.
 
 Sortie : attribution.json (consomme par index.html)
 """
 
 import json
-import re
 import sys
 import time
 import datetime as dt
@@ -33,31 +31,25 @@ except ImportError:
 WINDOW_DAYS = 30
 RANGE = "3mo"
 OUT_FILE = "attribution.json"
-ISHARES_BASE = "https://www.ishares.com"
+POIDS_DATE = "2026-08-07"
 
 # ----------------------------------------------------------------------
-# Definition des deux fonds a expliquer
+# (libelle, ticker EUR ou None, poids en %)
+# ticker None = poids connu, performance non suivie : tombe dans le residu
 # ----------------------------------------------------------------------
-# regle : (libelle, ticker EUR ou None, [valeurs de la colonne du CSV])
-# None = agregat sans instrument : son poids est connu, sa perf non ;
-#        sa contribution tombe dans le residu.
-
 PAASI = {
     "cle": "paasi",
     "nom": "PAASI — MSCI Emerging Asia",
     "ref_ticker": "PAASI.PA",
-    "produit": "253723",
-    "page": (ISHARES_BASE + "/uk/individual/en/products/253723/"
-             "ishares-msci-em-asia-ucits-etf"
-             "?switchLocale=y&siteEntryPassthrough=true"),
-    "colonne": "country",
+    "controles": ["CEBL.DE"],          # EM Asia physique, pour diagnostic
     "agregats": [
-        ("Taiwan — fonderie et semi-conducteurs", "ITWN.AS", ["taiwan"]),
-        ("Coree — memoire et electronique", "KRW.PA", ["korea"]),
-        ("Chine — plateformes et banques", "ICGA.DE",
-         ["china", "hong kong", "ireland"]),
-        ("Inde — banques et consommation", "PINR.PA", ["india"]),
-        ("Autres (ASEAN, divers)", None, []),
+        ("Taiwan — fonderie et semi-conducteurs", "ITWN.AS", 32.90),
+        ("Coree — memoire et electronique",       "KRW.PA",  22.74),
+        # Chine 21.82 + 4.46 de l'ETF Chine A domicilie en Irlande
+        ("Chine — plateformes et banques",        "ICGA.DE", 26.28),
+        ("Inde — banques et consommation",        "PINR.PA", 14.20),
+        # Thailande 1.22 + Malaisie 1.14 + divers 0.97 + liquidites 0.54
+        ("Autres (ASEAN, divers)",                None,       3.87),
     ],
 }
 
@@ -65,171 +57,58 @@ WORLD = {
     "cle": "world",
     "nom": "WPEA — MSCI World",
     "ref_ticker": "WPEA.PA",
-    "produit": "251882",
-    "page": (ISHARES_BASE + "/uk/individual/en/products/251882/"
-             "ishares-msci-world-ucits-etf-acc-fund"
-             "?switchLocale=y&siteEntryPassthrough=true"),
-    "colonne": "sector",
+    "controles": ["EUNL.DE"],          # MSCI World physique, pour diagnostic
     "agregats": [
-        ("Technologie", "XDWT.DE", ["information technology"]),
-        ("Finance", "XDWF.DE", ["financials"]),
-        ("Sante", "XDWH.DE", ["health care"]),
-        ("Industrie", "XDWI.DE", ["industrials"]),
-        ("Consommation discretionnaire", "XDWC.DE", ["consumer discretionary"]),
-        ("Consommation de base", "XDWY.DE", ["consumer staples"]),
-        ("Telecoms et medias", "XDWS.DE", ["communication"]),
-        ("Energie", "XDW0.DE", ["energy"]),
-        ("Materiaux", "XDWM.DE", ["materials"]),
-        ("Services publics", "XDWU.DE", ["utilities"]),
-        ("Autres (immobilier, divers)", None, []),
+        ("Technologie",                  "XDWT.DE", 29.75),
+        ("Finance",                      "XDWF.DE", 16.44),
+        ("Industrie",                    "XDWI.DE", 11.42),
+        ("Sante",                        "XDWH.DE",  9.00),
+        ("Consommation discretionnaire", "XDWC.DE",  8.97),
+        ("Telecoms et medias",           "XDWS.DE",  7.97),
+        ("Consommation de base",         "XDWY.DE",  4.94),
+        ("Energie",                      "XDW0.DE",  3.76),
+        ("Materiaux",                    "XDWM.DE",  3.32),
+        ("Services publics",             "XDWU.DE",  2.39),
+        ("Autres (immobilier, divers)",  None,       2.04),
     ],
 }
 
-FONDS = [PAASI]          # bissection : World temporairement ecarte
+FONDS = [PAASI, WORLD]
 
 
-# ----------------------------------------------------------------------
-# HTTP
-# ----------------------------------------------------------------------
 def http_get(url, **kw):
     kw.setdefault("timeout", 20)
     if HAVE_CFFI:
         kw.setdefault("impersonate", "chrome")
     else:
         kw.setdefault("headers", {"User-Agent": "Mozilla/5.0"})
-    print(f"  [http] {url[:90]}", flush=True)
     return creq.get(url, **kw)
 
 
-# ----------------------------------------------------------------------
-# 1. Composition iShares -> poids par agregat
-# ----------------------------------------------------------------------
-def fetch_holdings_csv(page_url, produit):
-    r = http_get(page_url)
-    r.raise_for_status()
-    html = r.text
-    motif = (r'(/[^"\']*' + produit +
-             r'[^"\']*\.ajax\?fileType=csv[^"\']*dataType=fund)')
-    m = re.search(motif, html)
-    if not m:
-        m = re.search(r'([^"\']*\.ajax\?fileType=csv[^"\']*dataType=fund)', html)
-    if not m:
-        raise RuntimeError(f"Lien CSV introuvable (produit {produit})")
-    url = ISHARES_BASE + m.group(1).replace("&amp;", "&")
-    print(f"[ishares {produit}] {url}")
-    r2 = http_get(url)
-    r2.raise_for_status()
-    return r2.text
-
-
-def parse_holdings(csv_text):
-    """Retourne (date de composition, [lignes actions])."""
-    lines = csv_text.splitlines()
-    hdate = None
-    header_idx = None
-    for i, ln in enumerate(lines):
-        if hdate is None:
-            m = re.search(r'as of[,"\s]+([0-9]{1,2}-\w{3}-[0-9]{4})', ln)
-            if m:
-                try:
-                    hdate = dt.datetime.strptime(
-                        m.group(1), "%d-%b-%Y").date().isoformat()
-                except ValueError:
-                    pass
-        if ln.startswith("Ticker,") or ln.startswith('"Ticker"'):
-            header_idx = i
-            break
-    if header_idx is None:
-        raise RuntimeError("En-tete CSV iShares introuvable")
-
-    import csv as csvmod
-    reader = csvmod.reader(lines[header_idx:])
-    header = next(reader)
-    idx = {h.strip(): k for k, h in enumerate(header)}
-
-    def col(row, *names):
-        for n in names:
-            if n in idx and idx[n] < len(row):
-                return row[idx[n]].strip()
-        return ""
-
-    out = []
-    for row in reader:
-        if len(row) < 3:
-            continue
-        asset = col(row, "Asset Class")
-        if asset and asset.upper() != "EQUITY":
-            continue
-        try:
-            w = float(col(row, "Weight (%)").replace(",", ""))
-        except ValueError:
-            continue
-        out.append({
-            "name": col(row, "Name"),
-            "sector": col(row, "Sector"),
-            "country": col(row, "Location"),
-            "weight": w,
-        })
-    return hdate, out
-
-
-def poids_par_agregat(lignes, colonne, agregats):
-    """Additionne les poids de TOUTES les lignes, sans troncature."""
-    regles = []
-    for i, (libelle, ticker, cles) in enumerate(agregats):
-        regles.append((i, [c.lower() for c in cles]))
-
-    poids = [0.0] * len(agregats)
-    reste = len(agregats) - 1          # dernier agregat = fourre-tout
-    for ln in lignes:
-        val = (ln.get(colonne) or "").strip().lower()
-        # cas particulier : ETF detenu dans le fonds (Chine A, domicilie Irlande)
-        if colonne == "country" and "etf" in ln["name"].lower():
-            val = "china"
-        cible = reste
-        for i, cles in regles:
-            if any(val.startswith(c) for c in cles):
-                cible = i
-                break
-        poids[cible] += ln["weight"]
-
-    total = sum(poids)
-    if total <= 0:
-        raise RuntimeError("Poids total nul")
-    return [p / total * 100.0 for p in poids], total
-
-
-# ----------------------------------------------------------------------
-# 2. Series Yahoo (toutes en EUR)
-# ----------------------------------------------------------------------
 def yahoo_serie(symbol):
-    """Retourne {date iso: cloture} ou {} si indisponible."""
+    """Retourne {date iso: cloture}, {} si indisponible."""
     url = (f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
            f"?range={RANGE}&interval=1d")
+    print(f"  [yahoo] {symbol}", flush=True)
     try:
         r = http_get(url)
         if r.status_code != 200:
-            print(f"  [!] {symbol} HTTP {r.status_code}")
+            print(f"    [!] HTTP {r.status_code}", flush=True)
             return {}
         res = r.json()["chart"]["result"][0]
     except Exception as exc:
-        print(f"  [!] {symbol} {exc.__class__.__name__}")
+        print(f"    [!] {exc.__class__.__name__}", flush=True)
         return {}
     stamps = res.get("timestamp") or []
     closes = (res.get("indicators", {}).get("quote") or [{}])[0].get("close") or []
-    serie = {}
-    for t, c in zip(stamps, closes):
-        if c is None:
-            continue
-        serie[dt.datetime.utcfromtimestamp(t).date().isoformat()] = float(c)
-    return serie
+    return {dt.datetime.utcfromtimestamp(t).date().isoformat(): float(c)
+            for t, c in zip(stamps, closes) if c is not None}
 
 
 def aligner(serie, calendrier):
-    """Projette une serie sur le calendrier de reference, en reportant
+    """Projette une serie sur le calendrier de reference en reportant
     la derniere cloture connue (places boursieres non synchrones)."""
-    out = []
-    dernier = None
+    out, dernier = [], None
     for d in calendrier:
         if d in serie:
             dernier = serie[d]
@@ -237,33 +116,21 @@ def aligner(serie, calendrier):
     return out
 
 
-# ----------------------------------------------------------------------
-# 3. Traitement d'un fonds
-# ----------------------------------------------------------------------
 def traiter(fonds):
-    print(f"\n=== {fonds['nom']} ===")
-    hdate, lignes = parse_holdings(
-        fetch_holdings_csv(fonds["page"], fonds["produit"]))
-    poids, couverture = poids_par_agregat(
-        lignes, fonds["colonne"], fonds["agregats"])
-    print(f"  {len(lignes)} lignes actions, {couverture:.1f} % de poids agrege"
-          f" (composition du {hdate})")
+    print(f"\n=== {fonds['nom']} ===", flush=True)
 
     ref = yahoo_serie(fonds["ref_ticker"])
     if len(ref) < WINDOW_DAYS // 2:
         raise RuntimeError(f"Serie de reference {fonds['ref_ticker']} vide")
     calendrier = sorted(ref)[-(WINDOW_DAYS + 1):]
-    base_ref = ref[calendrier[0]]
-    perf_ref = (ref[calendrier[-1]] / base_ref - 1) * 100.0
+    perf_ref = (ref[calendrier[-1]] / ref[calendrier[0]] - 1) * 100.0
 
-    resultats = []
-    somme = 0.0
-    poids_sans_instrument = 0.0
+    resultats, somme, poids_muet = [], 0.0, 0.0
 
-    for (libelle, ticker, _), p in zip(fonds["agregats"], poids):
-        item = {"libelle": libelle, "ticker": ticker, "poids": round(p, 2)}
+    for libelle, ticker, poids in fonds["agregats"]:
+        item = {"libelle": libelle, "ticker": ticker, "poids": poids}
         if not ticker:
-            poids_sans_instrument += p
+            poids_muet += poids
             item.update({"perf_pct": None, "contrib": None, "serie": []})
             resultats.append(item)
             continue
@@ -271,7 +138,7 @@ def traiter(fonds):
         time.sleep(0.4)
         serie = aligner(yahoo_serie(ticker), calendrier)
         if serie[0] is None or serie[-1] is None:
-            poids_sans_instrument += p
+            poids_muet += poids
             item.update({"perf_pct": None, "contrib": None, "serie": [],
                          "erreur": "serie incomplete"})
             resultats.append(item)
@@ -279,39 +146,49 @@ def traiter(fonds):
 
         base = serie[0]
         perf = (serie[-1] / base - 1) * 100.0
-        contrib = p * perf / 100.0
+        contrib = poids * perf / 100.0
         somme += contrib
         item.update({
             "perf_pct": round(perf, 2),
             "contrib": round(contrib, 3),
-            # historique de la contribution cumulee, en points d'indice
-            "serie": [None if v is None else round(p * (v / base - 1) / 100.0, 4)
+            "serie": [None if v is None else round(poids * (v / base - 1) / 100.0, 4)
                       for v in serie],
         })
         resultats.append(item)
 
+    controles = {}
+    for sym in fonds.get("controles", []):
+        time.sleep(0.4)
+        s = aligner(yahoo_serie(sym), calendrier)
+        if s[0] and s[-1]:
+            controles[sym] = round((s[-1] / s[0] - 1) * 100.0, 2)
+
     residu = perf_ref - somme
-    print(f"  perf {fonds['ref_ticker']} {perf_ref:+.2f} %  "
-          f"| somme contributions {somme:+.2f} pt  | residu {residu:+.2f} pt")
+    print(f"  perf {fonds['ref_ticker']} {perf_ref:+.2f} % "
+          f"| somme {somme:+.2f} pt | residu {residu:+.2f} pt "
+          f"| poids muet {poids_muet:.2f} %", flush=True)
     for r in resultats:
         if r["contrib"] is None:
-            print(f"    {r['libelle'][:34]:36s} poids {r['poids']:5.1f} %"
-                  f"   (pas d'instrument)")
+            print(f"    {r['libelle'][:34]:36s} poids {r['poids']:5.2f} %"
+                  f"   (non suivi)", flush=True)
         else:
-            print(f"    {r['libelle'][:34]:36s} poids {r['poids']:5.1f} %"
-                  f"  perf {r['perf_pct']:+7.2f} %  contrib {r['contrib']:+6.2f} pt")
+            print(f"    {r['libelle'][:34]:36s} poids {r['poids']:5.2f} %"
+                  f"  perf {r['perf_pct']:+7.2f} %"
+                  f"  contrib {r['contrib']:+6.2f} pt", flush=True)
+    for k, v in controles.items():
+        print(f"    [controle] {k} {v:+.2f} %", flush=True)
 
     return {
         "cle": fonds["cle"],
         "nom": fonds["nom"],
         "ref_ticker": fonds["ref_ticker"],
-        "holdings_date": hdate,
-        "n_lignes": len(lignes),
+        "poids_date": POIDS_DATE,
         "dates": calendrier,
         "perf_ref_pct": round(perf_ref, 2),
         "somme_contrib": round(somme, 3),
         "residu": round(residu, 3),
-        "poids_sans_instrument": round(poids_sans_instrument, 2),
+        "poids_non_suivi": round(poids_muet, 2),
+        "controles": controles,
         "agregats": resultats,
     }
 
@@ -322,20 +199,20 @@ def main():
         try:
             fonds.append(traiter(f))
         except Exception as exc:
-            print(f"[ECHEC] {f['cle']} : {exc}")
+            print(f"[ECHEC] {f['cle']} : {exc}", flush=True)
 
     if not fonds:
-        print("Aucun fonds traite, fichier non ecrit")
+        print("Aucun fonds traite, fichier non ecrit", flush=True)
         return 1
 
-    payload = {
-        "generated": dt.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "window_days": WINDOW_DAYS,
-        "fonds": fonds,
-    }
     with open(OUT_FILE, "w", encoding="utf-8") as fh:
-        json.dump(payload, fh, ensure_ascii=False, indent=1)
-    print(f"\n-> {OUT_FILE} ({len(fonds)} fonds)")
+        json.dump({
+            "generated": dt.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "window_days": WINDOW_DAYS,
+            "poids_date": POIDS_DATE,
+            "fonds": fonds,
+        }, fh, ensure_ascii=False, indent=1)
+    print(f"\n-> {OUT_FILE} ({len(fonds)} fonds)", flush=True)
     return 0
 
 
