@@ -10,12 +10,12 @@
 <style>
   :root {
     --bg: #10131a; --panel: #181c26; --txt: #e8eaf0; --dim: #8a91a3;
-    --pos: #2ecc71; --neg: #e74c3c; --line: #2a3040;
+    --pos: #2ecc71; --neg: #e74c3c; --line: #2a3040; --warn: #ffb547;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body { background: var(--bg); color: var(--txt);
          font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
-         padding: 12px 10px 30px; }
+         padding: 12px 10px 34px; }
   h1 { font-size: 17px; font-weight: 700; }
   .sub { font-size: 11.5px; color: var(--dim); margin: 4px 0 10px; line-height: 1.5; }
   .kpis { display: flex; gap: 8px; margin-bottom: 12px; }
@@ -24,12 +24,15 @@
   .kpi .l { font-size: 10px; color: var(--dim); margin-top: 2px; line-height: 1.3; }
   .kpi .v.pos { color: var(--pos); } .kpi .v.neg { color: var(--neg); }
   .panel { background: var(--panel); border-radius: 12px; padding: 12px 8px; }
-  canvas { display: block; width: 100%; }
+  canvas { display: block; width: 100%; touch-action: none; }
   .synth { background: var(--panel); border-radius: 12px; padding: 11px 12px;
            font-size: 12.5px; line-height: 1.65; margin-bottom: 12px; }
   .synth b { font-weight: 700; }
   .synth .pos { color: var(--pos); } .synth .neg { color: var(--neg); }
-  .h2 { font-size: 12.5px; font-weight: 700; margin: 16px 0 6px; }
+  .h2 { font-size: 12.5px; font-weight: 700; margin: 16px 0 6px;
+        display: flex; justify-content: space-between; align-items: baseline; }
+  .h2 span { font-size: 10px; color: var(--dim); font-weight: 400; }
+  .h2 button { background: none; border: 0; color: var(--dim); font-size: 13px; }
   .upd { font-size: 10px; color: var(--dim); text-align: right; margin: -4px 0 8px; }
   .upd button { background: none; border: 0; color: var(--dim); font-size: 12px;
                 padding: 0 0 0 6px; }
@@ -40,9 +43,35 @@
   .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px;
               margin-right: 5px; vertical-align: -1px; }
   .legend b { color: var(--txt); font-weight: 600; }
-  .tip { position: fixed; display: none; background: #000c; color: #fff;
-         font-size: 11px; padding: 6px 9px; border-radius: 7px;
-         pointer-events: none; z-index: 9; max-width: 240px; line-height: 1.5; }
+  .tip { position: fixed; display: none; background: #000d; color: #fff;
+         font-size: 11px; padding: 7px 10px; border-radius: 8px;
+         pointer-events: none; z-index: 9; line-height: 1.55;
+         border: 1px solid #2a3040; }
+  .tip table { border-collapse: collapse; }
+  .tip td { padding: 0 0 0 8px; white-space: nowrap; }
+  .tip td:first-child { padding: 0; }
+  .tip .hd { font-weight: 700; margin-bottom: 3px; display: block; }
+  /* bloc journee */
+  table.j { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  table.j th { color: var(--dim); font-weight: 500; font-size: 10px;
+               text-align: right; padding: 0 4px 5px; }
+  table.j th:first-child { text-align: left; }
+  table.j td { padding: 3px 4px; text-align: right; }
+  table.j td:first-child { text-align: left; color: var(--txt); }
+  table.j tr.tot td { border-top: 1px solid var(--line); padding-top: 6px;
+                      font-weight: 700; }
+  .avert { color: var(--warn); font-size: 10.5px; line-height: 1.5;
+           margin-top: 8px; }
+  details { background: var(--panel); border-radius: 10px; margin-bottom: 6px;
+            padding: 9px 11px; }
+  details summary { font-size: 12px; font-weight: 600; cursor: pointer;
+                    list-style: none; }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::before { content: "▸ "; color: var(--dim); }
+  details[open] summary::before { content: "▾ "; }
+  details p { font-size: 11.5px; color: var(--dim); line-height: 1.6;
+              margin-top: 7px; }
+  details p b { color: var(--txt); font-weight: 600; }
 </style>
 </head>
 <body>
@@ -50,6 +79,14 @@
 <h1>MSCI World — Moteurs de l'indice</h1>
 <div class="sub" id="subtitle">Chargement…</div>
 <div class="upd" id="upd" style="display:none"></div>
+
+<div class="h2" id="hJour" style="display:none">
+  <span style="font-size:12.5px;font-weight:700;color:var(--txt)">Aujourd'hui</span>
+  <button id="recJour">↻</button>
+</div>
+<div class="panel" id="jour" style="display:none">
+  <div style="font-size:11px;color:var(--dim)">Chargement des cours…</div>
+</div>
 
 <div class="kpis" id="kpis" style="display:none">
   <div class="kpi"><div class="v" id="kPerf">–</div><div class="l">WPEA sur la fenêtre</div></div>
@@ -60,12 +97,20 @@
 <div class="synth" id="synth" style="display:none"></div>
 
 <div id="blocs" style="display:none">
-  <div class="h2">Contribution de chaque secteur (points d'indice)</div>
+  <div class="h2"><span style="font-size:12.5px;font-weight:700;color:var(--txt)">Contribution de chaque secteur (points d'indice)</span></div>
   <div class="panel"><canvas id="barres"></canvas></div>
 
-  <div class="h2">Contribution cumulée jour après jour</div>
-  <div class="panel"><canvas id="courbes"></canvas></div>
+  <div class="h2">
+    <span style="font-size:12.5px;font-weight:700;color:var(--txt)">Empilement des contributions</span>
+    <span>1 doigt : une date · 2 doigts : un écart</span>
+  </div>
+  <div class="panel"><canvas id="pile"></canvas></div>
   <div class="legend" id="legende"></div>
+</div>
+
+<div id="lexique" style="display:none">
+  <div class="h2"><span style="font-size:12.5px;font-weight:700;color:var(--txt)">Que contient chaque secteur</span></div>
+  <div id="lexBody"></div>
 </div>
 
 <div class="foot" id="foot"></div>
@@ -76,23 +121,97 @@
 (function () {
   "use strict";
 
+  var PROXY = "https://flat-bread-4d06.guermeur-daniel.workers.dev/?url=";
+  var SECOURS = "https://api.codetabs.com/v1/proxy/?quest=";
+
   var COULEURS = ["#4da3ff", "#ffb547", "#2ecc71", "#e74c3c", "#b07cff",
                   "#41d6c3", "#ff7ab8", "#9aa7bd", "#d4c14a", "#7fd14a",
                   "#ff8f5a"];
+
+  // Lexique : GICS + principales valeurs de l'indice sectoriel MSCI World.
+  var LEX = {
+    "Technologie":
+      "Semi-conducteurs, logiciels, matériel et services informatiques. " +
+      "C'est le secteur le plus concentré de l'indice : <b>Nvidia</b> et " +
+      "<b>Apple</b> en représentent à eux seuls près d'un tiers, devant " +
+      "<b>Microsoft</b>, <b>Broadcom</b>, <b>Micron</b>, <b>AMD</b> et " +
+      "<b>ASML</b>. Attention au contresens courant : Amazon, Alphabet, Meta " +
+      "et Tesla n'y sont pas — l'exposition réelle à l'IA déborde donc " +
+      "largement de ce seul secteur.",
+    "Finance":
+      "Banques, assureurs, gestionnaires d'actifs, places de marché, et " +
+      "depuis la révision GICS de 2023 les réseaux de paiement " +
+      "(<b>Visa</b>, <b>Mastercard</b>). Premier poids de l'indice après la " +
+      "technologie, mené par <b>JPMorgan</b> et <b>Berkshire Hathaway</b>. " +
+      "Secteur très sensible aux taux longs et à la pente de la courbe.",
+    "Industrie":
+      "Aéronautique et défense, machines, transport, bâtiment, services aux " +
+      "entreprises. On y trouve <b>GE</b>, <b>RTX</b>, <b>Caterpillar</b>, " +
+      "<b>Siemens</b>, <b>Honeywell</b>, <b>Schneider</b> — et donc " +
+      "l'essentiel des valeurs de défense cotées.",
+    "Santé":
+      "Laboratoires pharmaceutiques, biotechnologies, matériel médical et " +
+      "assureurs santé américains : <b>Eli Lilly</b>, <b>Johnson &amp; " +
+      "Johnson</b>, <b>Novo Nordisk</b>, <b>UnitedHealth</b>, <b>Roche</b>, " +
+      "<b>Novartis</b>. Secteur défensif, mais exposé au risque " +
+      "réglementaire américain sur le prix des médicaments.",
+    "Consommation discrétionnaire":
+      "L'achat qu'on peut reporter : commerce en ligne, automobile, luxe, " +
+      "restauration, hôtellerie. Dominé par <b>Amazon</b> — troisième " +
+      "capitalisation de l'indice tous secteurs confondus — puis " +
+      "<b>Tesla</b>, <b>Home Depot</b>, <b>Toyota</b>, <b>LVMH</b>. " +
+      "Bon baromètre de la confiance des ménages.",
+    "Télécoms et médias":
+      "Communication Services au sens GICS, ce qui recouvre surtout la " +
+      "publicité en ligne et le divertissement : <b>Alphabet</b> " +
+      "(deux lignes A et C), <b>Meta</b>, <b>Netflix</b>, <b>Disney</b>, " +
+      "à côté des opérateurs télécoms traditionnels. Alphabet et Meta y " +
+      "pèsent l'essentiel : ce secteur est en pratique une seconde poche " +
+      "technologique.",
+    "Consommation de base":
+      "L'achat qu'on ne reporte pas : alimentation, boissons, hygiène, " +
+      "distribution alimentaire, tabac. <b>Walmart</b>, <b>Costco</b>, " +
+      "<b>Procter &amp; Gamble</b>, <b>Nestlé</b>, <b>Coca-Cola</b>. " +
+      "Le secteur le plus défensif de l'indice, qui surperforme " +
+      "typiquement quand le marché doute.",
+    "Énergie":
+      "Pétrole et gaz sur toute la chaîne, plus les services pétroliers. " +
+      "<b>Exxon</b>, <b>Chevron</b>, <b>Shell</b>, <b>TotalEnergies</b>, " +
+      "<b>ConocoPhillips</b>. Les renouvelables n'y sont pas : ils sont " +
+      "classés en services publics ou en industrie. Suit le baril, donc " +
+      "réagit fortement au risque géopolitique.",
+    "Matériaux":
+      "Chimie, gaz industriels, mines, acier, papier et emballage : " +
+      "<b>Linde</b>, <b>Air Liquide</b>, <b>BHP</b>, <b>Rio Tinto</b>, " +
+      "<b>Sherwin-Williams</b>. C'est ici que passe l'exposition au cuivre " +
+      "et aux métaux industriels, via les miniers.",
+    "Services publics":
+      "Électricité, gaz, eau, et désormais une large part des producteurs " +
+      "renouvelables : <b>NextEra</b>, <b>Iberdrola</b>, " +
+      "<b>Constellation Energy</b>, <b>Southern</b>. Secteur endetté par " +
+      "nature, donc pénalisé quand les taux montent — mais porté depuis " +
+      "peu par la demande électrique des centres de données.",
+    "Autres (immobilier, divers)":
+      "Essentiellement l'immobilier coté (REIT). Poids trop faible pour " +
+      "justifier un instrument de suivi dédié : sa contribution est " +
+      "absorbée dans le résidu."
+  };
 
   var $ = function (id) { return document.getElementById(id); };
   var dpr = window.devicePixelRatio || 1;
 
   function fmt(v, d) {
-    if (v === null || v === undefined) return "–";
-    var s = v.toFixed(d === undefined ? 2 : d);
-    return (v > 0 ? "+" : "") + s;
+    if (v === null || v === undefined || isNaN(v)) return "–";
+    var s = Math.abs(v).toFixed(d === undefined ? 2 : d).replace(".", ",");
+    return (v > 0 ? "+" : v < 0 ? "−" : "") + s;
   }
-  function jour(iso) {
-    var p = iso.split("-");
-    return p[2] + "/" + p[1];
-  }
+  function jour(iso) { var p = iso.split("-"); return p[2] + "/" + p[1]; }
   function classe(v) { return v >= 0 ? "pos" : "neg"; }
+  function court(s) {
+    var t = String(s).split(" —")[0];
+    return t.length > 20 ? t.slice(0, 19) + "…" : t;
+  }
+  function coul(v) { return v >= 0 ? "#2ecc71" : "#e74c3c"; }
 
   function prepareCanvas(cv, hauteur) {
     var l = cv.parentNode.clientWidth - 16;
@@ -104,9 +223,9 @@
     return { ctx: ctx, w: l, h: hauteur };
   }
 
-  // ------------------------------------------------------------------
-  // Diagramme en barres horizontales des contributions
-  // ------------------------------------------------------------------
+  // ==================================================================
+  // Barres horizontales
+  // ==================================================================
   function dessineBarres(cv, items) {
     var lignes = items.filter(function (a) { return a.contrib !== null; });
     lignes.sort(function (a, b) { return b.contrib - a.contrib; });
@@ -114,136 +233,270 @@
     var hLigne = 26;
     var g = prepareCanvas(cv, lignes.length * hLigne + 14);
     var ctx = g.ctx, w = g.w;
-    var xLab = 132;                       // largeur reservee aux libelles
-    var dispo = w - xLab - 44;
+    var xLab = 132, dispo = w - xLab - 44;
 
     var max = 0;
     lignes.forEach(function (a) { max = Math.max(max, Math.abs(a.contrib)); });
     if (max === 0) max = 1;
-    var zero = xLab + dispo / 2;
-    var ech = (dispo / 2) / max;
+    var zero = xLab + dispo / 2, ech = (dispo / 2) / max;
 
-    ctx.strokeStyle = "#2a3040";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(zero, 4);
-    ctx.lineTo(zero, g.h - 6);
-    ctx.stroke();
+    ctx.strokeStyle = "#2a3040"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(zero, 4); ctx.lineTo(zero, g.h - 6); ctx.stroke();
 
     lignes.forEach(function (a, i) {
-      var y = 8 + i * hLigne;
-      var lg = a.contrib * ech;
-
-      ctx.fillStyle = a.contrib >= 0 ? "#2ecc71" : "#e74c3c";
+      var y = 8 + i * hLigne, lg = a.contrib * ech;
+      ctx.fillStyle = coul(a.contrib);
       ctx.fillRect(lg >= 0 ? zero : zero + lg, y + 2, Math.abs(lg), 13);
 
       ctx.fillStyle = "#e8eaf0";
       ctx.font = "600 11px -apple-system, sans-serif";
-      ctx.textAlign = "right";
-      ctx.textBaseline = "middle";
+      ctx.textAlign = "right"; ctx.textBaseline = "middle";
       ctx.fillText(court(a.libelle), xLab - 8, y + 9);
 
-      ctx.fillStyle = a.contrib >= 0 ? "#2ecc71" : "#e74c3c";
+      ctx.fillStyle = coul(a.contrib);
       ctx.font = "700 11px -apple-system, sans-serif";
-      var xTxt = lg >= 0 ? zero + lg + 5 : zero + lg - 5;
       ctx.textAlign = lg >= 0 ? "left" : "right";
-      ctx.fillText(fmt(a.contrib), xTxt, y + 9);
+      ctx.fillText(fmt(a.contrib), lg >= 0 ? zero + lg + 5 : zero + lg - 5, y + 9);
 
       ctx.fillStyle = "#8a91a3";
       ctx.font = "10px -apple-system, sans-serif";
       ctx.textAlign = "right";
-      ctx.fillText(a.poids.toFixed(1) + " %  ·  " + fmt(a.perf_pct, 1) + " %",
-                   xLab - 8, y + 21);
+      ctx.fillText(a.poids.toFixed(1).replace(".", ",") + " %  ·  " +
+                   fmt(a.perf_pct, 1) + " %", xLab - 8, y + 21);
     });
   }
 
-  function court(s) {
-    var t = String(s).split(" —")[0];
-    return t.length > 20 ? t.slice(0, 19) + "…" : t;
-  }
+  // ==================================================================
+  // Empilement divergent
+  // ==================================================================
+  var E = null;   // etat du graphe empile
 
-  // ------------------------------------------------------------------
-  // Courbes de contribution cumulee
-  // ------------------------------------------------------------------
-  var etatCourbes = null;
-
-  function dessineCourbes(cv, dates, items) {
+  function dessinePile(cv, dates, items) {
     var series = items.filter(function (a) {
       return a.serie && a.serie.length === dates.length;
     });
-    var g = prepareCanvas(cv, 250);
+    var n = dates.length;
+
+    // bandes empilees : positif vers le haut, negatif vers le bas
+    var bandes = series.map(function () { return { lo: [], hi: [] }; });
+    var net = [];
+    for (var i = 0; i < n; i++) {
+      var pos = 0, neg = 0;
+      for (var s = 0; s < series.length; s++) {
+        var v = series[s].serie[i];
+        if (v === null || v === undefined) v = 0;
+        if (v >= 0) { bandes[s].lo[i] = pos; pos += v; bandes[s].hi[i] = pos; }
+        else { bandes[s].hi[i] = neg; neg += v; bandes[s].lo[i] = neg; }
+      }
+      net[i] = pos + neg;
+    }
+
+    var g = prepareCanvas(cv, 268);
     var ctx = g.ctx, w = g.w, h = g.h;
-    var mg = { g: 34, d: 8, ht: 8, b: 20 };
+    var mg = { g: 36, d: 8, ht: 10, b: 20 };
     var lx = w - mg.g - mg.d, ly = h - mg.ht - mg.b;
 
     var min = 0, max = 0;
-    series.forEach(function (a) {
-      a.serie.forEach(function (v) {
-        if (v === null) return;
-        if (v < min) min = v;
-        if (v > max) max = v;
-      });
-    });
-    if (max === min) { max = min + 1; }
+    for (i = 0; i < n; i++) {
+      for (s = 0; s < series.length; s++) {
+        if (bandes[s].hi[i] > max) max = bandes[s].hi[i];
+        if (bandes[s].lo[i] < min) min = bandes[s].lo[i];
+      }
+    }
+    if (max === min) max = min + 1;
     var pad = (max - min) * 0.08;
     min -= pad; max += pad;
 
-    var X = function (i) { return mg.g + (i / (dates.length - 1)) * lx; };
+    var X = function (i) { return mg.g + (i / (n - 1)) * lx; };
     var Y = function (v) { return mg.ht + (1 - (v - min) / (max - min)) * ly; };
 
     // grille
-    ctx.strokeStyle = "#2a3040";
-    ctx.fillStyle = "#8a91a3";
+    ctx.strokeStyle = "#2a3040"; ctx.fillStyle = "#8a91a3";
     ctx.font = "9.5px -apple-system, sans-serif";
-    ctx.textAlign = "right";
-    ctx.textBaseline = "middle";
-    ctx.lineWidth = 1;
+    ctx.textAlign = "right"; ctx.textBaseline = "middle"; ctx.lineWidth = 1;
     for (var k = 0; k <= 4; k++) {
-      var v = min + (max - min) * k / 4;
-      var y = Y(v);
-      ctx.globalAlpha = (Math.abs(v) < 1e-9) ? 0.9 : 0.35;
-      ctx.beginPath();
-      ctx.moveTo(mg.g, y);
-      ctx.lineTo(w - mg.d, y);
-      ctx.stroke();
+      var v = min + (max - min) * k / 4, y = Y(v);
+      ctx.globalAlpha = 0.35;
+      ctx.beginPath(); ctx.moveTo(mg.g, y); ctx.lineTo(w - mg.d, y); ctx.stroke();
       ctx.globalAlpha = 1;
-      ctx.fillText(v.toFixed(2), mg.g - 5, y);
+      ctx.fillText(v.toFixed(1).replace(".", ","), mg.g - 5, y);
     }
 
-    ctx.textAlign = "center";
-    ctx.textBaseline = "top";
-    [0, Math.floor((dates.length - 1) / 2), dates.length - 1].forEach(function (i) {
-      ctx.fillText(jour(dates[i]), X(i), h - mg.b + 5);
-    });
-
-    series.forEach(function (a, n) {
-      ctx.strokeStyle = COULEURS[n % COULEURS.length];
-      ctx.lineWidth = 1.8;
+    // bandes
+    series.forEach(function (a, s2) {
+      ctx.fillStyle = COULEURS[s2 % COULEURS.length];
+      ctx.globalAlpha = 0.75;
       ctx.beginPath();
-      var demarre = false;
-      a.serie.forEach(function (v, i) {
-        if (v === null) return;
-        if (!demarre) { ctx.moveTo(X(i), Y(v)); demarre = true; }
-        else { ctx.lineTo(X(i), Y(v)); }
-      });
-      ctx.stroke();
+      ctx.moveTo(X(0), Y(bandes[s2].hi[0]));
+      for (var i2 = 1; i2 < n; i2++) ctx.lineTo(X(i2), Y(bandes[s2].hi[i2]));
+      for (i2 = n - 1; i2 >= 0; i2--) ctx.lineTo(X(i2), Y(bandes[s2].lo[i2]));
+      ctx.closePath(); ctx.fill();
+      ctx.globalAlpha = 1;
     });
 
-    etatCourbes = { dates: dates, series: series, X: X, Y: Y, cv: cv,
-                    mg: mg, lx: lx, g: g };
+    // ligne zero
+    ctx.strokeStyle = "#5a6478"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(mg.g, Y(0)); ctx.lineTo(w - mg.d, Y(0)); ctx.stroke();
+
+    // indice reconstruit
+    ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(X(0), Y(net[0]));
+    for (i = 1; i < n; i++) ctx.lineTo(X(i), Y(net[i]));
+    ctx.stroke();
+
+    ctx.fillStyle = "#8a91a3";
+    ctx.font = "9.5px -apple-system, sans-serif";
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    [0, Math.floor((n - 1) / 2), n - 1].forEach(function (i3) {
+      ctx.fillText(jour(dates[i3]), X(i3), h - mg.b + 5);
+    });
+
+    E = { dates: dates, series: series, net: net, X: X, Y: Y, mg: mg, lx: lx,
+          h: h, cv: cv, base: cv.toDataURL ? null : null };
     return series;
   }
 
   function legende(series) {
     $("legende").innerHTML = series.map(function (a, n) {
       return '<span><i style="background:' + COULEURS[n % COULEURS.length] +
-             '"></i><b>' + court(a.libelle) + '</b> ' + fmt(a.contrib) + " pt</span>";
+             '"></i><b>' + court(a.libelle) + "</b> " + fmt(a.contrib) + " pt</span>";
     }).join("");
   }
 
-  // ------------------------------------------------------------------
-  // Synthese en une phrase
-  // ------------------------------------------------------------------
+  // ==================================================================
+  // Interaction : 1 doigt = une date, 2 doigts = un ecart
+  // ==================================================================
+  var curseurs = [];
+
+  function indexDepuisX(clientX) {
+    var r = E.cv.getBoundingClientRect();
+    var x = clientX - r.left;
+    var i = Math.round(((x - E.mg.g) / E.lx) * (E.dates.length - 1));
+    return Math.max(0, Math.min(E.dates.length - 1, i));
+  }
+
+  function redessineCurseurs() {
+    if (!E) return;
+    var ctx = E.cv.getContext("2d");
+    ctx.save();
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (curseurs.length === 2) {
+      var xa = E.X(Math.min(curseurs[0], curseurs[1]));
+      var xb = E.X(Math.max(curseurs[0], curseurs[1]));
+      ctx.fillStyle = "rgba(255,255,255,0.10)";
+      ctx.fillRect(xa, E.mg.ht, xb - xa, E.h - E.mg.ht - E.mg.b);
+    }
+    ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1;
+    curseurs.forEach(function (i) {
+      ctx.beginPath();
+      ctx.moveTo(E.X(i), E.mg.ht);
+      ctx.lineTo(E.X(i), E.h - E.mg.b);
+      ctx.stroke();
+    });
+    ctx.restore();
+  }
+
+  function tableauBulle(lignes, netVal) {
+    var seuil = 0.05;   // en deca, la part en % n'a plus de sens
+    var html = "<table>";
+    lignes.forEach(function (l) {
+      var part = Math.abs(netVal) >= seuil
+        ? fmt(l.v / netVal * 100, 0) + " %" : "–";
+      html += '<tr><td><i style="display:inline-block;width:7px;height:7px;' +
+              "border-radius:2px;margin-right:5px;background:" + l.c +
+              '"></i>' + court(l.n) + "</td>" +
+              '<td style="color:' + coul(l.v) + '">' + fmt(l.v) + " pt</td>" +
+              '<td style="color:#8a91a3">' + part + "</td></tr>";
+    });
+    html += "</table>";
+    return html;
+  }
+
+  function majBulle(pts) {
+    if (!E) return;
+    var tip = $("tip");
+
+    if (pts.length >= 2) {
+      var i1 = indexDepuisX(pts[0].clientX), i2 = indexDepuisX(pts[1].clientX);
+      if (i1 > i2) { var t = i1; i1 = i2; i2 = t; }
+      curseurs = [i1, i2];
+      var netD = E.net[i2] - E.net[i1];
+      var lignes = E.series.map(function (a, s) {
+        var v1 = a.serie[i1] === null ? 0 : a.serie[i1];
+        var v2 = a.serie[i2] === null ? 0 : a.serie[i2];
+        return { n: a.libelle, v: v2 - v1, c: COULEURS[s % COULEURS.length] };
+      }).sort(function (a, b) { return b.v - a.v; });
+
+      tip.innerHTML = '<span class="hd">Du ' + jour(E.dates[i1]) + " au " +
+        jour(E.dates[i2]) + " · <span style='color:" + coul(netD) + "'>" +
+        fmt(netD) + " pt</span></span>" + tableauBulle(lignes, netD);
+    } else {
+      var i = indexDepuisX(pts[0].clientX);
+      curseurs = [i];
+      var netV = E.net[i];
+      var lg = E.series.map(function (a, s) {
+        var v = a.serie[i];
+        return { n: a.libelle, v: (v === null ? 0 : v),
+                 c: COULEURS[s % COULEURS.length] };
+      }).sort(function (a, b) { return b.v - a.v; });
+
+      tip.innerHTML = '<span class="hd">' + jour(E.dates[i]) +
+        " · cumul <span style='color:" + coul(netV) + "'>" + fmt(netV) +
+        " pt</span></span>" + tableauBulle(lg, netV);
+    }
+
+    tip.style.display = "block";
+    var r = E.cv.getBoundingClientRect();
+    var tw = tip.offsetWidth, th = tip.offsetHeight;
+    var gx = Math.min(window.innerWidth - tw - 6,
+                      Math.max(6, pts[0].clientX - tw / 2));
+    var gy = r.top - th - 8;
+    if (gy < 6) gy = r.bottom + 8;
+    tip.style.left = gx + "px";
+    tip.style.top = gy + "px";
+
+    redessine();
+  }
+
+  function redessine() {
+    if (!donnees) return;
+    var f = bloc();
+    if (!f) return;
+    dessinePile($("pile"), f.dates, f.agregats);
+    redessineCurseurs();
+  }
+
+  function brancheGestes() {
+    var cv = $("pile"), tip = $("tip");
+    function pts(ev) {
+      if (ev.touches && ev.touches.length) {
+        return [].slice.call(ev.touches, 0, 2);
+      }
+      return [ev];
+    }
+    function on(ev) {
+      if (!E) return;
+      majBulle(pts(ev));
+      if (ev.cancelable) ev.preventDefault();
+    }
+    function off() {
+      tip.style.display = "none";
+      curseurs = [];
+      redessine();
+    }
+    cv.addEventListener("touchstart", on, { passive: false });
+    cv.addEventListener("touchmove", on, { passive: false });
+    cv.addEventListener("touchend", function (ev) {
+      if (!ev.touches || ev.touches.length === 0) off();
+    });
+    cv.addEventListener("mousemove", on);
+    cv.addEventListener("mouseleave", off);
+  }
+
+  // ==================================================================
+  // Synthese
+  // ==================================================================
   function synthese(f) {
     var l = f.agregats.filter(function (a) { return a.contrib !== null; });
     var tri = l.slice().sort(function (a, b) { return b.contrib - a.contrib; });
@@ -253,19 +506,16 @@
     var s = "Sur " + (f.dates.length - 1) + " jours, " + f.ref_ticker +
             ' fait <b class="' + classe(f.perf_ref_pct) + '">' +
             fmt(f.perf_ref_pct) + " %</b>. ";
-
     s += "Les moteurs sont " + hauts.map(function (a) {
       return "<b>" + court(a.libelle).toLowerCase() + "</b> " +
              '<span class="' + classe(a.contrib) + '">' + fmt(a.contrib) + " pt</span>";
     }).join(", ") + ". ";
-
     if (bas.length) {
       s += "Ce qui freine : " + bas.map(function (a) {
         return "<b>" + court(a.libelle).toLowerCase() + "</b> " +
                '<span class="neg">' + fmt(a.contrib) + " pt</span>";
       }).join(", ") + ". ";
     }
-
     var tete = tri[0];
     var part = f.perf_ref_pct !== 0 ? (tete.contrib / f.perf_ref_pct) * 100 : 0;
     if (part > 0 && part < 400) {
@@ -275,68 +525,144 @@
     return s;
   }
 
-  // ------------------------------------------------------------------
-  // Infobulle
-  // ------------------------------------------------------------------
-  function brancheTip() {
-    var cv = $("courbes"), tip = $("tip");
-    function place(ev) {
-      if (!etatCourbes) return;
-      var r = cv.getBoundingClientRect();
-      var pt = ev.touches ? ev.touches[0] : ev;
-      var x = pt.clientX - r.left;
-      var e = etatCourbes;
-      var i = Math.round(((x - e.mg.g) / e.lx) * (e.dates.length - 1));
-      if (i < 0) i = 0;
-      if (i > e.dates.length - 1) i = e.dates.length - 1;
-
-      var html = "<b>" + jour(e.dates[i]) + "</b>";
-      e.series.forEach(function (a) {
-        var v = a.serie[i];
-        if (v === null) return;
-        html += "<br>" + court(a.libelle) + " " + fmt(v) + " pt";
-      });
-      tip.innerHTML = html;
-      tip.style.display = "block";
-      var tw = tip.offsetWidth;
-      var gx = pt.clientX + 12;
-      if (gx + tw > window.innerWidth - 6) gx = pt.clientX - tw - 12;
-      tip.style.left = gx + "px";
-      tip.style.top = Math.max(8, pt.clientY - 40) + "px";
-      if (ev.cancelable) ev.preventDefault();
-    }
-    function cache() { tip.style.display = "none"; }
-    cv.addEventListener("touchstart", place, { passive: false });
-    cv.addEventListener("touchmove", place, { passive: false });
-    cv.addEventListener("touchend", cache);
-    cv.addEventListener("mousemove", place);
-    cv.addEventListener("mouseleave", cache);
+  // ==================================================================
+  // Bloc journee
+  // ==================================================================
+  function viaProxy(url, secours) {
+    var cible = (secours ? SECOURS : PROXY) + encodeURIComponent(url);
+    return fetch(cible, { cache: "no-store" }).then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    });
   }
 
-  // ------------------------------------------------------------------
-  // Rendu
-  // ------------------------------------------------------------------
+  function cotation(ticker) {
+    var u = "https://query1.finance.yahoo.com/v8/finance/chart/" + ticker +
+            "?range=1d&interval=5m";
+    return viaProxy(u, false)
+      .catch(function () { return viaProxy(u, true); })
+      .then(function (j) {
+        var m = j.chart.result[0].meta;
+        var prev = m.chartPreviousClose || m.previousClose;
+        var last = m.regularMarketPrice;
+        if (!prev || !last) throw new Error("cotation absente");
+        return { perf: (last / prev - 1) * 100, t: m.regularMarketTime || 0 };
+      });
+  }
+
+  function heure(ts) {
+    if (!ts) return "–";
+    var d = new Date(ts * 1000);
+    return ("0" + d.getHours()).slice(-2) + "h" + ("0" + d.getMinutes()).slice(-2);
+  }
+
+  function chargeJour(f) {
+    var cible = $("jour");
+    var suivis = f.agregats.filter(function (a) { return a.ticker; });
+    var res = {}, tsMax = 0;
+
+    function rendre(refPerf, refTs, fini) {
+      var somme = 0, html = "";
+      html += '<table class="j"><tr><th>Secteur</th><th>Poids</th>' +
+              "<th>Var.</th><th>Contrib.</th><th>Coté</th></tr>";
+      var lignes = suivis.map(function (a) {
+        var r = res[a.ticker];
+        return { a: a, c: r ? a.poids * r.perf / 100 : null, r: r };
+      }).sort(function (x, y) {
+        if (x.c === null) return 1;
+        if (y.c === null) return -1;
+        return y.c - x.c;
+      });
+      lignes.forEach(function (o) {
+        if (o.c !== null) somme += o.c;
+        html += "<tr><td>" + court(o.a.libelle) + "</td>" +
+                '<td style="color:#8a91a3">' + o.a.poids.toFixed(1).replace(".", ",") + "</td>" +
+                (o.r ? '<td style="color:' + coul(o.r.perf) + '">' + fmt(o.r.perf) + " %</td>" +
+                       '<td style="color:' + coul(o.c) + '">' + fmt(o.c) + "</td>" +
+                       '<td style="color:#8a91a3">' + heure(o.r.t) + "</td>"
+                     : '<td colspan="3" style="color:#8a91a3">…</td>') +
+                "</tr>";
+      });
+      html += '<tr class="tot"><td>Somme des contributions</td><td></td><td></td>' +
+              '<td style="color:' + coul(somme) + '">' + fmt(somme) + "</td><td></td></tr>";
+      if (refPerf !== null && refPerf !== undefined) {
+        html += '<tr class="tot" style="border:0"><td>' + f.ref_ticker +
+                " constaté</td><td></td>" +
+                '<td style="color:' + coul(refPerf) + '">' + fmt(refPerf) + " %</td>" +
+                '<td style="color:' + coul(refPerf - somme) + '">' +
+                fmt(refPerf - somme) + "</td>" +
+                '<td style="color:#8a91a3">' + heure(refTs) + "</td></tr>";
+      }
+      html += "</table>";
+      html += '<div style="font-size:10px;color:#8a91a3;margin-top:7px;' +
+              'line-height:1.5">Contributions en points de pourcentage de ' +
+              "l'indice. La dernière colonne donne l'heure de la dernière " +
+              "cotation.</div>";
+      if (fini && tsMax) {
+        var d = new Date(tsMax * 1000);
+        var minutes = d.getHours() * 60 + d.getMinutes();
+        if (minutes < 15 * 60 + 30) {
+          html += '<div class="avert">Avant 15h30, les Bourses américaines ' +
+                  "sont fermées : ces ETF cotent sur des estimations de " +
+                  "teneurs de marché, avec peu de transactions. Les chiffres " +
+                  "ci-dessus ne sont pas encore significatifs.</div>";
+        }
+      }
+      cible.innerHTML = html;
+    }
+
+    var refPerf = null, refTs = 0;
+    rendre(null, 0, false);
+
+    var chaine = cotation(f.ref_ticker).then(function (r) {
+      refPerf = r.perf; refTs = r.t;
+      if (r.t > tsMax) tsMax = r.t;
+      rendre(refPerf, refTs, false);
+    }).catch(function () {});
+
+    suivis.forEach(function (a) {
+      chaine = chaine.then(function () {
+        return cotation(a.ticker).then(function (r) {
+          res[a.ticker] = r;
+          if (r.t > tsMax) tsMax = r.t;
+          rendre(refPerf, refTs, false);
+        }).catch(function () {});
+      });
+    });
+
+    chaine.then(function () { rendre(refPerf, refTs, true); });
+  }
+
+  // ==================================================================
+  // Rendu general
+  // ==================================================================
   var donnees = null;
 
-  function rendu() {
-    if (!donnees) return;
+  function bloc() {
     var f = null;
+    if (!donnees) return null;
     donnees.fonds.forEach(function (x) { if (x.cle === "world") f = x; });
+    return f;
+  }
+
+  function rendu() {
+    var f = bloc();
     if (!f) {
       $("status").textContent = "Bloc World absent de attribution.json.";
       return;
     }
 
     $("status").style.display = "none";
-    $("kpis").style.display = "flex";
-    $("synth").style.display = "block";
-    $("blocs").style.display = "block";
-    $("upd").style.display = "block";
+    ["kpis", "synth", "blocs", "upd", "lexique"].forEach(function (id) {
+      $(id).style.display = id === "kpis" ? "flex" : "block";
+    });
+    $("hJour").style.display = "flex";
+    $("jour").style.display = "block";
 
     $("subtitle").innerHTML =
-      "Décomposition sectorielle de " + f.ref_ticker +
-      " sur " + (f.dates.length - 1) + " jours, du " + jour(f.dates[0]) +
-      " au " + jour(f.dates[f.dates.length - 1]) +
+      "Décomposition sectorielle de " + f.ref_ticker + " sur " +
+      (f.dates.length - 1) + " jours, du " + jour(f.dates[0]) + " au " +
+      jour(f.dates[f.dates.length - 1]) +
       ".<br>Contribution = poids dans l'indice × performance du secteur, en euros.";
 
     $("upd").innerHTML = "Calculé le " + donnees.generated.slice(0, 10) +
@@ -353,20 +679,32 @@
     $("synth").innerHTML = synthese(f);
 
     dessineBarres($("barres"), f.agregats);
-    var series = dessineCourbes($("courbes"), f.dates, f.agregats);
+    var series = dessinePile($("pile"), f.dates, f.agregats);
     legende(series);
+
+    $("lexBody").innerHTML = f.agregats.map(function (a) {
+      var d = LEX[a.libelle];
+      if (!d) return "";
+      return "<details><summary>" + a.libelle + " — " +
+             a.poids.toFixed(1).replace(".", ",") + " %</summary><p>" +
+             d + "</p></details>";
+    }).join("");
 
     var temoins = Object.keys(f.controles || {}).map(function (k) {
       return k + " " + fmt(f.controles[k]) + " %";
     }).join(", ");
 
     $("foot").innerHTML =
-      "Pondérations sectorielles du MSCI World relevées le " + f.poids_date +
+      "Pondérations sectorielles relevées le " + f.poids_date +
       ", à rafraîchir chaque trimestre." +
-      "<br>Poids non suivi (immobilier et divers) : " + f.poids_non_suivi + " %." +
+      "<br>Poids non suivi : " + f.poids_non_suivi + " %." +
       (temoins ? "<br>Témoin indépendant : " + temoins + "." : "") +
-      "<br>Le résidu mesure l'écart entre la performance réelle et la somme des " +
-      "contributions. Au-delà de 0,5 point, la décomposition n'est plus fiable.";
+      "<br>La courbe blanche est l'indice reconstruit, somme de toutes les " +
+      "contributions. Son écart avec la performance réelle est le résidu : " +
+      "au-delà de 0,5 point, la décomposition n'est plus fiable.";
+
+    chargeJour(f);
+    $("recJour").onclick = function () { chargeJour(f); };
   }
 
   function charge() {
@@ -386,10 +724,10 @@
   var minuteur = null;
   window.addEventListener("resize", function () {
     clearTimeout(minuteur);
-    minuteur = setTimeout(rendu, 200);
+    minuteur = setTimeout(function () { if (donnees) rendu(); }, 250);
   });
 
-  brancheTip();
+  brancheGestes();
   charge();
 })();
 </script>
