@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icon.png">
+<title>MSCI World — Moteurs de l'indice</title>
+<style>
+  :root {
+    --bg: #10131a; --panel: #181c26; --txt: #e8eaf0; --dim: #8a91a3;
+    --pos: #2ecc71; --neg: #e74c3c; --line: #2a3040;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { background: var(--bg); color: var(--txt);
+         font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+         padding: 12px 10px 30px; }
+  h1 { font-size: 17px; font-weight: 700; }
+  .sub { font-size: 11.5px; color: var(--dim); margin: 4px 0 10px; line-height: 1.5; }
+  .kpis { display: flex; gap: 8px; margin-bottom: 12px; }
+  .kpi { flex: 1; background: var(--panel); border-radius: 10px; padding: 8px 10px; }
+  .kpi .v { font-size: 16px; font-weight: 700; }
+  .kpi .l { font-size: 10px; color: var(--dim); margin-top: 2px; line-height: 1.3; }
+  .kpi .v.pos { color: var(--pos); } .kpi .v.neg { color: var(--neg); }
+  .panel { background: var(--panel); border-radius: 12px; padding: 12px 8px; }
+  canvas { display: block; width: 100%; }
+  .synth { background: var(--panel); border-radius: 12px; padding: 11px 12px;
+           font-size: 12.5px; line-height: 1.65; margin-bottom: 12px; }
+  .synth b { font-weight: 700; }
+  .synth .pos { color: var(--pos); } .synth .neg { color: var(--neg); }
+  .h2 { font-size: 12.5px; font-weight: 700; margin: 16px 0 6px; }
+  .upd { font-size: 10px; color: var(--dim); text-align: right; margin: -4px 0 8px; }
+  .upd button { background: none; border: 0; color: var(--dim); font-size: 12px;
+                padding: 0 0 0 6px; }
+  .foot { font-size: 10px; color: var(--dim); margin-top: 12px; line-height: 1.7; }
+  #status { font-size: 11px; color: var(--dim); padding: 24px; text-align: center; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: 8px;
+            font-size: 10.5px; color: var(--dim); }
+  .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px;
+              margin-right: 5px; vertical-align: -1px; }
+  .legend b { color: var(--txt); font-weight: 600; }
+  .tip { position: fixed; display: none; background: #000c; color: #fff;
+         font-size: 11px; padding: 6px 9px; border-radius: 7px;
+         pointer-events: none; z-index: 9; max-width: 240px; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<h1>MSCI World — Moteurs de l'indice</h1>
+<div class="sub" id="subtitle">Chargement…</div>
+<div class="upd" id="upd" style="display:none"></div>
+
+<div class="kpis" id="kpis" style="display:none">
+  <div class="kpi"><div class="v" id="kPerf">–</div><div class="l">WPEA sur la fenêtre</div></div>
+  <div class="kpi"><div class="v" id="kSum">–</div><div class="l">Somme des contributions</div></div>
+  <div class="kpi"><div class="v" id="kRes">–</div><div class="l">Résidu (pts)</div></div>
+</div>
+
+<div class="synth" id="synth" style="display:none"></div>
+
+<div id="blocs" style="display:none">
+  <div class="h2">Contribution de chaque secteur (points d'indice)</div>
+  <div class="panel"><canvas id="barres"></canvas></div>
+
+  <div class="h2">Contribution cumulée jour après jour</div>
+  <div class="panel"><canvas id="courbes"></canvas></div>
+  <div class="legend" id="legende"></div>
+</div>
+
+<div class="foot" id="foot"></div>
+<div id="status">Chargement de attribution.json…</div>
+<div class="tip" id="tip"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  var COULEURS = ["#4da3ff", "#ffb547", "#2ecc71", "#e74c3c", "#b07cff",
+                  "#41d6c3", "#ff7ab8", "#9aa7bd", "#d4c14a", "#7fd14a",
+                  "#ff8f5a"];
+
+  var $ = function (id) { return document.getElementById(id); };
+  var dpr = window.devicePixelRatio || 1;
+
+  function fmt(v, d) {
+    if (v === null || v === undefined) return "–";
+    var s = v.toFixed(d === undefined ? 2 : d);
+    return (v > 0 ? "+" : "") + s;
+  }
+  function jour(iso) {
+    var p = iso.split("-");
+    return p[2] + "/" + p[1];
+  }
+  function classe(v) { return v >= 0 ? "pos" : "neg"; }
+
+  function prepareCanvas(cv, hauteur) {
+    var l = cv.parentNode.clientWidth - 16;
+    cv.width = l * dpr;
+    cv.height = hauteur * dpr;
+    cv.style.height = hauteur + "px";
+    var ctx = cv.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return { ctx: ctx, w: l, h: hauteur };
+  }
+
+  // ------------------------------------------------------------------
+  // Diagramme en barres horizontales des contributions
+  // ------------------------------------------------------------------
+  function dessineBarres(cv, items) {
+    var lignes = items.filter(function (a) { return a.contrib !== null; });
+    lignes.sort(function (a, b) { return b.contrib - a.contrib; });
+
+    var hLigne = 26;
+    var g = prepareCanvas(cv, lignes.length * hLigne + 14);
+    var ctx = g.ctx, w = g.w;
+    var xLab = 132;                       // largeur reservee aux libelles
+    var dispo = w - xLab - 44;
+
+    var max = 0;
+    lignes.forEach(function (a) { max = Math.max(max, Math.abs(a.contrib)); });
+    if (max === 0) max = 1;
+    var zero = xLab + dispo / 2;
+    var ech = (dispo / 2) / max;
+
+    ctx.strokeStyle = "#2a3040";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(zero, 4);
+    ctx.lineTo(zero, g.h - 6);
+    ctx.stroke();
+
+    lignes.forEach(function (a, i) {
+      var y = 8 + i * hLigne;
+      var lg = a.contrib * ech;
+
+      ctx.fillStyle = a.contrib >= 0 ? "#2ecc71" : "#e74c3c";
+      ctx.fillRect(lg >= 0 ? zero : zero + lg, y + 2, Math.abs(lg), 13);
+
+      ctx.fillStyle = "#e8eaf0";
+      ctx.font = "600 11px -apple-system, sans-serif";
+      ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
+      ctx.fillText(court(a.libelle), xLab - 8, y + 9);
+
+      ctx.fillStyle = a.contrib >= 0 ? "#2ecc71" : "#e74c3c";
+      ctx.font = "700 11px -apple-system, sans-serif";
+      var xTxt = lg >= 0 ? zero + lg + 5 : zero + lg - 5;
+      ctx.textAlign = lg >= 0 ? "left" : "right";
+      ctx.fillText(fmt(a.contrib), xTxt, y + 9);
+
+      ctx.fillStyle = "#8a91a3";
+      ctx.font = "10px -apple-system, sans-serif";
+      ctx.textAlign = "right";
+      ctx.fillText(a.poids.toFixed(1) + " %  ·  " + fmt(a.perf_pct, 1) + " %",
+                   xLab - 8, y + 21);
+    });
+  }
+
+  function court(s) {
+    var t = String(s).split(" —")[0];
+    return t.length > 20 ? t.slice(0, 19) + "…" : t;
+  }
+
+  // ------------------------------------------------------------------
+  // Courbes de contribution cumulee
+  // ------------------------------------------------------------------
+  var etatCourbes = null;
+
+  function dessineCourbes(cv, dates, items) {
+    var series = items.filter(function (a) {
+      return a.serie && a.serie.length === dates.length;
+    });
+    var g = prepareCanvas(cv, 250);
+    var ctx = g.ctx, w = g.w, h = g.h;
+    var mg = { g: 34, d: 8, ht: 8, b: 20 };
+    var lx = w - mg.g - mg.d, ly = h - mg.ht - mg.b;
+
+    var min = 0, max = 0;
+    series.forEach(function (a) {
+      a.serie.forEach(function (v) {
+        if (v === null) return;
+        if (v < min) min = v;
+        if (v > max) max = v;
+      });
+    });
+    if (max === min) { max = min + 1; }
+    var pad = (max - min) * 0.08;
+    min -= pad; max += pad;
+
+    var X = function (i) { return mg.g + (i / (dates.length - 1)) * lx; };
+    var Y = function (v) { return mg.ht + (1 - (v - min) / (max - min)) * ly; };
+
+    // grille
+    ctx.strokeStyle = "#2a3040";
+    ctx.fillStyle = "#8a91a3";
+    ctx.font = "9.5px -apple-system, sans-serif";
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    ctx.lineWidth = 1;
+    for (var k = 0; k <= 4; k++) {
+      var v = min + (max - min) * k / 4;
+      var y = Y(v);
+      ctx.globalAlpha = (Math.abs(v) < 1e-9) ? 0.9 : 0.35;
+      ctx.beginPath();
+      ctx.moveTo(mg.g, y);
+      ctx.lineTo(w - mg.d, y);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+      ctx.fillText(v.toFixed(2), mg.g - 5, y);
+    }
+
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    [0, Math.floor((dates.length - 1) / 2), dates.length - 1].forEach(function (i) {
+      ctx.fillText(jour(dates[i]), X(i), h - mg.b + 5);
+    });
+
+    series.forEach(function (a, n) {
+      ctx.strokeStyle = COULEURS[n % COULEURS.length];
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      var demarre = false;
+      a.serie.forEach(function (v, i) {
+        if (v === null) return;
+        if (!demarre) { ctx.moveTo(X(i), Y(v)); demarre = true; }
+        else { ctx.lineTo(X(i), Y(v)); }
+      });
+      ctx.stroke();
+    });
+
+    etatCourbes = { dates: dates, series: series, X: X, Y: Y, cv: cv,
+                    mg: mg, lx: lx, g: g };
+    return series;
+  }
+
+  function legende(series) {
+    $("legende").innerHTML = series.map(function (a, n) {
+      return '<span><i style="background:' + COULEURS[n % COULEURS.length] +
+             '"></i><b>' + court(a.libelle) + '</b> ' + fmt(a.contrib) + " pt</span>";
+    }).join("");
+  }
+
+  // ------------------------------------------------------------------
+  // Synthese en une phrase
+  // ------------------------------------------------------------------
+  function synthese(f) {
+    var l = f.agregats.filter(function (a) { return a.contrib !== null; });
+    var tri = l.slice().sort(function (a, b) { return b.contrib - a.contrib; });
+    var hauts = tri.slice(0, 3);
+    var bas = tri.slice(-2).reverse().filter(function (a) { return a.contrib < 0; });
+
+    var s = "Sur " + (f.dates.length - 1) + " jours, " + f.ref_ticker +
+            ' fait <b class="' + classe(f.perf_ref_pct) + '">' +
+            fmt(f.perf_ref_pct) + " %</b>. ";
+
+    s += "Les moteurs sont " + hauts.map(function (a) {
+      return "<b>" + court(a.libelle).toLowerCase() + "</b> " +
+             '<span class="' + classe(a.contrib) + '">' + fmt(a.contrib) + " pt</span>";
+    }).join(", ") + ". ";
+
+    if (bas.length) {
+      s += "Ce qui freine : " + bas.map(function (a) {
+        return "<b>" + court(a.libelle).toLowerCase() + "</b> " +
+               '<span class="neg">' + fmt(a.contrib) + " pt</span>";
+      }).join(", ") + ". ";
+    }
+
+    var tete = tri[0];
+    var part = f.perf_ref_pct !== 0 ? (tete.contrib / f.perf_ref_pct) * 100 : 0;
+    if (part > 0 && part < 400) {
+      s += "À elle seule, " + court(tete.libelle).toLowerCase() +
+           " explique " + Math.round(part) + " % du mouvement.";
+    }
+    return s;
+  }
+
+  // ------------------------------------------------------------------
+  // Infobulle
+  // ------------------------------------------------------------------
+  function brancheTip() {
+    var cv = $("courbes"), tip = $("tip");
+    function place(ev) {
+      if (!etatCourbes) return;
+      var r = cv.getBoundingClientRect();
+      var pt = ev.touches ? ev.touches[0] : ev;
+      var x = pt.clientX - r.left;
+      var e = etatCourbes;
+      var i = Math.round(((x - e.mg.g) / e.lx) * (e.dates.length - 1));
+      if (i < 0) i = 0;
+      if (i > e.dates.length - 1) i = e.dates.length - 1;
+
+      var html = "<b>" + jour(e.dates[i]) + "</b>";
+      e.series.forEach(function (a) {
+        var v = a.serie[i];
+        if (v === null) return;
+        html += "<br>" + court(a.libelle) + " " + fmt(v) + " pt";
+      });
+      tip.innerHTML = html;
+      tip.style.display = "block";
+      var tw = tip.offsetWidth;
+      var gx = pt.clientX + 12;
+      if (gx + tw > window.innerWidth - 6) gx = pt.clientX - tw - 12;
+      tip.style.left = gx + "px";
+      tip.style.top = Math.max(8, pt.clientY - 40) + "px";
+      if (ev.cancelable) ev.preventDefault();
+    }
+    function cache() { tip.style.display = "none"; }
+    cv.addEventListener("touchstart", place, { passive: false });
+    cv.addEventListener("touchmove", place, { passive: false });
+    cv.addEventListener("touchend", cache);
+    cv.addEventListener("mousemove", place);
+    cv.addEventListener("mouseleave", cache);
+  }
+
+  // ------------------------------------------------------------------
+  // Rendu
+  // ------------------------------------------------------------------
+  var donnees = null;
+
+  function rendu() {
+    if (!donnees) return;
+    var f = null;
+    donnees.fonds.forEach(function (x) { if (x.cle === "world") f = x; });
+    if (!f) {
+      $("status").textContent = "Bloc World absent de attribution.json.";
+      return;
+    }
+
+    $("status").style.display = "none";
+    $("kpis").style.display = "flex";
+    $("synth").style.display = "block";
+    $("blocs").style.display = "block";
+    $("upd").style.display = "block";
+
+    $("subtitle").innerHTML =
+      "Décomposition sectorielle de " + f.ref_ticker +
+      " sur " + (f.dates.length - 1) + " jours, du " + jour(f.dates[0]) +
+      " au " + jour(f.dates[f.dates.length - 1]) +
+      ".<br>Contribution = poids dans l'indice × performance du secteur, en euros.";
+
+    $("upd").innerHTML = "Calculé le " + donnees.generated.slice(0, 10) +
+                         ' <button id="rec">↻</button>';
+    $("rec").onclick = charge;
+
+    $("kPerf").textContent = fmt(f.perf_ref_pct) + " %";
+    $("kPerf").className = "v " + classe(f.perf_ref_pct);
+    $("kSum").textContent = fmt(f.somme_contrib) + " pt";
+    $("kSum").className = "v " + classe(f.somme_contrib);
+    $("kRes").textContent = fmt(f.residu) + " pt";
+    $("kRes").className = "v " + (Math.abs(f.residu) < 0.5 ? "pos" : "neg");
+
+    $("synth").innerHTML = synthese(f);
+
+    dessineBarres($("barres"), f.agregats);
+    var series = dessineCourbes($("courbes"), f.dates, f.agregats);
+    legende(series);
+
+    var temoins = Object.keys(f.controles || {}).map(function (k) {
+      return k + " " + fmt(f.controles[k]) + " %";
+    }).join(", ");
+
+    $("foot").innerHTML =
+      "Pondérations sectorielles du MSCI World relevées le " + f.poids_date +
+      ", à rafraîchir chaque trimestre." +
+      "<br>Poids non suivi (immobilier et divers) : " + f.poids_non_suivi + " %." +
+      (temoins ? "<br>Témoin indépendant : " + temoins + "." : "") +
+      "<br>Le résidu mesure l'écart entre la performance réelle et la somme des " +
+      "contributions. Au-delà de 0,5 point, la décomposition n'est plus fiable.";
+  }
+
+  function charge() {
+    $("status").style.display = "block";
+    $("status").textContent = "Chargement…";
+    fetch("attribution.json?t=" + Date.now(), { cache: "no-store" })
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then(function (j) { donnees = j; rendu(); })
+      .catch(function (e) {
+        $("status").textContent = "Erreur de chargement : " + e.message;
+      });
+  }
+
+  var minuteur = null;
+  window.addEventListener("resize", function () {
+    clearTimeout(minuteur);
+    minuteur = setTimeout(rendu, 200);
+  });
+
+  brancheTip();
+  charge();
+})();
+</script>
+</body>
+</html>
