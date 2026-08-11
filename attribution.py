@@ -3,25 +3,25 @@
 """
 paasi / attribution.py — pourquoi PAASI et WPEA montent ou baissent.
 
-  contribution d'un agregat = poids dans l'indice x performance de l'agregat
-  residu = performance reelle de l'ETF - somme des contributions
+Ce script ne fait plus aucun calcul de fenetre : il livre les COURS BRUTS
+alignes sur un calendrier commun, sur environ trois mois. La page choisit
+sa fenetre (1, 2 ou 3 mois) et recalcule tout a partir de la date de depart
+retenue. C'est ce qui permet au curseur de periode de fonctionner sans
+relancer le workflow.
 
-POIDS : saisis a la main (les indices ne sont rebalances que trimestriellement).
-        Releves sur les pages produit iShares le 07/08/2026.
-        A remettre a jour vers debut novembre 2026.
-PERFS : un ETF cote en EUR par agregat, via Yahoo. Aucune conversion de change.
+POIDS : saisis a la main (les indices ne sont rebalances que
+        trimestriellement). Releves sur les pages produit iShares le
+        07/08/2026. A remettre a jour vers debut novembre 2026.
+COURS : un ETF cote en EUR par agregat, via Yahoo. Aucune conversion de
+        change. Aucun acces iShares.
 
-Aucun acces iShares a l'execution : uniquement des appels Yahoo.
+JSON produit, par fonds :
+  dates     : calendrier commun (jours de cotation de l'ETF de reference)
+  prix_ref  : cloture reelle de l'ETF de reference, en euros
+  agregats  : [{libelle, ticker, poids, suivi, cours: [...]}]
 
-Le JSON porte, pour chaque agregat :
-  serie  : contribution cumulee, en points de pourcentage de l'indice
-  ratio  : cours de l'agregat rapporte a son cours du premier jour (1.0 au debut)
-et, pour chaque fonds :
-  prix_ref : cours de cloture reels de l'ETF de reference, en euros
-
-La page reconstitue la valeur d'un agregat par
-  valeur = poids / 100 x prix_ref[0] x ratio
-de sorte que la somme des agregats vaut le prix de l'indice.
+et, a titre de controle seulement, les chiffres calcules sur la fenetre
+complete (perf_ref_pct, somme_contrib, residu).
 
 Sortie : attribution.json
 """
@@ -38,14 +38,14 @@ except ImportError:
     import requests as creq
     HAVE_CFFI = False
 
-WINDOW_DAYS = 30
-RANGE = "3mo"
+RANGE = "6mo"          # on demande large, on ne garde que la fin
+GARDE_JOURS = 68       # ~3 mois de cotations
 OUT_FILE = "attribution.json"
 POIDS_DATE = "2026-08-07"
 
 # ----------------------------------------------------------------------
 # (libelle, ticker EUR ou None, poids en %)
-# ticker None = poids connu, performance non suivie : fige a ratio 1.0
+# ticker None = poids connu, evolution non suivie : cours = null
 # ----------------------------------------------------------------------
 PAASI = {
     "cle": "paasi",
@@ -116,8 +116,9 @@ def yahoo_serie(symbol):
 
 
 def aligner(serie, calendrier):
-    """Projette une serie sur le calendrier de reference en reportant
-    la derniere cloture connue (places boursieres non synchrones)."""
+    """Projette une serie sur le calendrier de reference en reportant la
+    derniere cloture connue (places boursieres non synchrones). Les dates
+    anterieures a la premiere cotation connue restent a None."""
     out, dernier = [], None
     for d in calendrier:
         if d in serie:
@@ -126,15 +127,26 @@ def aligner(serie, calendrier):
     return out
 
 
+def combler_debut(cours):
+    """Remplit d'eventuels None de tete par la premiere valeur connue."""
+    prem = None
+    for v in cours:
+        if v is not None:
+            prem = v
+            break
+    if prem is None:
+        return None
+    return [prem if v is None else v for v in cours]
+
+
 def traiter(fonds):
     print(f"\n=== {fonds['nom']} ===", flush=True)
 
     ref = yahoo_serie(fonds["ref_ticker"])
-    if len(ref) < WINDOW_DAYS // 2:
-        raise RuntimeError(f"Serie de reference {fonds['ref_ticker']} vide")
-    calendrier = sorted(ref)[-(WINDOW_DAYS + 1):]
+    if len(ref) < 30:
+        raise RuntimeError(f"Serie de reference {fonds['ref_ticker']} trop courte")
+    calendrier = sorted(ref)[-GARDE_JOURS:]
     prix_ref = [round(ref[d], 4) for d in calendrier]
-    perf_ref = (prix_ref[-1] / prix_ref[0] - 1) * 100.0
     n = len(calendrier)
 
     resultats, somme, poids_muet = [], 0.0, 0.0
@@ -142,60 +154,46 @@ def traiter(fonds):
     for libelle, ticker, poids in fonds["agregats"]:
         item = {"libelle": libelle, "ticker": ticker, "poids": poids}
 
-        serie = aligner(yahoo_serie(ticker), calendrier) if ticker else None
+        cours = None
         if ticker:
             time.sleep(0.4)
+            cours = combler_debut(aligner(yahoo_serie(ticker), calendrier))
 
-        if not serie or serie[0] is None or serie[-1] is None:
-            # poids connu, evolution inconnue : on fige l'agregat
+        if not cours:
             poids_muet += poids
-            item.update({
-                "suivi": False,
-                "perf_pct": None,
-                "contrib": None,
-                "serie": [0.0] * n,
-                "ratio": [1.0] * n,
-            })
+            item.update({"suivi": False, "cours": None,
+                         "perf_pct": None, "contrib": None})
             if ticker:
-                item["erreur"] = "serie incomplete"
+                item["erreur"] = "serie indisponible"
             resultats.append(item)
             continue
 
-        base = serie[0]
-        ratio = [round(v / base, 6) if v is not None else None for v in serie]
-        # report des trous eventuels
-        dernier = 1.0
-        for i in range(n):
-            if ratio[i] is None:
-                ratio[i] = dernier
-            else:
-                dernier = ratio[i]
-
-        perf = (ratio[-1] - 1.0) * 100.0
+        perf = (cours[-1] / cours[0] - 1) * 100.0
         contrib = poids * perf / 100.0
         somme += contrib
         item.update({
             "suivi": True,
+            "cours": [round(v, 4) for v in cours],
             "perf_pct": round(perf, 2),
             "contrib": round(contrib, 3),
-            # contribution cumulee, en POINTS de pourcentage de l'indice
-            "serie": [round(poids * (r - 1.0), 4) for r in ratio],
-            "ratio": ratio,
         })
         resultats.append(item)
 
     controles = {}
     for sym in fonds.get("controles", []):
         time.sleep(0.4)
-        s = aligner(yahoo_serie(sym), calendrier)
-        if s[0] and s[-1]:
+        s = combler_debut(aligner(yahoo_serie(sym), calendrier))
+        if s:
             controles[sym] = round((s[-1] / s[0] - 1) * 100.0, 2)
 
+    perf_ref = (prix_ref[-1] / prix_ref[0] - 1) * 100.0
     residu = perf_ref - somme
-    print(f"  perf {fonds['ref_ticker']} {perf_ref:+.2f} % "
-          f"| somme {somme:+.2f} pt | residu {residu:+.2f} pt "
+    print(f"  fenetre complete : {calendrier[0]} -> {calendrier[-1]} "
+          f"({n} cotations)", flush=True)
+    print(f"  prix {prix_ref[0]:.4f} -> {prix_ref[-1]:.4f} EUR "
+          f"({perf_ref:+.2f} %)", flush=True)
+    print(f"  somme {somme:+.2f} pt | residu {residu:+.2f} pt "
           f"| poids fige {poids_muet:.2f} %", flush=True)
-    print(f"  prix {prix_ref[0]:.4f} -> {prix_ref[-1]:.4f} EUR", flush=True)
     for r in resultats:
         if not r["suivi"]:
             print(f"    {r['libelle'][:34]:36s} poids {r['poids']:5.2f} %"
@@ -207,10 +205,11 @@ def traiter(fonds):
     for k, v in controles.items():
         print(f"    [controle] {k} {v:+.2f} %", flush=True)
 
-    # controle interne : la somme des series doit finir sur somme_contrib
-    fin = sum(r["serie"][-1] for r in resultats)
-    print(f"  [verif] somme des series en fin de fenetre {fin:+.3f} pt "
-          f"(attendu {somme:+.3f})", flush=True)
+    total_poids = sum(r["poids"] for r in resultats)
+    print(f"  [verif] somme des poids {total_poids:.2f} % "
+          f"| longueur des series : " +
+          ", ".join(str(len(r["cours"])) if r["cours"] else "0"
+                    for r in resultats), flush=True)
 
     return {
         "cle": fonds["cle"],
@@ -243,7 +242,6 @@ def main():
     with open(OUT_FILE, "w", encoding="utf-8") as fh:
         json.dump({
             "generated": dt.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "window_days": WINDOW_DAYS,
             "poids_date": POIDS_DATE,
             "fonds": fonds,
         }, fh, ensure_ascii=False, indent=1)
