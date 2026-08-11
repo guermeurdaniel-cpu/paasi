@@ -111,12 +111,14 @@
 
 <div id="blocs" style="display:none">
   <div class="h2">
-    <span class="t">Indice base 100 et part de chaque secteur</span>
-    <button class="ech" id="btEch">part %</button>
+    <span class="t">Indice base 100 et apport de chaque secteur</span>
   </div>
   <div class="panel"><canvas id="graphe"></canvas></div>
   <div class="legend" id="legende"></div>
   <div class="aide">
+    En bas, chaque courbe part de zéro et montre ce que le secteur a ajouté
+    ou retiré à l'indice depuis le début de la période. Leur somme est
+    l'écart de l'indice à 100.<br>
     Un doigt : la part et la valeur en points de chaque secteur à une date.
     Deux doigts : la progression propre de chaque secteur entre les deux
     dates et ce qu'il a apporté à l'indice.
@@ -256,7 +258,6 @@
   // Calcul de la fenetre choisie
   // ==================================================================
   var MOIS = 3;           // 1, 2 ou 3
-  var MODE_PART = "pct";  // "pct" = part en % ; "b100" = part base 100
 
   function fenetre(f) {
     var n = f.dates.length;
@@ -286,7 +287,8 @@
     }
     series.forEach(function (S) {
       S.part = S.pts.map(function (p, i3) { return p / rec[i3] * 100; });
-      S.partB = S.part.map(function (p) { return p / S.part[0] * 100; });
+      // apport cumule dans l'indice, en points : nul au premier jour
+      S.contrib = S.ratio.map(function (r) { return S.a.poids * (r - 1); });
     });
 
     var P0 = f.prix_ref[i0];
@@ -362,22 +364,22 @@
     ligne(YA, W.reel, "#ffffff", 2.2, false);
     ligne(YA, W.rec, "#8a91a3", 1.4, true);
 
-    // --- bas : parts ---
-    var champ = MODE_PART === "pct" ? "part" : "partB";
-    var bmn = 1e9, bmx = -1e9;
+    // --- bas : apport cumule de chaque secteur, en points d'indice ---
+    var bmn = 0, bmx = 0;
     W.series.forEach(function (S) {
-      S[champ].forEach(function (v) {
+      S.contrib.forEach(function (v) {
         if (v < bmn) bmn = v;
         if (v > bmx) bmx = v;
       });
     });
-    var pb = (bmx - bmn) * 0.08 || 1;
-    var YB = cadre(yB, hB, bmn - pb, bmx + pb,
-                   MODE_PART === "pct" ? 1 : 1,
-                   MODE_PART === "pct" ? "part de chaque secteur (%)"
-                                       : "part de chaque secteur, base 100");
+    var pb = (bmx - bmn) * 0.10 || 0.5;
+    var YB = cadre(yB, hB, bmn - pb, bmx + pb, 2,
+                   "apport de chaque secteur (points d'indice)");
+    ctx.strokeStyle = "#5a6478"; ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(mg.g, YB(0)); ctx.lineTo(w - mg.d, YB(0)); ctx.stroke();
     W.series.forEach(function (S, s) {
-      ligne(YB, S[champ], COULEURS[s % COULEURS.length],
+      ligne(YB, S.contrib, COULEURS[s % COULEURS.length],
             S.a.suivi ? 1.7 : 1.1, !S.a.suivi);
     });
 
@@ -799,11 +801,6 @@
       $("lbPeriode").textContent = MOIS + (MOIS > 1 ? " mois" : " mois");
       majPeriode();
     };
-    $("btEch").onclick = function () {
-      MODE_PART = MODE_PART === "pct" ? "b100" : "pct";
-      $("btEch").textContent = MODE_PART === "pct" ? "part %" : "part base 100";
-      redessine();
-    };
 
     $("lexBody").innerHTML = f.agregats.map(function (a) {
       var t = LEX[a.libelle];
@@ -817,9 +814,11 @@
     }).join(", ");
 
     $("foot").innerHTML =
-      "Courbe blanche : l'indice réel, ramené à 100 au début de la période. " +
-      "Courbe grise pointillée : l'indice reconstruit à partir des secteurs. " +
-      "L'écart entre les deux est le résidu." +
+      "En haut, courbe blanche : l'indice réel, ramené à 100 au début de la " +
+      "période ; courbe grise pointillée : l'indice reconstruit à partir des " +
+      "secteurs. L'écart entre les deux est le résidu." +
+      "<br>En bas, apport cumulé de chaque secteur, en points d'indice : " +
+      "poids du secteur × sa progression depuis le début de la période." +
       "<br>Pondérations relevées le " + f.poids_date +
       ", à rafraîchir chaque trimestre. Poids figé : " + f.poids_non_suivi + " %." +
       (temoins ? "<br>Témoin indépendant sur la fenêtre complète : " +
