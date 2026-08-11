@@ -33,41 +33,47 @@ CANDIDATES = [
     # --- references a expliquer ---
     ("reference", "PAASI (ma ligne)",            "PAASI.PA"),
     ("reference", "WPEA (ma ligne)",             "WPEA.PA"),
-    ("reference", "iShares Core MSCI World",     "EUNL.DE"),
-    ("reference", "iShares MSCI EM Asia",        "CEMA.DE"),
 
-    # --- agregats PAASI : pays = theme ---
+    # --- agregats PAASI retenus au 1er tour ---
     ("tw", "iShares MSCI Taiwan (Amsterdam)",    "ITWN.AS"),
-    ("tw", "iShares MSCI Taiwan (Londres)",      "ITWN.L"),
-    ("tw", "HSBC MSCI Taiwan (Suisse)",          "HTWN.SW"),
-    ("tw", "Franklin FTSE Taiwan (Xetra)",       "FLXT.DE"),
-
     ("kr", "Amundi MSCI Korea (Paris)",          "KRW.PA"),
-    ("kr", "Franklin FTSE Korea (Xetra)",        "FLXK.DE"),
-    ("kr", "iShares MSCI Korea (Londres)",       "IKOR.L"),
-
-    ("cn", "iShares MSCI China (Amsterdam)",     "ICGA.AS"),
     ("cn", "iShares MSCI China (Xetra)",         "ICGA.DE"),
-    ("cn", "Xtrackers MSCI China (Xetra)",       "XCS6.DE"),
-
     ("in", "Amundi PEA Inde (Paris)",            "PINR.PA"),
-    ("in", "iShares MSCI India (Amsterdam)",     "IIND.AS"),
-    ("in", "Franklin FTSE India (Xetra)",        "FLXI.DE"),
 
-    ("asean", "Xtrackers FTSE Vietnam",          "XFVT.DE"),
+    # --- Inde : chercher un MSCI India physique en euros ---
+    ("in", "iShares MSCI India (Xetra)",         "IIND.DE"),
+    ("in", "iShares MSCI India (Londres)",       "NDIA.L"),
+    ("in", "Amundi MSCI India (Xetra)",          "18MF.DE"),
 
-    # --- agregats MSCI World : secteurs ---
-    # famille Xtrackers = indices MSCI World sectoriels purs (pas de plafonnement)
+    # --- Asie : agregat ASEAN a trouver ---
+    ("asean", "Xtrackers MSCI Indonesia",        "XMID.DE"),
+    ("asean", "HSBC MSCI Indonesia",             "HIDR.L"),
+    ("asean", "Amundi MSCI Malaysia",            "LYMY.DE"),
+    ("asean", "iShares MSCI Thailand",           "ITKY.L"),
+
+    # --- agregats MSCI World retenus au 1er tour ---
     ("w_tech",   "Xtrackers World Info Tech",    "XDWT.DE"),
-    ("w_tech",   "iShares World Info Tech",      "WITS.AS"),
     ("w_fin",    "Xtrackers World Financials",   "XDWF.DE"),
     ("w_sante",  "Xtrackers World Health Care",  "XDWH.DE"),
     ("w_indus",  "Xtrackers World Industrials",  "XDWI.DE"),
     ("w_conso",  "Xtrackers World Cons Discr",   "XDWC.DE"),
-    ("w_energie", "Xtrackers World Energy",      "XDWE.DE"),
     ("w_comm",   "Xtrackers World Comm Services", "XDWS.DE"),
 
-    # --- change ---
+    # --- World : secteurs manquants, famille Xtrackers ---
+    ("w_energie", "Xtrackers World Energy",      "XDW0.DE"),
+    ("w_materiaux", "Xtrackers World Materials", "XDWM.DE"),
+    ("w_conso_base", "Xtrackers World Staples",  "XDWY.DE"),
+    ("w_utilities", "Xtrackers World Utilities", "XDWU.DE"),
+    ("w_immo", "Xtrackers World Real Estate",    "XDER.DE"),
+
+    # --- World : repli famille SPDR si les Xtrackers manquent ---
+    ("w_energie", "SPDR World Energy",           "WNRG.DE"),
+    ("w_materiaux", "SPDR World Materials",      "WMAT.DE"),
+    ("w_conso_base", "SPDR World Staples",       "WCOS.DE"),
+    ("w_utilities", "SPDR World Utilities",      "WUTI.DE"),
+    ("w_immo", "SPDR World Real Estate",         "WORD.DE"),
+
+    # --- change (controle) ---
     ("fx", "EUR/USD", "EURUSD=X"),
 ]
 
