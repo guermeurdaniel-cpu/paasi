@@ -92,11 +92,12 @@ FONDS = [PAASI, WORLD]
 # HTTP
 # ----------------------------------------------------------------------
 def http_get(url, **kw):
-    kw.setdefault("timeout", 45)
+    kw.setdefault("timeout", 20)
     if HAVE_CFFI:
         kw.setdefault("impersonate", "chrome")
     else:
         kw.setdefault("headers", {"User-Agent": "Mozilla/5.0"})
+    print(f"  [http] {url[:90]}", flush=True)
     return creq.get(url, **kw)
 
 
