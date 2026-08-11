@@ -1,0 +1,33 @@
+name: Attribution PAASI et World
+
+on:
+  schedule:
+    - cron: "30 17 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  attribution:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Dependances
+        run: pip install curl_cffi
+
+      - name: Attribution
+        run: python attribution.py
+
+      - name: Commit
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add attribution.json
+          git diff --cached --quiet || git commit -m "Attribution $(date -u +%F)"
+          git push
