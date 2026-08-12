@@ -88,7 +88,7 @@
 </head>
 <body>
 
-<h1>MSCI World — Moteurs de l'indice</h1>
+<h1 id="titre">Moteurs de l'indice</h1>
 <div class="sub" id="subtitle">Chargement…</div>
 <div class="upd" id="upd" style="display:none"></div>
 
@@ -161,7 +161,7 @@
                   "#41d6c3", "#ff7ab8", "#d4c14a", "#7fd14a", "#ff8f5a",
                   "#6b7488"];
 
-  var LEX = {
+  var LEX_WORLD = {
     "Technologie":
       "Semi-conducteurs, logiciels, matériel et services informatiques. " +
       "C'est le secteur le plus concentré de l'indice : <b>Nvidia</b> et " +
@@ -228,6 +228,55 @@
       "justifier un instrument de suivi dédié : son cours est figé et son " +
       "évolution réelle tombe dans le résidu."
   };
+
+  var LEX_PAASI = {
+    "TSMC — fonderie":
+      "Taiwan Semiconductor à lui seul : <b>18,3 % de l'indice</b>, le plus " +
+      "gros poids de très loin, et environ 56 % du compartiment taïwanais. " +
+      "Fondeur de presque tous les processeurs avancés, il commande le cycle " +
+      "des semi-conducteurs mondial. Suivi par son action à Taipei, " +
+      "convertie en euros.",
+    "Chaine IA taiwanaise":
+      "Le reste de Taïwan : <b>MediaTek</b>, <b>Delta Electronics</b>, " +
+      "<b>Hon Hai</b> (Foxconn), <b>ASE</b>, <b>UMC</b>, <b>Yageo</b>, " +
+      "<b>Accton</b>, <b>Unimicron</b>. Conception de puces, assemblage, " +
+      "test, alimentation et connectique des serveurs. Reconstitué en " +
+      "retranchant TSMC de l'ETF Taïwan, dont l'indice plafonné ne lui " +
+      "donne que 29 % au lieu de 56 %.",
+    "Memoire coreenne":
+      "<b>Samsung Electronics</b> et <b>SK Hynix</b>, ordinaires et " +
+      "préférence confondues. Mémoire vive et mémoire à haute bande " +
+      "passante, le goulot d'étranglement de l'IA. Deux titres qui font " +
+      "<b>14,2 % de l'indice</b> et l'essentiel de la volatilité coréenne.",
+    "Coree hors memoire":
+      "Le reste de la Corée : <b>Hyundai</b>, <b>KB Financial</b>, " +
+      "<b>Shinhan</b>, <b>Doosan Enerbility</b>, <b>Samsung C&amp;T</b>. " +
+      "Automobile, banques, industrie lourde. Reconstitué en retranchant " +
+      "les deux valeurs de mémoire de l'ETF Corée — c'est la catégorie la " +
+      "moins fiable de la page, car la soustraction y amplifie le bruit.",
+    "Chine — plateformes et banques":
+      "Chine offshore et actions A réunies : <b>Tencent</b>, " +
+      "<b>Alibaba</b>, <b>Xiaomi</b>, <b>Meituan</b>, <b>PDD</b>, " +
+      "<b>NetEase</b> d'un côté ; <b>China Construction Bank</b>, " +
+      "<b>ICBC</b>, <b>Bank of China</b>, <b>Ping An</b> de l'autre. " +
+      "Deuxième poids de l'indice à 26,3 %. Son ETF n'est pas plafonné, " +
+      "donc aucune correction n'est nécessaire.",
+    "Inde — banques et consommation":
+      "<b>HDFC Bank</b>, <b>ICICI</b>, <b>Reliance</b>, <b>Infosys</b>, " +
+      "<b>TCS</b>, <b>Bharti Airtel</b>. Près de 30 % de services " +
+      "financiers et seulement 8 % d'informatique : c'est le seul bloc de " +
+      "l'indice qui ne soit pas un pari sur les semi-conducteurs. Suivi " +
+      "par l'ETF PEA Inde, dont la réplication synthétique traîne un peu.",
+    "Reste (ASEAN, divers)":
+      "Thaïlande, Malaisie, Indonésie et liquidités. Trop peu et trop " +
+      "dispersé pour justifier un instrument : figé, son évolution réelle " +
+      "tombe dans le résidu."
+  };
+
+  var LEXIQUES = { world: LEX_WORLD, paasi: LEX_PAASI };
+  var TITRES = { world: "MSCI World — Moteurs de l'indice",
+                 paasi: "MSCI Emerging Asia — Moteurs de l'indice" };
+  var CLE = "world";
 
   var $ = function (id) { return document.getElementById(id); };
   var dpr = window.devicePixelRatio || 1;
@@ -710,7 +759,13 @@
 
   function chargeJour(f) {
     var cible = $("jour");
-    var suivis = f.agregats.filter(function (a) { return a.ticker; });
+    // un agregat n'est utilisable en intraday que s'il tient en un seul
+    // instrument cote en euros : c'est le cas du Monde, pas de l'Asie
+    var suivis = f.agregats.filter(function (a) {
+      return a.instruments && a.instruments.length === 1 && a.suivi;
+    }).map(function (a) {
+      return { libelle: a.libelle, poids: a.poids, ticker: a.instruments[0] };
+    });
     var res = {}, tsMax = 0, refPerf = null, refTs = 0, refPrix = null;
 
     function rendre(fini) {
@@ -790,7 +845,7 @@
   function bloc() {
     var f = null;
     if (!donnees) return null;
-    donnees.fonds.forEach(function (x) { if (x.cle === "world") f = x; });
+    donnees.fonds.forEach(function (x) { if (x.cle === CLE) f = x; });
     return f;
   }
 
@@ -818,7 +873,7 @@
   function rendu() {
     var f = bloc();
     if (!f) {
-      $("status").textContent = "Bloc World absent de attribution.json.";
+      $("status").textContent = "Bloc " + CLE + " absent de attribution.json.";
       return;
     }
     if (!f.prix_ref || !f.agregats[0].hasOwnProperty("cours")) {
@@ -834,8 +889,9 @@
     ["synth", "blocs", "upd", "lexique"].forEach(function (id) {
       $(id).style.display = "block";
     });
-    $("hJour").style.display = "flex";
-    $("jour").style.display = "block";
+    var jourPossible = (CLE === "world");
+    $("hJour").style.display = jourPossible ? "flex" : "none";
+    $("jour").style.display = jourPossible ? "block" : "none";
 
     $("upd").innerHTML = "Calculé le " + donnees.generated.slice(0, 10) +
                          ' <button id="rec">↻</button>';
@@ -847,6 +903,8 @@
       majPeriode();
     };
 
+    $("titre").textContent = TITRES[CLE];
+    var LEX = LEXIQUES[CLE] || {};
     $("lexBody").innerHTML = f.agregats.map(function (a) {
       var t = LEX[a.libelle];
       if (!t) return "";
@@ -870,8 +928,10 @@
                  temoins + "." : "");
 
     majPeriode();
-    chargeJour(f);
-    $("recJour").onclick = function () { chargeJour(f); };
+    if (jourPossible) {
+      chargeJour(f);
+      $("recJour").onclick = function () { chargeJour(f); };
+    }
   }
 
   function charge() {
