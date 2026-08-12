@@ -5,588 +5,957 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="icon.png">
-<title>PAASI — Moteurs de l'indice</title>
+<link rel="icon" type="image/svg+xml" href="world-icon.svg">
+<link rel="apple-touch-icon" href="world-icon.png">
+<title>MSCI Emerging Asia — Moteurs de l'indice</title>
 <style>
   :root {
     --bg: #10131a; --panel: #181c26; --txt: #e8eaf0; --dim: #8a91a3;
-    --pos: #2ecc71; --neg: #e74c3c; --line: #2a3040;
+    --pos: #2ecc71; --neg: #e74c3c; --line: #2a3040; --warn: #ffb547;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body { background: var(--bg); color: var(--txt);
          font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
-         padding: 12px 10px 30px; }
+         padding: 12px 10px 34px; }
   h1 { font-size: 17px; font-weight: 700; }
   .sub { font-size: 11.5px; color: var(--dim); margin: 4px 0 10px; line-height: 1.5; }
   .kpis { display: flex; gap: 8px; margin-bottom: 12px; }
   .kpi { flex: 1; background: var(--panel); border-radius: 10px; padding: 8px 10px; }
   .kpi .v { font-size: 16px; font-weight: 700; }
-  .kpi .l { font-size: 10px; color: var(--dim); margin-top: 2px; }
+  .kpi .l { font-size: 10px; color: var(--dim); margin-top: 2px; line-height: 1.3; }
   .kpi .v.pos { color: var(--pos); } .kpi .v.neg { color: var(--neg); }
   .panel { background: var(--panel); border-radius: 12px; padding: 12px 8px; }
   canvas { display: block; width: 100%; }
-  .seg { display: inline-flex; background: var(--panel); border: 1px solid var(--line);
-         border-radius: 9px; overflow: hidden; margin-bottom: 10px; }
-  .seg button { background: transparent; border: 0; color: var(--dim); font-size: 11.5px;
-                font-weight: 600; padding: 7px 14px; }
-  .seg button.on { background: #222838; color: var(--txt); }
+  /* pan-y : le defilement vertical reste au navigateur, on ne prend
+     que les gestes horizontaux et a deux doigts */
+  #graphe { touch-action: pan-y; }
+  .synth { background: var(--panel); border-radius: 12px; padding: 11px 12px;
+           font-size: 12.5px; line-height: 1.65; margin-bottom: 12px; }
+  .synth b { font-weight: 700; }
+  .synth .pos { color: var(--pos); } .synth .neg { color: var(--neg); }
+  .h2 { font-size: 12.5px; font-weight: 700; margin: 16px 0 6px;
+        display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .h2 .t { font-size: 12.5px; font-weight: 700; color: var(--txt); }
+  .h2 button { background: none; border: 0; color: var(--dim); font-size: 13px; }
+  .ech { background: var(--panel); border: 1px solid var(--line); color: var(--dim);
+         font-size: 10px; font-weight: 600; border-radius: 7px; padding: 4px 9px; }
+  .periode { background: var(--panel); border-radius: 12px; padding: 10px 14px 6px;
+             margin-bottom: 8px; }
+  .periode .lg { display: flex; justify-content: space-between;
+                 font-size: 10.5px; color: var(--dim); margin-bottom: 2px; }
+  .periode .lg b { color: var(--txt); font-size: 11.5px; }
+  input[type=range] { width: 100%; accent-color: #4da3ff; height: 26px; }
+  .aide { font-size: 10px; color: var(--dim); margin-top: 6px; line-height: 1.5; }
   .upd { font-size: 10px; color: var(--dim); text-align: right; margin: -4px 0 8px; }
   .upd button { background: none; border: 0; color: var(--dim); font-size: 12px;
                 padding: 0 0 0 6px; }
-  .foot { font-size: 10px; color: var(--dim); margin-top: 10px; line-height: 1.6; }
-  #status { font-size: 11px; color: var(--dim); padding: 20px; text-align: center; }
-  .h2 { font-size: 12.5px; font-weight: 700; margin: 16px 0 6px; }
+  .foot { font-size: 10px; color: var(--dim); margin-top: 12px; line-height: 1.7; }
+  #status { font-size: 11px; color: var(--dim); padding: 24px; text-align: center; }
   .legend { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: 8px;
             font-size: 10.5px; color: var(--dim); }
   .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px;
               margin-right: 5px; vertical-align: -1px; }
   .legend b { color: var(--txt); font-weight: 600; }
-  .tip { position: fixed; display: none; background: #000c; color: #fff;
-         font-size: 11px; padding: 6px 9px; border-radius: 7px;
-         pointer-events: none; z-index: 9; max-width: 240px; line-height: 1.5; }
+  .tip { position: fixed; display: none; background: #000e; color: #fff;
+         font-size: 11px; padding: 7px 10px; border-radius: 8px;
+         pointer-events: none; z-index: 9; line-height: 1.5;
+         border: 1px solid #2a3040; }
+  .tip table { border-collapse: collapse; }
+  .tip td { padding: 0 0 0 9px; white-space: nowrap; }
+  .tip td:first-child { padding: 0; }
+  .tip th { font-size: 9px; color: #8a91a3; font-weight: 500; text-align: right;
+            padding: 0 0 2px 9px; }
+  .tip th:first-child { text-align: left; padding-left: 0; }
+  .tip .hd { font-weight: 700; margin-bottom: 3px; display: block; }
+  table.j { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  table.j th { color: var(--dim); font-weight: 500; font-size: 10px;
+               text-align: right; padding: 0 4px 5px; }
+  table.j th:first-child { text-align: left; }
+  table.j td { padding: 3px 4px; text-align: right; }
+  table.j td:first-child { text-align: left; color: var(--txt); }
+  table.j tr.tot td { border-top: 1px solid var(--line); padding-top: 6px;
+                      font-weight: 700; }
+  .avert { color: var(--warn); font-size: 10.5px; line-height: 1.5; margin-top: 8px; }
+  details { background: var(--panel); border-radius: 10px; margin-bottom: 6px;
+            padding: 9px 11px; }
+  details summary { font-size: 12px; font-weight: 600; cursor: pointer; list-style: none; }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::before { content: "▸ "; color: var(--dim); }
+  details[open] summary::before { content: "▾ "; }
+  details p { font-size: 11.5px; color: var(--dim); line-height: 1.6; margin-top: 7px; }
+  details p b { color: var(--txt); font-weight: 600; }
 </style>
 </head>
 <body>
-<h1>PAASI — Moteurs de l'indice sur 30 jours</h1>
+
+<h1 id="titre">Moteurs de l'indice</h1>
 <div class="sub" id="subtitle">Chargement…</div>
-<div class="seg" id="modeSeg">
-  <button data-m="30j" class="on">30 jours</button>
-  <button data-m="jour">Journée</button>
-</div>
 <div class="upd" id="upd" style="display:none"></div>
+
+<div class="h2" id="hJour" style="display:none">
+  <span class="t">Aujourd'hui</span>
+  <button id="recJour">↻</button>
+</div>
+<div class="panel" id="jour" style="display:none">
+  <div style="font-size:11px;color:var(--dim)">Chargement des cours…</div>
+</div>
+
+<div class="periode" id="pPeriode" style="display:none">
+  <div class="lg"><span>Période</span><b id="lbPeriode">3 mois</b></div>
+  <input type="range" id="slPeriode" min="1" max="3" step="1" value="3">
+</div>
+
 <div class="kpis" id="kpis" style="display:none">
-  <div class="kpi"><div class="v" id="kSum">–</div><div class="l">Somme contributions (pts %)</div></div>
-  <div class="kpi"><div class="v" id="kCov">–</div><div class="l">Poids couvert</div></div>
-  <div class="kpi"><div class="v" id="kN">–</div><div class="l">Valeurs suivies</div></div>
+  <div class="kpi"><div class="v" id="kPerf">–</div><div class="l">WPEA sur la période</div></div>
+  <div class="kpi"><div class="v" id="kSum">–</div><div class="l">Somme des contributions</div></div>
+  <div class="kpi"><div class="v" id="kRes">–</div><div class="l">Résidu (pts)</div></div>
 </div>
-<div class="panel"><canvas id="chart"></canvas></div>
-<div id="linesBlock" style="display:none">
-  <div class="h2" id="linesTitle">Historique 30 jours des 4 plus gros contributeurs</div>
-  <div class="panel"><canvas id="lines"></canvas></div>
-  <div class="legend" id="linesLegend"></div>
+
+<div class="synth" id="synth" style="display:none"></div>
+
+<div id="blocs" style="display:none">
+  <div class="h2">
+    <span class="t">Indice base 100 et apport de chaque secteur</span>
+  </div>
+  <div class="panel"><canvas id="graphe"></canvas></div>
+  <div class="legend" id="legende"></div>
+  <div class="aide">
+    En bas, chaque courbe part de zéro et montre ce que le secteur a ajouté
+    ou retiré à l'indice depuis le début de la période. Leur somme est
+    l'écart de l'indice à 100.<br>
+    Glissez horizontalement, ou appuyez simplement, pour lire une date :
+    part et valeur en points de chaque secteur. Deux doigts : la progression
+    propre de chaque secteur entre les deux dates et ce qu'il a apporté à
+    l'indice. Le glissement vertical fait défiler la page normalement.
+  </div>
+
+  <div class="h2"><span class="t">Contribution de chaque secteur</span></div>
+  <div class="panel">
+    <div style="font-size:10px;color:var(--dim);padding:0 4px 8px;line-height:1.5">
+      Sous chaque nom : <b style="color:#e8eaf0">poids du secteur dans
+      l'indice</b>, puis <b style="color:#e8eaf0">progression propre du
+      secteur</b> sur la période. La barre est le produit des deux,
+      c'est-à-dire la contribution en points d'indice.
+    </div>
+    <canvas id="barres"></canvas>
+  </div>
 </div>
-<div id="status">Chargement de contributions.json…</div>
-<div class="foot" id="foot">
-  Contribution = poids d'indice &times; performance 30 j en EUR (change inclus).
-  Composition proxy : iShares MSCI EM Asia (physique) — l'indice de PAASI
-  (Screened Select ex Thermal Coal) applique des filtres supplémentaires
-  marginaux sur les grandes capitalisations. PAASI &eacute;tant &agrave;
-  r&eacute;plication synth&eacute;tique, Amundi ne publie pas les constituants.
+
+<div id="lexique" style="display:none">
+  <div class="h2"><span class="t">Que contient chaque secteur</span></div>
+  <div id="lexBody"></div>
 </div>
+
+<div class="foot" id="foot"></div>
+<div id="status">Chargement de attribution.json…</div>
 <div class="tip" id="tip"></div>
 
 <script>
 (function () {
   "use strict";
 
-  var TOP = 20;
-  var tip = document.getElementById("tip");
+  var PROXY = "https://flat-bread-4d06.guermeur-daniel.workers.dev/?url=";
+  var SECOURS = "https://api.codetabs.com/v1/proxy/?quest=";
 
-  function fmtPct(x, dec) {
-    var s = (x >= 0 ? "+" : "") + x.toFixed(dec === undefined ? 2 : dec);
-    return s.replace(".", ",");
+  var COULEURS = ["#4da3ff", "#ffb547", "#2ecc71", "#e74c3c", "#b07cff",
+                  "#41d6c3", "#ff7ab8", "#d4c14a", "#7fd14a", "#ff8f5a",
+                  "#6b7488"];
+
+  var LEX_WORLD = {
+    "Technologie":
+      "Semi-conducteurs, logiciels, matériel et services informatiques. " +
+      "C'est le secteur le plus concentré de l'indice : <b>Nvidia</b> et " +
+      "<b>Apple</b> en représentent à eux seuls près d'un tiers, devant " +
+      "<b>Microsoft</b>, <b>Broadcom</b>, <b>Micron</b>, <b>AMD</b> et " +
+      "<b>ASML</b>. Attention au contresens courant : Amazon, Alphabet, Meta " +
+      "et Tesla n'y sont pas — l'exposition réelle à l'IA déborde donc " +
+      "largement de ce seul secteur.",
+    "Finance":
+      "Banques, assureurs, gestionnaires d'actifs, places de marché, et " +
+      "depuis la révision GICS de 2023 les réseaux de paiement " +
+      "(<b>Visa</b>, <b>Mastercard</b>). Premier poids de l'indice après la " +
+      "technologie, mené par <b>JPMorgan</b> et <b>Berkshire Hathaway</b>. " +
+      "Secteur très sensible aux taux longs et à la pente de la courbe.",
+    "Industrie":
+      "Aéronautique et défense, machines, transport, bâtiment, services aux " +
+      "entreprises. On y trouve <b>GE</b>, <b>RTX</b>, <b>Caterpillar</b>, " +
+      "<b>Siemens</b>, <b>Honeywell</b>, <b>Schneider</b> — et donc " +
+      "l'essentiel des valeurs de défense cotées.",
+    "Sante":
+      "Laboratoires pharmaceutiques, biotechnologies, matériel médical et " +
+      "assureurs santé américains : <b>Eli Lilly</b>, <b>Johnson &amp; " +
+      "Johnson</b>, <b>Novo Nordisk</b>, <b>UnitedHealth</b>, <b>Roche</b>, " +
+      "<b>Novartis</b>. Secteur défensif, mais exposé au risque " +
+      "réglementaire américain sur le prix des médicaments.",
+    "Consommation discretionnaire":
+      "L'achat qu'on peut reporter : commerce en ligne, automobile, luxe, " +
+      "restauration, hôtellerie. Dominé par <b>Amazon</b> — troisième " +
+      "capitalisation de l'indice tous secteurs confondus — puis " +
+      "<b>Tesla</b>, <b>Home Depot</b>, <b>Toyota</b>, <b>LVMH</b>. " +
+      "Bon baromètre de la confiance des ménages.",
+    "Telecoms et medias":
+      "Communication Services au sens GICS, ce qui recouvre surtout la " +
+      "publicité en ligne et le divertissement : <b>Alphabet</b> " +
+      "(deux lignes A et C), <b>Meta</b>, <b>Netflix</b>, <b>Disney</b>, " +
+      "à côté des opérateurs télécoms traditionnels. Alphabet et Meta y " +
+      "pèsent l'essentiel : ce secteur est en pratique une seconde poche " +
+      "technologique.",
+    "Consommation de base":
+      "L'achat qu'on ne reporte pas : alimentation, boissons, hygiène, " +
+      "distribution alimentaire, tabac. <b>Walmart</b>, <b>Costco</b>, " +
+      "<b>Procter &amp; Gamble</b>, <b>Nestlé</b>, <b>Coca-Cola</b>. " +
+      "Le secteur le plus défensif de l'indice, qui surperforme " +
+      "typiquement quand le marché doute.",
+    "Energie":
+      "Pétrole et gaz sur toute la chaîne, plus les services pétroliers. " +
+      "<b>Exxon</b>, <b>Chevron</b>, <b>Shell</b>, <b>TotalEnergies</b>, " +
+      "<b>ConocoPhillips</b>. Les renouvelables n'y sont pas : ils sont " +
+      "classés en services publics ou en industrie. Suit le baril, donc " +
+      "réagit fortement au risque géopolitique.",
+    "Materiaux":
+      "Chimie, gaz industriels, mines, acier, papier et emballage : " +
+      "<b>Linde</b>, <b>Air Liquide</b>, <b>BHP</b>, <b>Rio Tinto</b>, " +
+      "<b>Sherwin-Williams</b>. C'est ici que passe l'exposition au cuivre " +
+      "et aux métaux industriels, via les miniers.",
+    "Services publics":
+      "Électricité, gaz, eau, et désormais une large part des producteurs " +
+      "renouvelables : <b>NextEra</b>, <b>Iberdrola</b>, " +
+      "<b>Constellation Energy</b>, <b>Southern</b>. Secteur endetté par " +
+      "nature, donc pénalisé quand les taux montent — mais porté depuis " +
+      "peu par la demande électrique des centres de données.",
+    "Autres (immobilier, divers)":
+      "Essentiellement l'immobilier coté (REIT). Poids trop faible pour " +
+      "justifier un instrument de suivi dédié : son cours est figé et son " +
+      "évolution réelle tombe dans le résidu."
+  };
+
+  var LEX_PAASI = {
+    "TSMC — fonderie":
+      "Taiwan Semiconductor à lui seul : <b>18,3 % de l'indice</b>, le plus " +
+      "gros poids de très loin, et environ 56 % du compartiment taïwanais. " +
+      "Fondeur de presque tous les processeurs avancés, il commande le cycle " +
+      "des semi-conducteurs mondial. Suivi par son action à Taipei, " +
+      "convertie en euros.",
+    "Chaine IA taiwanaise":
+      "Le reste de Taïwan : <b>MediaTek</b>, <b>Delta Electronics</b>, " +
+      "<b>Hon Hai</b> (Foxconn), <b>ASE</b>, <b>UMC</b>, <b>Yageo</b>, " +
+      "<b>Accton</b>, <b>Unimicron</b>. Conception de puces, assemblage, " +
+      "test, alimentation et connectique des serveurs. Reconstitué en " +
+      "retranchant TSMC de l'ETF Taïwan, dont l'indice plafonné ne lui " +
+      "donne que 29 % au lieu de 56 %.",
+    "Memoire coreenne":
+      "<b>Samsung Electronics</b> et <b>SK Hynix</b>, ordinaires et " +
+      "préférence confondues. Mémoire vive et mémoire à haute bande " +
+      "passante, le goulot d'étranglement de l'IA. Deux titres qui font " +
+      "<b>14,2 % de l'indice</b> et l'essentiel de la volatilité coréenne.",
+    "Coree hors memoire":
+      "Le reste de la Corée : <b>Hyundai</b>, <b>KB Financial</b>, " +
+      "<b>Shinhan</b>, <b>Doosan Enerbility</b>, <b>Samsung C&amp;T</b>. " +
+      "Automobile, banques, industrie lourde. Reconstitué en retranchant " +
+      "les deux valeurs de mémoire de l'ETF Corée — c'est la catégorie la " +
+      "moins fiable de la page, car la soustraction y amplifie le bruit.",
+    "Chine — plateformes et banques":
+      "Chine offshore et actions A réunies : <b>Tencent</b>, " +
+      "<b>Alibaba</b>, <b>Xiaomi</b>, <b>Meituan</b>, <b>PDD</b>, " +
+      "<b>NetEase</b> d'un côté ; <b>China Construction Bank</b>, " +
+      "<b>ICBC</b>, <b>Bank of China</b>, <b>Ping An</b> de l'autre. " +
+      "Deuxième poids de l'indice à 26,3 %. Son ETF n'est pas plafonné, " +
+      "donc aucune correction n'est nécessaire.",
+    "Inde — banques et consommation":
+      "<b>HDFC Bank</b>, <b>ICICI</b>, <b>Reliance</b>, <b>Infosys</b>, " +
+      "<b>TCS</b>, <b>Bharti Airtel</b>. Près de 30 % de services " +
+      "financiers et seulement 8 % d'informatique : c'est le seul bloc de " +
+      "l'indice qui ne soit pas un pari sur les semi-conducteurs. Suivi " +
+      "par l'ETF PEA Inde, dont la réplication synthétique traîne un peu.",
+    "Reste (ASEAN, divers)":
+      "Thaïlande, Malaisie, Indonésie et liquidités. Trop peu et trop " +
+      "dispersé pour justifier un instrument : figé, son évolution réelle " +
+      "tombe dans le résidu."
+  };
+
+  var LEXIQUES = { world: LEX_WORLD, paasi: LEX_PAASI };
+  var TITRES = { world: "MSCI World — Moteurs de l'indice",
+                 paasi: "MSCI Emerging Asia — Moteurs de l'indice" };
+  var CLE = "paasi";
+
+  var $ = function (id) { return document.getElementById(id); };
+  var dpr = window.devicePixelRatio || 1;
+
+  function fmt(v, d) {
+    if (v === null || v === undefined || isNaN(v)) return "–";
+    var s = Math.abs(v).toFixed(d === undefined ? 2 : d).replace(".", ",");
+    return (v > 0 ? "+" : v < 0 ? "−" : "") + s;
+  }
+  function num(v, d) {
+    if (v === null || v === undefined || isNaN(v)) return "–";
+    return v.toFixed(d === undefined ? 2 : d).replace(".", ",");
+  }
+  function jour(iso) { var p = iso.split("-"); return p[2] + "/" + p[1]; }
+  function classe(v) { return v >= 0 ? "pos" : "neg"; }
+  function court(s) {
+    var t = String(s).split(" —")[0];
+    return t.length > 20 ? t.slice(0, 19) + "…" : t;
+  }
+  function coul(v) { return v >= 0 ? "#2ecc71" : "#e74c3c"; }
+
+  function prepareCanvas(cv, hauteur) {
+    var l = cv.parentNode.clientWidth - 16;
+    cv.width = l * dpr;
+    cv.height = hauteur * dpr;
+    cv.style.height = hauteur + "px";
+    var ctx = cv.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return { ctx: ctx, w: l, h: hauteur };
   }
 
-  // items : [{name, contrib, tip:"html du tooltip"}], deja tries/tronques par l'appelant
-  function renderBars(items, footerHtml, axisCaption) {
-    document.getElementById("kpis").style.display = "flex";
-    document.getElementById("status").style.display = "none";
-    document.getElementById("foot").innerHTML = footerHtml;
+  // ==================================================================
+  // Calcul de la fenetre choisie
+  // ==================================================================
+  var MOIS = 3;           // 1, 2 ou 3
 
-    var top = items;
-    var cv = document.getElementById("chart");
-    var dpr = window.devicePixelRatio || 1;
-    var W = cv.parentNode.clientWidth - 16;
-    var rowH = 26, padT = 8, padB = 22;
-    var H = padT + top.length * rowH + padB;
-    cv.width = W * dpr; cv.height = H * dpr;
-    cv.style.height = H + "px";
-    var ctx = cv.getContext("2d");
-    ctx.scale(dpr, dpr);
+  function fenetre(f) {
+    var n = f.dates.length;
+    // ~22 cotations par mois
+    var voulu = Math.round(MOIS * 22);
+    var i0 = Math.max(0, n - 1 - voulu);
+    var dates = f.dates.slice(i0);
+    var m = dates.length;
 
-    var maxAbs = 0;
-    top.forEach(function (s) { maxAbs = Math.max(maxAbs, Math.abs(s.contrib)); });
-    if (maxAbs === 0) maxAbs = 1;
-
-    var labelW = Math.min(120, W * 0.34);
-    var valW = 52;
-    var zeroX = labelW + (W - labelW - valW) / 2;
-    var scale = (W - labelW - valW) / 2 / maxAbs * 0.96;
-
-    ctx.strokeStyle = "#2a3040";
-    ctx.beginPath();
-    ctx.moveTo(zeroX, padT);
-    ctx.lineTo(zeroX, H - padB);
-    ctx.stroke();
-
-    var hitboxes = [];
-    top.forEach(function (s, i) {
-      var y = padT + i * rowH;
-      var bh = rowH - 8;
-      var w = s.contrib * scale;
-
-      ctx.fillStyle = "#e8eaf0";
-      ctx.font = "10.5px -apple-system, sans-serif";
-      ctx.textAlign = "left";
-      ctx.textBaseline = "middle";
-      var nm = s.name.length > 17 ? s.name.slice(0, 16) + "…" : s.name;
-      ctx.fillText(nm, 2, y + rowH / 2);
-
-      ctx.fillStyle = s.contrib >= 0 ? "#2ecc71" : "#e74c3c";
-      if (w >= 0) ctx.fillRect(zeroX, y + 4, w, bh);
-      else ctx.fillRect(zeroX + w, y + 4, -w, bh);
-
-      ctx.fillStyle = s.contrib >= 0 ? "#2ecc71" : "#e74c3c";
-      ctx.font = "bold 10.5px -apple-system, sans-serif";
-      if (w >= 0) {
-        ctx.textAlign = "left";
-        ctx.fillText(fmtPct(s.contrib), zeroX + w + 5, y + rowH / 2);
+    var series = f.agregats.map(function (a) {
+      var ratio = [];
+      if (a.cours && a.cours.length === n && a.cours[i0]) {
+        var base = a.cours[i0];
+        for (var i = 0; i < m; i++) ratio.push(a.cours[i0 + i] / base);
       } else {
-        ctx.textAlign = "right";
-        ctx.fillText(fmtPct(s.contrib), zeroX + w - 5, y + rowH / 2);
+        for (var j = 0; j < m; j++) ratio.push(1);
       }
-      hitboxes.push({ y0: y, y1: y + rowH, s: s });
+      return { a: a, ratio: ratio,
+               pts: ratio.map(function (r) { return a.poids * r; }) };
     });
 
-    ctx.fillStyle = "#8a91a3";
-    ctx.font = "9.5px -apple-system, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText(axisCaption, zeroX, H - 8);
-
-    function showTip(ev) {
-      var r = cv.getBoundingClientRect();
-      var cy = (ev.touches ? ev.touches[0].clientY : ev.clientY) - r.top;
-      var cx = (ev.touches ? ev.touches[0].clientX : ev.clientX);
-      var hit = null;
-      for (var i = 0; i < hitboxes.length; i++)
-        if (cy >= hitboxes[i].y0 && cy < hitboxes[i].y1) { hit = hitboxes[i].s; break; }
-      if (!hit) { tip.style.display = "none"; return; }
-      tip.innerHTML = hit.tip;
-      tip.style.display = "block";
-      tip.style.left = Math.min(cx + 10, window.innerWidth - 250) + "px";
-      tip.style.top = (ev.touches ? ev.touches[0].clientY : ev.clientY) + 12 + "px";
-      ev.preventDefault();
+    var rec = [], part = [];
+    for (var i2 = 0; i2 < m; i2++) {
+      var s = 0;
+      for (var k = 0; k < series.length; k++) s += series[k].pts[i2];
+      rec.push(s);
     }
-    cv.addEventListener("mousemove", showTip);
-    cv.addEventListener("touchstart", showTip, { passive: false });
-    cv.addEventListener("touchmove", showTip, { passive: false });
-    cv.addEventListener("mouseleave", function () { tip.style.display = "none"; });
-    cv.addEventListener("touchend", function () {
-      setTimeout(function () { tip.style.display = "none"; }, 1500);
+    series.forEach(function (S) {
+      S.part = S.pts.map(function (p, i3) { return p / rec[i3] * 100; });
+      // apport cumule dans l'indice, en points : nul au premier jour
+      S.contrib = S.ratio.map(function (r) { return S.a.poids * (r - 1); });
     });
+
+    var P0 = f.prix_ref[i0];
+    var reel = [];
+    for (i2 = 0; i2 < m; i2++) reel.push(f.prix_ref[i0 + i2] / P0 * 100);
+
+    var perfReel = reel[m - 1] - 100;
+    var somme = 0;
+    series.forEach(function (S) {
+      if (S.a.suivi) somme += S.a.poids * (S.ratio[m - 1] - 1);
+    });
+
+    return { i0: i0, dates: dates, m: m, series: series, rec: rec,
+             reel: reel, prixDeb: P0, prixFin: f.prix_ref[n - 1],
+             perfReel: perfReel, somme: somme, residu: perfReel - somme };
   }
 
-  // ===== Historique des plus gros contributeurs (points d'indice) =========
-  // Chaque courbe = poids d'indice x perf EUR depuis J-30, en points de % d'indice.
-  // Les quatre courbes partent donc de zero et s'additionnent.
-  var LINE_COLORS = ["#4da3ff", "#ffb454", "#c678dd", "#3ddad7"];
+  // ==================================================================
+  // Graphe : indice base 100 (haut) + parts non empilees (bas)
+  // ==================================================================
+  var E = null;
 
-  function fmtDay(ms) {
-    var d = new Date(ms);
-    return ("0" + d.getUTCDate()).slice(-2) + "/" + ("0" + (d.getUTCMonth() + 1)).slice(-2);
-  }
+  function dessineGraphe(cv, f, W) {
+    var hA = 150, gap = 26, hB = 170;
+    var g = prepareCanvas(cv, hA + gap + hB + 24);
+    var ctx = g.ctx, w = g.w;
+    var mg = { g: 40, d: 8 };
+    var lx = w - mg.g - mg.d;
+    var yA = 12, yB = yA + hA + gap;
+    var m = W.m;
+    var X = function (i) { return mg.g + (i / (m - 1)) * lx; };
 
-  function renderLines(series) {
-    var block = document.getElementById("linesBlock");
-    if (!series || !series.length) { block.style.display = "none"; return; }
-
-    var curves = [];
-    series.forEach(function (s, i) {
-      var w = (s.weight == null) ? 0 : s.weight;
-      var pts = [];
-      (s.pts || []).forEach(function (p) {
-        var t = Date.parse(p[0] + "T00:00:00Z");
-        // base 100 -> contribution cumulee en points d'indice
-        if (!isNaN(t) && p[1] != null) pts.push({ t: t, v: w * (p[1] / 100 - 1) });
-      });
-      pts.sort(function (a, b) { return a.t - b.t; });
-      if (pts.length > 1) {
-        curves.push({
-          name: s.name, color: LINE_COLORS[i % LINE_COLORS.length], pts: pts,
-          weight: w, contrib: s.contrib
-        });
+    function cadre(y0, hh, min, max, dec, titre) {
+      if (max === min) max = min + 1;
+      var Y = function (v) { return y0 + (1 - (v - min) / (max - min)) * hh; };
+      ctx.strokeStyle = "#2a3040"; ctx.fillStyle = "#8a91a3";
+      ctx.font = "9.5px -apple-system, sans-serif";
+      ctx.textAlign = "right"; ctx.textBaseline = "middle"; ctx.lineWidth = 1;
+      for (var k = 0; k <= 4; k++) {
+        var v = min + (max - min) * k / 4, y = Y(v);
+        ctx.globalAlpha = 0.3;
+        ctx.beginPath(); ctx.moveTo(mg.g, y); ctx.lineTo(w - mg.d, y); ctx.stroke();
+        ctx.globalAlpha = 1;
+        ctx.fillText(num(v, dec), mg.g - 5, y);
       }
-    });
-    if (!curves.length) { block.style.display = "none"; return; }
-    block.style.display = "block";
-
-    var tMin = Infinity, tMax = -Infinity, vMin = 0, vMax = 0;
-    curves.forEach(function (c) {
-      c.pts.forEach(function (p) {
-        if (p.t < tMin) tMin = p.t;
-        if (p.t > tMax) tMax = p.t;
-        if (p.v < vMin) vMin = p.v;
-        if (p.v > vMax) vMax = p.v;
-      });
-    });
-    if (tMax <= tMin) { block.style.display = "none"; return; }
-    var pad = (vMax - vMin) * 0.08 || 0.05;
-    var vLo = vMin - pad, vHi = vMax + pad;
-
-    // canvas remplace a chaque rendu : evite d'empiler les ecouteurs
-    // quand on fait des aller-retours entre les onglets 30 jours / Journee
-    var oldCv = document.getElementById("lines");
-    var cv = oldCv.cloneNode(false);
-    oldCv.parentNode.replaceChild(cv, oldCv);
-
-    var dpr = window.devicePixelRatio || 1;
-    var W = cv.parentNode.clientWidth - 16;
-    var H = 200;
-    var padL = 40, padR = 8, padT = 10, padB = 20;
-    cv.width = W * dpr; cv.height = H * dpr;
-    cv.style.height = H + "px";
-    var ctx = cv.getContext("2d");
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.scale(dpr, dpr);
-    ctx.clearRect(0, 0, W, H);
-
-    function X(t) { return padL + (t - tMin) / (tMax - tMin) * (W - padL - padR); }
-    function Y(v) { return padT + (vHi - v) / (vHi - vLo) * (H - padT - padB); }
-
-    // grille horizontale
-    ctx.font = "9px -apple-system, sans-serif";
-    ctx.textBaseline = "middle";
-    for (var g = 0; g <= 4; g++) {
-      var vv = vLo + (vHi - vLo) * g / 4;
-      var yy = Y(vv);
-      ctx.strokeStyle = "#2a3040";
-      ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(W - padR, yy); ctx.stroke();
-      ctx.fillStyle = "#8a91a3";
-      ctx.textAlign = "right";
-      ctx.fillText(vv.toFixed(2).replace(".", ","), padL - 4, yy);
+      ctx.textAlign = "left"; ctx.textBaseline = "top";
+      ctx.fillStyle = "#6b7488";
+      ctx.font = "9.5px -apple-system, sans-serif";
+      ctx.fillText(titre, mg.g + 3, y0 + 2);
+      return Y;
     }
 
-    // reference zero
-    if (0 > vLo && 0 < vHi) {
-      ctx.strokeStyle = "#5a6379";
-      ctx.setLineDash([3, 3]);
-      ctx.beginPath(); ctx.moveTo(padL, Y(0)); ctx.lineTo(W - padR, Y(0)); ctx.stroke();
+    function ligne(Y, tab, couleur, ep, pointille) {
+      ctx.strokeStyle = couleur; ctx.lineWidth = ep;
+      if (pointille) ctx.setLineDash([4, 3]);
+      ctx.beginPath();
+      ctx.moveTo(X(0), Y(tab[0]));
+      for (var i = 1; i < m; i++) ctx.lineTo(X(i), Y(tab[i]));
+      ctx.stroke();
       ctx.setLineDash([]);
     }
 
-    // axe des dates
-    ctx.fillStyle = "#8a91a3";
-    ctx.textBaseline = "alphabetic";
-    ctx.textAlign = "left";
-    ctx.fillText(fmtDay(tMin), padL, H - 6);
-    ctx.textAlign = "center";
-    ctx.fillText(fmtDay((tMin + tMax) / 2), (padL + W - padR) / 2, H - 6);
-    ctx.textAlign = "right";
-    ctx.fillText(fmtDay(tMax), W - padR, H - 6);
+    // --- haut : indice base 100 ---
+    var tous = W.rec.concat(W.reel);
+    var mn = Math.min.apply(null, tous), mx = Math.max.apply(null, tous);
+    var p = (mx - mn) * 0.12 || 1;
+    var YA = cadre(yA, hA, mn - p, mx + p, 1, "indice base 100");
+    ctx.strokeStyle = "#2a3040"; ctx.lineWidth = 1;
+    ctx.globalAlpha = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(mg.g, YA(100)); ctx.lineTo(w - mg.d, YA(100)); ctx.stroke();
+    ctx.globalAlpha = 1;
+    ligne(YA, W.reel, "#ffffff", 2.2, false);
+    ligne(YA, W.rec, "#8a91a3", 1.4, true);
 
-    // courbes
-    ctx.lineWidth = 1.7;
-    ctx.lineJoin = "round";
-    curves.forEach(function (c) {
-      ctx.strokeStyle = c.color;
-      ctx.beginPath();
-      c.pts.forEach(function (p, k) {
-        var x = X(p.t), y = Y(p.v);
-        if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    // --- bas : apport cumule de chaque secteur, en points d'indice ---
+    var bmn = 0, bmx = 0;
+    W.series.forEach(function (S) {
+      S.contrib.forEach(function (v) {
+        if (v < bmn) bmn = v;
+        if (v > bmx) bmx = v;
       });
+    });
+    var pb = (bmx - bmn) * 0.10 || 0.5;
+    var YB = cadre(yB, hB, bmn - pb, bmx + pb, 2,
+                   "apport de chaque secteur (points d'indice)");
+    ctx.strokeStyle = "#5a6478"; ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(mg.g, YB(0)); ctx.lineTo(w - mg.d, YB(0)); ctx.stroke();
+    W.series.forEach(function (S, s) {
+      ligne(YB, S.contrib, COULEURS[s % COULEURS.length],
+            S.a.suivi ? 1.7 : 1.1, !S.a.suivi);
+    });
+
+    // --- axe des dates ---
+    ctx.fillStyle = "#8a91a3";
+    ctx.font = "9.5px -apple-system, sans-serif";
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    [0, Math.floor((m - 1) / 2), m - 1].forEach(function (i) {
+      ctx.fillText(jour(W.dates[i]), X(i), yB + hB + 5);
+    });
+
+    E = { f: f, W: W, X: X, mg: mg, lx: lx, yA: yA, hA: hA, yB: yB, hB: hB,
+          cv: cv, m: m, YA: YA, YB: YB };
+    return W;
+  }
+
+  function legende(W) {
+    $("legende").innerHTML =
+      '<span><i style="background:#ffffff"></i><b>Indice réel</b></span>' +
+      '<span><i style="background:#8a91a3"></i><b>reconstruit</b></span>' +
+      W.series.map(function (S, n) {
+        return '<span><i style="background:' + COULEURS[n % COULEURS.length] +
+               '"></i><b>' + court(S.a.libelle) + "</b> " +
+               num(S.a.poids, 1) + " %" +
+               (S.a.suivi ? "" : " (figé)") + "</span>";
+      }).join("");
+  }
+
+  // ==================================================================
+  // Interaction
+  // ==================================================================
+  var curseurs = [];
+
+  function indexDepuisX(clientX) {
+    var r = E.cv.getBoundingClientRect();
+    var i = Math.round(((clientX - r.left - E.mg.g) / E.lx) * (E.m - 1));
+    return Math.max(0, Math.min(E.m - 1, i));
+  }
+
+  function traceCurseurs() {
+    if (!E) return;
+    var ctx = E.cv.getContext("2d");
+    ctx.save();
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var haut = E.yA, bas = E.yB + E.hB;
+    if (curseurs.length === 2) {
+      var xa = E.X(Math.min(curseurs[0], curseurs[1]));
+      var xb = E.X(Math.max(curseurs[0], curseurs[1]));
+      ctx.fillStyle = "rgba(255,255,255,0.10)";
+      ctx.fillRect(xa, haut, xb - xa, bas - haut);
+    }
+    ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.2;
+    curseurs.forEach(function (i) {
+      ctx.beginPath();
+      ctx.moveTo(E.X(i), haut);
+      ctx.lineTo(E.X(i), bas);
       ctx.stroke();
     });
-
-    // legende
-    document.getElementById("linesLegend").innerHTML = curves.map(function (c) {
-      var last = c.pts[c.pts.length - 1].v;
-      return '<span><i style="background:' + c.color + '"></i><b>' + c.name +
-        "</b> " + fmtPct(last) + " pt · " +
-        String(c.weight).replace(".", ",") + " %</span>";
-    }).join("");
-
-    // curseur + infobulle
-    var snapshot = ctx.getImageData(0, 0, cv.width, cv.height);
-
-    function hide() {
-      ctx.putImageData(snapshot, 0, 0);
-      tip.style.display = "none";
-    }
-
-    function move(ev) {
-      var r = cv.getBoundingClientRect();
-      var cx = (ev.touches ? ev.touches[0].clientX : ev.clientX);
-      var cyAbs = (ev.touches ? ev.touches[0].clientY : ev.clientY);
-      var px = cx - r.left;
-      if (px < padL || px > W - padR) { hide(); return; }
-      var t = tMin + (px - padL) / (W - padL - padR) * (tMax - tMin);
-
-      ctx.putImageData(snapshot, 0, 0);
-      var rows = [], tShown = null, tot = 0;
-      curves.forEach(function (c) {
-        var best = null;
-        c.pts.forEach(function (p) {
-          if (!best || Math.abs(p.t - t) < Math.abs(best.t - t)) best = p;
-        });
-        if (!best) return;
-        if (tShown === null) tShown = best.t;
-        tot += best.v;
-        ctx.fillStyle = c.color;
-        ctx.beginPath();
-        ctx.arc(X(best.t), Y(best.v), 3, 0, Math.PI * 2);
-        ctx.fill();
-        rows.push('<span style="color:' + c.color + '">&#9679;</span> ' +
-          (c.name.length > 16 ? c.name.slice(0, 15) + "…" : c.name) +
-          " " + fmtPct(best.v) + " pt");
-      });
-      rows.push("Total 4 : <b>" + fmtPct(tot) + " pt</b>");
-      ctx.strokeStyle = "#8a91a3";
-      ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(px, padT); ctx.lineTo(px, H - padB); ctx.stroke();
-
-      tip.innerHTML = "<b>" + fmtDay(tShown === null ? t : tShown) + "</b><br>" + rows.join("<br>");
-      tip.style.display = "block";
-      tip.style.left = Math.min(cx + 10, window.innerWidth - 250) + "px";
-      tip.style.top = (cyAbs + 12) + "px";
-      ev.preventDefault();
-    }
-
-    cv.addEventListener("mousemove", move);
-    cv.addEventListener("touchstart", move, { passive: false });
-    cv.addEventListener("touchmove", move, { passive: false });
-    cv.addEventListener("mouseleave", hide);
-    cv.addEventListener("touchend", function () { setTimeout(hide, 1800); });
+    ctx.restore();
   }
 
-  // ===== 30 jours (donnees precalculees par le scraper, inchange) =========
-  function build30j(data) {
-    var ok = data.stocks.filter(function (s) { return s.status === "ok"; });
-    ok.sort(function (a, b) { return Math.abs(b.contrib) - Math.abs(a.contrib); });
-    var top = ok.slice(0, TOP);
-    top.sort(function (a, b) { return b.contrib - a.contrib; });
-    top.forEach(function (s) {
-      s.tip = "<b>" + s.name + "</b><br>" +
-        "Poids : " + String(s.weight).replace(".", ",") + " %<br>" +
-        "Perf 30 j locale : " + fmtPct(s.perf_local * 100) + " %<br>" +
-        "Perf 30 j EUR : " + fmtPct(s.perf_eur * 100) + " %<br>" +
-        "Contribution : " + fmtPct(s.contrib) + " pt<br>" +
-        (s.yahoo || "") + " — " + s.country + " — " + s.sector;
+  function tableau(entetes, lignes) {
+    var html = "<table><tr><th>" + entetes.join("</th><th>") + "</th></tr>";
+    lignes.forEach(function (l) {
+      html += '<tr><td><i style="display:inline-block;width:7px;height:7px;' +
+              "border-radius:2px;margin-right:5px;background:" + l.c +
+              '"></i>' + court(l.n) + "</td>";
+      l.v.forEach(function (c) {
+        html += '<td style="color:' + (c.col || "#e8eaf0") + '">' + c.t + "</td>";
+      });
+      html += "</tr>";
+    });
+    return html + "</table>";
+  }
+
+  function majBulle(pts) {
+    if (!E) return;
+    var tip = $("tip"), W = E.W;
+
+    if (pts.length >= 2) {
+      var i1 = indexDepuisX(pts[0].clientX), i2 = indexDepuisX(pts[1].clientX);
+      if (i1 > i2) { var t = i1; i1 = i2; i2 = t; }
+      curseurs = [i1, i2];
+      var baseRec = W.rec[i1];
+      var lignes = W.series.map(function (S, s) {
+        var perfPropre = (S.ratio[i2] / S.ratio[i1] - 1) * 100;
+        var apport = (S.pts[i2] - S.pts[i1]) / baseRec * 100;
+        return { n: S.a.libelle, c: COULEURS[s % COULEURS.length],
+                 pp: perfPropre, ap: apport };
+      }).sort(function (a, b) { return b.ap - a.ap; })
+        .map(function (l) {
+          return { n: l.n, c: l.c, v: [
+            { t: fmt(l.pp, 2) + " %", col: coul(l.pp) },
+            { t: fmt(l.ap, 2) + " pt", col: coul(l.ap) }
+          ] };
+        });
+      var totRec = (W.rec[i2] / baseRec - 1) * 100;
+      var totReel = (W.reel[i2] / W.reel[i1] - 1) * 100;
+      tip.innerHTML = '<span class="hd">Du ' + jour(W.dates[i1]) + " au " +
+        jour(W.dates[i2]) + " · indice <span style='color:" + coul(totReel) +
+        "'>" + fmt(totReel, 2) + " %</span> · reconstruit <span style='color:" +
+        coul(totRec) + "'>" + fmt(totRec, 2) + " %</span></span>" +
+        tableau(["Secteur", "Progr.", "Apport"], lignes);
+    } else {
+      var i = indexDepuisX(pts[0].clientX);
+      curseurs = [i];
+      var lg = W.series.map(function (S, s) {
+        return { n: S.a.libelle, c: COULEURS[s % COULEURS.length],
+                 ap: S.contrib[i], pa: S.part[i] };
+      }).sort(function (a, b) { return b.ap - a.ap; })
+        .map(function (l) {
+          return { n: l.n, c: l.c, v: [
+            { t: fmt(l.ap, 2) + " pt", col: coul(l.ap) },
+            { t: num(l.pa, 1) + " %", col: "#8a91a3" }
+          ] };
+        });
+      tip.innerHTML = '<span class="hd">' + jour(W.dates[i]) +
+        " · indice " + num(W.reel[i], 2) + " · reconstruit " +
+        num(W.rec[i], 2) + "</span>" +
+        tableau(["Secteur", "Apport", "Part"], lg);
+    }
+
+    tip.style.display = "block";
+    var r = E.cv.getBoundingClientRect();
+    var tw = tip.offsetWidth, th = tip.offsetHeight;
+    var gx = Math.min(window.innerWidth - tw - 6,
+                      Math.max(6, pts[0].clientX - tw / 2));
+    var gy = r.top - th - 8;
+    if (gy < 6) gy = Math.min(window.innerHeight - th - 6, r.bottom + 8);
+    tip.style.left = gx + "px";
+    tip.style.top = gy + "px";
+
+    redessine();
+  }
+
+  function redessine() {
+    var f = bloc();
+    if (!f) return null;
+    var W = fenetre(f);
+    dessineGraphe($("graphe"), f, W);
+    traceCurseurs();
+    return W;
+  }
+
+  function brancheGestes() {
+    var cv = $("graphe"), tip = $("tip");
+    var depart = null;      // point de contact initial
+    var mode = null;        // null = indecis, "lecture" ou "defilement"
+
+    function pts(ev) {
+      if (ev.touches && ev.touches.length) return [].slice.call(ev.touches, 0, 2);
+      return [ev];
+    }
+    function off() {
+      tip.style.display = "none";
+      curseurs = [];
+      depart = null;
+      mode = null;
+      redessine();
+    }
+    function visible() { return tip.style.display === "block"; }
+
+    cv.addEventListener("touchstart", function (ev) {
+      if (!E) return;
+      if (ev.touches.length >= 2) {          // deux doigts : lecture immediate
+        mode = "lecture";
+        majBulle(pts(ev));
+        if (ev.cancelable) ev.preventDefault();
+        return;
+      }
+      if (visible()) { off(); return; }      // un appui referme la bulle
+      mode = null;                           // on attend de voir le mouvement
+      depart = { x: ev.touches[0].clientX, y: ev.touches[0].clientY };
+    }, { passive: false });
+
+    cv.addEventListener("touchmove", function (ev) {
+      if (!E) return;
+      if (ev.touches.length >= 2) mode = "lecture";
+      if (mode === null) {
+        if (!depart) return;
+        var dx = Math.abs(ev.touches[0].clientX - depart.x);
+        var dy = Math.abs(ev.touches[0].clientY - depart.y);
+        if (dx < 8 && dy < 8) return;        // trop tot pour trancher
+        // horizontal -> lecture ; vertical -> on laisse defiler la page
+        mode = dx > dy ? "lecture" : "defilement";
+      }
+      if (mode !== "lecture") return;
+      majBulle(pts(ev));
+      if (ev.cancelable) ev.preventDefault();
+    }, { passive: false });
+
+    cv.addEventListener("touchend", function (ev) {
+      if (ev.touches && ev.touches.length > 0) return;
+      if (mode === null && depart) {         // appui simple, sans glissement
+        mode = "lecture";
+        majBulle([{ clientX: depart.x, clientY: depart.y }]);
+        depart = null;
+        return;                              // la bulle reste affichee
+      }
+      off();
     });
 
-    var sum = ok.reduce(function (a, s) { return a + s.contrib; }, 0);
-    document.getElementById("subtitle").textContent =
-      "Composition du " + (data.holdings_date || "?") +
-      " — calcul du " + (data.generated || "").slice(0, 10) +
-      " — top " + TOP + " par |contribution|";
-    var kS = document.getElementById("kSum");
-    kS.textContent = fmtPct(sum);
-    kS.className = "v " + (sum >= 0 ? "pos" : "neg");
-    document.getElementById("kCov").textContent =
-      String(data.covered_weight).replace(".", ",") + " %";
-    document.getElementById("kN").textContent = ok.length + "/" + data.stocks.length;
-    document.getElementById("upd").style.display = "none";
-
-    renderBars(top,
-      "Contribution = poids d'indice &times; performance 30 j en EUR (change inclus). " +
-      "Composition proxy : iShares MSCI EM Asia (physique) — l'indice de PAASI " +
-      "(Screened Select ex Thermal Coal) applique des filtres suppl&eacute;mentaires " +
-      "marginaux sur les grandes capitalisations. PAASI &eacute;tant &agrave; " +
-      "r&eacute;plication synth&eacute;tique, Amundi ne publie pas les constituants.",
-      "contribution en points de % d'indice (30 j, EUR)");
-
-    var ser = (data.series || []).slice(0, 4);
-    document.getElementById("linesTitle").textContent =
-      "Contribution cumulée sur 30 jours des " + ser.length +
-      " plus gros contributeurs (points d'indice, EUR)";
-    renderLines(ser);
+    cv.addEventListener("mousemove", function (ev) {
+      if (!E) return;
+      majBulle([ev]);
+    });
+    cv.addEventListener("mouseleave", off);
   }
 
-  // ===== Journee — variation en direct vs cloture de la veille ==============
-  // Relais perso Cloudflare Worker (meme role que sur mes-actions / telemesure-zone-euro).
-  // Le suffixe /?url= fait partie de la valeur (convention mes-actions).
-  var MON_PROXY = "https://flat-bread-4d06.guermeur-daniel.workers.dev/?url=";
-  var YH_PROXIES = [
-    { u: "https://api.codetabs.com/v1/proxy/?quest=", enc: true },
-    { u: "https://api.allorigins.win/raw?url=",       enc: true }
-  ];
-  var GOOD_PROXY = -1; // index du dernier proxy qui a fonctionne (essaye en premier ensuite)
-
-  function fetchChart(yahooUrl) {
-    var proxies = [];
-    if (MON_PROXY) proxies.push({ u: MON_PROXY, enc: true });
-    YH_PROXIES.forEach(function (p) { proxies.push(p); });
-    var order = [];
-    if (GOOD_PROXY >= 0 && GOOD_PROXY < proxies.length) order.push(GOOD_PROXY);
-    for (var k = 0; k < proxies.length; k++) if (k !== GOOD_PROXY) order.push(k);
-
-    var i = 0;
-    function tryNext() {
-      if (i >= order.length) return Promise.reject(new Error("proxies indisponibles"));
-      var idx = order[i++], p = proxies[idx];
-      var target = p.u + (p.enc ? encodeURIComponent(yahooUrl) : yahooUrl);
-      var ctl = null; try { ctl = new AbortController(); } catch (e) {}
-      var timer = ctl ? setTimeout(function () { ctl.abort(); }, 3000) : 0;
-      return fetch(target, Object.assign({ cache: "no-store" }, ctl ? { signal: ctl.signal } : {}))
-        .then(function (r) {
-          clearTimeout(timer);
-          if (!r.ok) throw new Error("HTTP " + r.status);
-          return r.json();
-        })
-        .then(function (j) {
-          var res = j && j.chart && j.chart.result && j.chart.result[0];
-          if (!res) throw new Error("payload vide");
-          var m = res.meta || {};
-          var closes = ((res.indicators || {}).quote || [{}])[0].close || [];
-          var last = null;
-          for (var n = closes.length - 1; n >= 0; n--) { if (closes[n] != null) { last = closes[n]; break; } }
-          var price = (m.regularMarketPrice != null) ? m.regularMarketPrice : last;
-          var prev = (m.previousClose != null) ? m.previousClose
-                    : (m.chartPreviousClose != null) ? m.chartPreviousClose : null;
-          if (prev == null) {
-            // repli : avant-derniere cloture de la serie journaliere
-            var vals = closes.filter(function (v) { return v != null; });
-            prev = vals.length > 1 ? vals[vals.length - 2] : null;
-          }
-          if (price == null || prev == null) throw new Error("donnees incompletes");
-          GOOD_PROXY = idx;
-          return { price: price, prev: prev };
-        })
-        .catch(function () { clearTimeout(timer); return tryNext(); });
-    }
-    return tryNext();
-  }
-
-  function yahooChartUrl(symbol) {
-    return "https://query1.finance.yahoo.com/v8/finance/chart/" + symbol + "?range=5d&interval=1d";
-  }
-
-  var JOUR_CACHE = null; // resultat du dernier calcul Journee, pour eviter de tout re-fetcher
-
-  function buildJour(force) {
-    document.getElementById("linesBlock").style.display = "none";
-    if (JOUR_CACHE && !force) { renderJour(JOUR_CACHE); return; }
-    document.getElementById("kpis").style.display = "none";
-    document.getElementById("upd").style.display = "none";
-    document.getElementById("status").style.display = "block";
-    document.getElementById("status").textContent = "Chargement de contributions.json…";
-
-    fetch("contributions.json?t=" + Date.now())
-      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-      .then(function (data) {
-        var ok = data.stocks.filter(function (s) { return s.status === "ok"; });
-        var currencies = Array.from(new Set(ok.map(function (s) { return s.currency; })))
-          .filter(function (c) { return c && c !== "EUR"; });
-
-        document.getElementById("status").textContent =
-          "Cours en direct : 0/" + (ok.length + currencies.length) + "…";
-        var done = 0, total = ok.length + currencies.length;
-        function tick() {
-          done++;
-          document.getElementById("status").textContent =
-            "Cours en direct : " + done + "/" + total + "…";
-        }
-
-        var fx = {}; // devise -> {price, prev} = unites de devise pour 1 EUR
-        var fxPromises = currencies.map(function (cur) {
-          return fetchChart(yahooChartUrl("EUR" + cur + "=X"))
-            .then(function (q) { fx[cur] = q; tick(); })
-            .catch(function () { tick(); });
-        });
-
-        var stocks = [];
-        var stockPromises = ok.map(function (s) {
-          return fetchChart(yahooChartUrl(s.yahoo))
-            .then(function (q) { stocks.push({ s: s, q: q }); tick(); })
-            .catch(function () { tick(); });
-        });
-
-        return Promise.all(fxPromises.concat(stockPromises)).then(function () {
-          return { data: data, ok: ok, fx: fx, stocks: stocks };
-        });
-      })
-      .then(function (res) {
-        var items = [];
-        res.stocks.forEach(function (o) {
-          var s = o.s, q = o.q;
-          var perfLocal = q.price / q.prev - 1;
-          var perfEur = perfLocal; // devise EUR ou repli si FX indisponible
-          if (s.currency && s.currency !== "EUR") {
-            var r = res.fx[s.currency];
-            if (r && r.price && r.prev) {
-              perfEur = (q.price * r.prev) / (q.prev * r.price) - 1;
-            }
-          }
-          var contrib = s.weight * perfEur;
-          items.push({
-            name: s.name, contrib: contrib, weight: s.weight,
-            tip: "<b>" + s.name + "</b><br>" +
-              "Poids : " + String(s.weight).replace(".", ",") + " %<br>" +
-              "Variation locale (jour) : " + fmtPct(perfLocal * 100) + " %<br>" +
-              "Variation EUR (jour) : " + fmtPct(perfEur * 100) + " %<br>" +
-              "Contribution : " + fmtPct(contrib) + " pt<br>" +
-              (s.yahoo || "") + " — " + s.country + " — " + s.sector
-          });
-        });
-
-        if (!items.length) throw new Error("aucun cours recupere");
-
-        items.sort(function (a, b) { return Math.abs(b.contrib) - Math.abs(a.contrib); });
-        var top = items.slice(0, TOP);
-        top.sort(function (a, b) { return b.contrib - a.contrib; });
-
-        var sumAll = items.reduce(function (a, it) { return a + it.contrib; }, 0);
-        var covWeight = items.reduce(function (a, it) { return a + it.weight; }, 0);
-
-        var cache = {
-          top: top, sumAll: sumAll, covWeight: covWeight,
-          n: items.length, nTotal: res.ok.length, ts: new Date()
-        };
-        JOUR_CACHE = cache;
-        renderJour(cache);
-      })
-      .catch(function (e) {
-        document.getElementById("status").textContent =
-          "Erreur cours en direct : " + e.message;
+  // ==================================================================
+  // Barres de contribution
+  // ==================================================================
+  function dessineBarres(cv, W) {
+    var lignes = W.series.filter(function (S) { return S.a.suivi; })
+      .map(function (S) {
+        return { nom: S.a.libelle, poids: S.a.poids,
+                 perf: (S.ratio[W.m - 1] - 1) * 100,
+                 contrib: S.a.poids * (S.ratio[W.m - 1] - 1) };
       });
+    lignes.sort(function (a, b) { return b.contrib - a.contrib; });
+
+    var hLigne = 26;
+    var g = prepareCanvas(cv, lignes.length * hLigne + 14);
+    var ctx = g.ctx, w = g.w;
+    var xLab = 132, dispo = w - xLab - 44;
+
+    var max = 0;
+    lignes.forEach(function (a) { max = Math.max(max, Math.abs(a.contrib)); });
+    if (max === 0) max = 1;
+    var zero = xLab + dispo / 2, ech = (dispo / 2) / max;
+
+    ctx.strokeStyle = "#2a3040"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(zero, 4); ctx.lineTo(zero, g.h - 6); ctx.stroke();
+
+    lignes.forEach(function (a, i) {
+      var y = 8 + i * hLigne, lg = a.contrib * ech;
+      ctx.fillStyle = coul(a.contrib);
+      ctx.fillRect(lg >= 0 ? zero : zero + lg, y + 2, Math.abs(lg), 13);
+
+      ctx.fillStyle = "#e8eaf0";
+      ctx.font = "600 11px -apple-system, sans-serif";
+      ctx.textAlign = "right"; ctx.textBaseline = "middle";
+      ctx.fillText(court(a.nom), xLab - 8, y + 9);
+
+      ctx.fillStyle = coul(a.contrib);
+      ctx.font = "700 11px -apple-system, sans-serif";
+      ctx.textAlign = lg >= 0 ? "left" : "right";
+      ctx.fillText(fmt(a.contrib), lg >= 0 ? zero + lg + 5 : zero + lg - 5, y + 9);
+
+      ctx.fillStyle = "#8a91a3";
+      ctx.font = "10px -apple-system, sans-serif";
+      ctx.textAlign = "right";
+      ctx.fillText(num(a.poids, 1) + " %  ·  " + fmt(a.perf, 1) + " %",
+                   xLab - 8, y + 21);
+    });
   }
 
-  function renderJour(cache) {
-    document.getElementById("subtitle").textContent =
-      "Variation en direct vs clôture de la veille — top " + TOP + " par |contribution|";
-    var kS = document.getElementById("kSum");
-    kS.textContent = fmtPct(cache.sumAll);
-    kS.className = "v " + (cache.sumAll >= 0 ? "pos" : "neg");
-    document.getElementById("kCov").textContent =
-      cache.covWeight.toFixed(1).replace(".", ",") + " %";
-    document.getElementById("kN").textContent = cache.n + "/" + cache.nTotal;
+  // ==================================================================
+  // Synthese
+  // ==================================================================
+  function synthese(f, W) {
+    var l = W.series.filter(function (S) { return S.a.suivi; })
+      .map(function (S) {
+        return { nom: S.a.libelle,
+                 contrib: S.a.poids * (S.ratio[W.m - 1] - 1) };
+      });
+    var tri = l.sort(function (a, b) { return b.contrib - a.contrib; });
+    var hauts = tri.slice(0, 3);
+    var bas = tri.slice(-2).reverse().filter(function (a) { return a.contrib < 0; });
 
-    var updEl = document.getElementById("upd");
-    updEl.style.display = "block";
-    var hh = cache.ts.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
-    updEl.innerHTML = "maj " + hh + '<button id="jourRefresh">&#8635;</button>';
-    document.getElementById("jourRefresh").addEventListener("click", function () { buildJour(true); });
-
-    renderBars(cache.top,
-      "Variation estimée de l'indice depuis la clôture de la veille, en EUR (change inclus), " +
-      "recalculée en direct à partir des cours actuels des " + cache.nTotal +
-      " principales lignes. Les marchés asiatiques ferment souvent avant l'après-midi en France : " +
-      "hors séance, la variation reflète la dernière clôture disponible.",
-      "contribution en points de % d'indice (jour, EUR)");
+    var s = "Sur " + MOIS + " mois, " + f.ref_ticker +
+            ' fait <b class="' + classe(W.perfReel) + '">' +
+            fmt(W.perfReel) + " %</b>. ";
+    s += "Les moteurs sont " + hauts.map(function (a) {
+      return "<b>" + court(a.nom).toLowerCase() + "</b> " +
+             '<span class="' + classe(a.contrib) + '">' + fmt(a.contrib) + " pt</span>";
+    }).join(", ") + ". ";
+    if (bas.length) {
+      s += "Ce qui freine : " + bas.map(function (a) {
+        return "<b>" + court(a.nom).toLowerCase() + "</b> " +
+               '<span class="neg">' + fmt(a.contrib) + " pt</span>";
+      }).join(", ") + ". ";
+    }
+    var part = W.perfReel !== 0 ? (tri[0].contrib / W.perfReel) * 100 : 0;
+    if (part > 0 && part < 400) {
+      s += "À elle seule, " + court(tri[0].nom).toLowerCase() +
+           " explique " + Math.round(part) + " % du mouvement.";
+    }
+    return s;
   }
 
-  document.getElementById("modeSeg").addEventListener("click", function (e) {
-    var btn = e.target.closest("button"); if (!btn) return;
-    var mode = btn.getAttribute("data-m");
-    var bs = this.querySelectorAll("button");
-    for (var i = 0; i < bs.length; i++) bs[i].classList.toggle("on", bs[i] === btn);
-    document.getElementById("status").style.display = "none";
-    if (mode === "30j") { if (COMPDATA) build30j(COMPDATA); }
-    else { buildJour(false); }
-  });
-
-  var COMPDATA = null;
-  fetch("contributions.json?t=" + Date.now())
-    .then(function (r) {
+  // ==================================================================
+  // Bloc journee
+  // ==================================================================
+  function viaProxy(url, secours) {
+    return fetch((secours ? SECOURS : PROXY) + encodeURIComponent(url),
+                 { cache: "no-store" }).then(function (r) {
       if (!r.ok) throw new Error("HTTP " + r.status);
       return r.json();
-    })
-    .then(function (data) { COMPDATA = data; build30j(data); })
-    .catch(function (e) {
-      document.getElementById("status").textContent =
-        "Erreur de chargement : " + e.message +
-        " — contributions.json pas encore généré ? Lancer le workflow.";
     });
+  }
+
+  function cotation(ticker) {
+    var u = "https://query1.finance.yahoo.com/v8/finance/chart/" + ticker +
+            "?range=1d&interval=5m";
+    return viaProxy(u, false)
+      .catch(function () { return viaProxy(u, true); })
+      .then(function (j) {
+        var m = j.chart.result[0].meta;
+        var prev = m.chartPreviousClose || m.previousClose;
+        var last = m.regularMarketPrice;
+        if (!prev || !last) throw new Error("cotation absente");
+        return { perf: (last / prev - 1) * 100, prix: last,
+                 t: m.regularMarketTime || 0 };
+      });
+  }
+
+  function heure(ts) {
+    if (!ts) return "–";
+    var d = new Date(ts * 1000);
+    return ("0" + d.getHours()).slice(-2) + "h" + ("0" + d.getMinutes()).slice(-2);
+  }
+
+  function chargeJour(f) {
+    var cible = $("jour");
+    // un agregat n'est utilisable en intraday que s'il tient en un seul
+    // instrument cote en euros : c'est le cas du Monde, pas de l'Asie
+    var suivis = f.agregats.filter(function (a) {
+      return a.instruments && a.instruments.length === 1 && a.suivi;
+    }).map(function (a) {
+      return { libelle: a.libelle, poids: a.poids, ticker: a.instruments[0] };
+    });
+    var res = {}, tsMax = 0, refPerf = null, refTs = 0, refPrix = null;
+
+    function rendre(fini) {
+      var somme = 0, html = "";
+      html += '<table class="j"><tr><th>Secteur</th><th>Poids</th>' +
+              "<th>Var.</th><th>Contrib.</th><th>Coté</th></tr>";
+      var lignes = suivis.map(function (a) {
+        var r = res[a.ticker];
+        return { a: a, c: r ? a.poids * r.perf / 100 : null, r: r };
+      }).sort(function (x, y) {
+        if (x.c === null) return 1;
+        if (y.c === null) return -1;
+        return y.c - x.c;
+      });
+      lignes.forEach(function (o) {
+        if (o.c !== null) somme += o.c;
+        html += "<tr><td>" + court(o.a.libelle) + "</td>" +
+                '<td style="color:#8a91a3">' + num(o.a.poids, 1) + "</td>" +
+                (o.r ? '<td style="color:' + coul(o.r.perf) + '">' + fmt(o.r.perf) + " %</td>" +
+                       '<td style="color:' + coul(o.c) + '">' + fmt(o.c) + "</td>" +
+                       '<td style="color:#8a91a3">' + heure(o.r.t) + "</td>"
+                     : '<td colspan="3" style="color:#8a91a3">…</td>') +
+                "</tr>";
+      });
+      html += '<tr class="tot"><td>Somme des contributions</td><td></td><td></td>' +
+              '<td style="color:' + coul(somme) + '">' + fmt(somme) + "</td><td></td></tr>";
+      if (refPerf !== null) {
+        html += '<tr class="tot" style="border:0"><td>' + f.ref_ticker + " constaté" +
+                (refPrix ? " · " + num(refPrix, 3) + " €" : "") + "</td><td></td>" +
+                '<td style="color:' + coul(refPerf) + '">' + fmt(refPerf) + " %</td>" +
+                '<td style="color:' + coul(refPerf - somme) + '">' +
+                fmt(refPerf - somme) + "</td>" +
+                '<td style="color:#8a91a3">' + heure(refTs) + "</td></tr>";
+      }
+      html += "</table>";
+      html += '<div style="font-size:10px;color:#8a91a3;margin-top:7px;' +
+              'line-height:1.5">Contributions en points de pourcentage de ' +
+              "l'indice. Dernière colonne : heure de la dernière cotation.</div>";
+      if (fini && tsMax) {
+        var dd = new Date(tsMax * 1000);
+        if (dd.getHours() * 60 + dd.getMinutes() < 15 * 60 + 30) {
+          html += '<div class="avert">Avant 15h30, les Bourses américaines ' +
+                  "sont fermées : ces ETF cotent sur des estimations de " +
+                  "teneurs de marché, avec peu de transactions. Les chiffres " +
+                  "ci-dessus ne sont pas encore significatifs.</div>";
+        }
+      }
+      cible.innerHTML = html;
+    }
+
+    rendre(false);
+
+    var chaine = cotation(f.ref_ticker).then(function (r) {
+      refPerf = r.perf; refTs = r.t; refPrix = r.prix;
+      if (r.t > tsMax) tsMax = r.t;
+      rendre(false);
+    }).catch(function () {});
+
+    suivis.forEach(function (a) {
+      chaine = chaine.then(function () {
+        return cotation(a.ticker).then(function (r) {
+          res[a.ticker] = r;
+          if (r.t > tsMax) tsMax = r.t;
+          rendre(false);
+        }).catch(function () {});
+      });
+    });
+
+    chaine.then(function () { rendre(true); });
+  }
+
+  // ==================================================================
+  // Rendu general
+  // ==================================================================
+  var donnees = null;
+
+  function bloc() {
+    var f = null;
+    if (!donnees) return null;
+    donnees.fonds.forEach(function (x) { if (x.cle === CLE) f = x; });
+    return f;
+  }
+
+  function majPeriode() {
+    var f = bloc();
+    if (!f) return;
+    var W = redessine();
+    legende(W);
+    dessineBarres($("barres"), W);
+    $("synth").innerHTML = synthese(f, W);
+
+    $("kPerf").textContent = fmt(W.perfReel) + " %";
+    $("kPerf").className = "v " + classe(W.perfReel);
+    $("kSum").textContent = fmt(W.somme) + " pt";
+    $("kSum").className = "v " + classe(W.somme);
+    $("kRes").textContent = fmt(W.residu) + " pt";
+    $("kRes").className = "v " + (Math.abs(W.residu) < 0.5 ? "pos" : "neg");
+
+    $("subtitle").innerHTML =
+      "Décomposition sectorielle de " + f.ref_ticker + " du " +
+      jour(W.dates[0]) + " au " + jour(W.dates[W.m - 1]) + " (" + W.m +
+      " cotations).<br>Tous les instruments sont cotés en euros.";
+  }
+
+  function rendu() {
+    var f = bloc();
+    if (!f) {
+      $("status").textContent = "Bloc " + CLE + " absent de attribution.json.";
+      return;
+    }
+    if (!f.prix_ref || !f.agregats[0].hasOwnProperty("cours")) {
+      $("status").textContent =
+        "attribution.json est à l'ancien format : relancez le workflow " +
+        "avec la nouvelle version de attribution.py.";
+      return;
+    }
+
+    $("status").style.display = "none";
+    $("kpis").style.display = "flex";
+    $("pPeriode").style.display = "block";
+    ["synth", "blocs", "upd", "lexique"].forEach(function (id) {
+      $(id).style.display = "block";
+    });
+    var jourPossible = (CLE === "world");
+    $("hJour").style.display = jourPossible ? "flex" : "none";
+    $("jour").style.display = jourPossible ? "block" : "none";
+
+    $("upd").innerHTML = "Calculé le " + donnees.generated.slice(0, 10) +
+                         ' <button id="rec">↻</button>';
+    $("rec").onclick = charge;
+
+    $("slPeriode").oninput = function () {
+      MOIS = parseInt(this.value, 10);
+      $("lbPeriode").textContent = MOIS + (MOIS > 1 ? " mois" : " mois");
+      majPeriode();
+    };
+
+    $("titre").textContent = TITRES[CLE];
+    var LEX = LEXIQUES[CLE] || {};
+    $("lexBody").innerHTML = f.agregats.map(function (a) {
+      var t = LEX[a.libelle];
+      if (!t) return "";
+      return "<details><summary>" + a.libelle + " — " + num(a.poids, 1) +
+             " %</summary><p>" + t + "</p></details>";
+    }).join("");
+
+    var temoins = Object.keys(f.controles || {}).map(function (k) {
+      return k + " " + fmt(f.controles[k]) + " %";
+    }).join(", ");
+
+    $("foot").innerHTML =
+      "En haut, courbe blanche : l'indice réel, ramené à 100 au début de la " +
+      "période ; courbe grise pointillée : l'indice reconstruit à partir des " +
+      "secteurs. L'écart entre les deux est le résidu." +
+      "<br>En bas, apport cumulé de chaque secteur, en points d'indice : " +
+      "poids du secteur × sa progression depuis le début de la période." +
+      "<br>Pondérations relevées le " + f.poids_date +
+      ", à rafraîchir chaque trimestre. Poids figé : " + f.poids_non_suivi + " %." +
+      (temoins ? "<br>Témoin indépendant sur la fenêtre complète : " +
+                 temoins + "." : "");
+
+    majPeriode();
+    if (jourPossible) {
+      chargeJour(f);
+      $("recJour").onclick = function () { chargeJour(f); };
+    }
+  }
+
+  function charge() {
+    $("status").style.display = "block";
+    $("status").textContent = "Chargement…";
+    fetch("attribution.json?t=" + Date.now(), { cache: "no-store" })
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then(function (j) { donnees = j; rendu(); })
+      .catch(function (e) {
+        $("status").textContent = "Erreur de chargement : " + e.message;
+      });
+  }
+
+  var minuteur = null;
+  window.addEventListener("resize", function () {
+    clearTimeout(minuteur);
+    minuteur = setTimeout(function () { if (donnees) majPeriode(); }, 250);
+  });
+
+  brancheGestes();
+  charge();
 })();
 </script>
 </body>
