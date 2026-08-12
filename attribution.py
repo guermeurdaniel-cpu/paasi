@@ -1,27 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-paasi / attribution.py — pourquoi PAASI et WPEA montent ou baissent.
+paasi / attribution.py — pourquoi WPEA et PAASI montent ou baissent.
 
-Ce script ne fait plus aucun calcul de fenetre : il livre les COURS BRUTS
-alignes sur un calendrier commun, sur environ trois mois. La page choisit
-sa fenetre (1, 2 ou 3 mois) et recalcule tout a partir de la date de depart
-retenue. C'est ce qui permet au curseur de periode de fonctionner sans
-relancer le workflow.
+Le script ne calcule aucune fenetre : il livre ~3 mois de cours bruts alignes
+sur un calendrier commun. La page choisit sa periode et recalcule tout.
 
-POIDS : saisis a la main (les indices ne sont rebalances que
-        trimestriellement). Releves sur les pages produit iShares le
-        07/08/2026. A remettre a jour vers debut novembre 2026.
-COURS : un ETF cote en EUR par agregat, via Yahoo. Aucune conversion de
-        change. Aucun acces iShares.
+Un agregat est defini par une combinaison lineaire d'instruments :
 
-JSON produit, par fonds :
-  dates     : calendrier commun (jours de cotation de l'ETF de reference)
-  prix_ref  : cloture reelle de l'ETF de reference, en euros
-  agregats  : [{libelle, ticker, poids, suivi, cours: [...]}]
+    ("libelle", poids, [(ticker, coefficient, ticker_de_change), ...])
 
-et, a titre de controle seulement, les chiffres calcules sur la fenetre
-complete (perf_ref_pct, somme_contrib, residu).
+Les coefficients somment toujours a 1. Une liste vide = agregat fige (poids
+connu, evolution inconnue), qui tombe dans le residu.
+
+Cela permet deux choses qu'un simple ticker ne permettait pas :
+  - convertir un titre asiatique en euros (2330.TW via EURTWD=X) ;
+  - reconstruire un "reste de pays" en retranchant les megacaps de l'ETF
+    pays, dont les indices sont plafonnes 20/35 et sous-ponderent
+    massivement TSMC, Samsung et SK Hynix.
+
+POIDS : saisis a la main, aucun acces iShares (leurs pages bloquent les
+        serveurs GitHub). Releves des 07 et 12/08/2026.
+        A refaire vers debut novembre 2026.
 
 Sortie : attribution.json
 """
@@ -38,28 +38,61 @@ except ImportError:
     import requests as creq
     HAVE_CFFI = False
 
-RANGE = "6mo"          # on demande large, on ne garde que la fin
-GARDE_JOURS = 68       # ~3 mois de cotations
+RANGE = "6mo"
+GARDE_JOURS = 68
 OUT_FILE = "attribution.json"
-POIDS_DATE = "2026-08-07"
+POIDS_DATE = "2026-08-12"
+
+TWD, KRW = "EURTWD=X", "EURKRW=X"
 
 # ----------------------------------------------------------------------
-# (libelle, ticker EUR ou None, poids en %)
-# ticker None = poids connu, evolution non suivie : cours = null
+# Poids des megacaps DANS L'ETF pays (releve justETF du 12/08/2026).
+# Ce sont eux qui comptent, pas les plafonds theoriques : entre deux
+# reequilibrages le poids derive sous le plafond.
 # ----------------------------------------------------------------------
+ETF_TSMC = 0.2925                    # TSMC dans iShares MSCI Taiwan
+ETF_SS, ETF_SK = 0.3165, 0.1835      # Samsung (ord+pref) et SK Hynix dans Amundi Korea
+
+kTW = 1.0 / (1.0 - ETF_TSMC)                 # 1.4134
+kKR = 1.0 / (1.0 - ETF_SS - ETF_SK)          # 2.0000
+
+# Poids relatifs dans la memoire coreenne : Samsung 8.62, SK Hynix 5.57
+MEM_SS = (7.64 + 0.98) / (7.64 + 0.98 + 5.57)
+MEM_SK = 1.0 - MEM_SS
+
 PAASI = {
     "cle": "paasi",
     "nom": "PAASI — MSCI Emerging Asia",
     "ref_ticker": "PAASI.PA",
     "controles": ["CEBL.DE"],
     "agregats": [
-        ("Taiwan — fonderie et semi-conducteurs", "ITWN.AS", 32.90),
-        ("Coree — memoire et electronique",       "KRW.PA",  22.74),
-        # Chine 21.82 + 4.46 de l'ETF Chine A domicilie en Irlande
-        ("Chine — plateformes et banques",        "ICGA.DE", 26.28),
-        ("Inde — banques et consommation",        "PINR.PA", 14.20),
+        # TSMC seul : premier moteur de l'indice a lui tout seul
+        ("TSMC — fonderie", 18.33,
+         [("2330.TW", 1.0, TWD)]),
+
+        # Chaine IA taiwanaise = ETF Taiwan moins TSMC (Taiwan 32.90 - 18.33)
+        ("Chaine IA taiwanaise", 14.57,
+         [("ITWN.AS", kTW, None), ("2330.TW", -ETF_TSMC * kTW, TWD)]),
+
+        # Memoire coreenne : Samsung (ord + pref) et SK Hynix
+        ("Memoire coreenne", 14.19,
+         [("005930.KS", MEM_SS, KRW), ("000660.KS", MEM_SK, KRW)]),
+
+        # Coree hors memoire = ETF Coree moins les deux megacaps (22.74 - 14.19)
+        ("Coree hors memoire", 8.55,
+         [("KRW.PA", kKR, None),
+          ("005930.KS", -ETF_SS * kKR, KRW),
+          ("000660.KS", -ETF_SK * kKR, KRW)]),
+
+        # Chine offshore 21.82 + ligne actions A 4.46 : ICGA couvre les deux
+        ("Chine — plateformes et banques", 26.28,
+         [("ICGA.DE", 1.0, None)]),
+
+        ("Inde — banques et consommation", 14.20,
+         [("PINR.PA", 1.0, None)]),
+
         # Thailande 1.22 + Malaisie 1.14 + divers 0.97 + liquidites 0.54
-        ("Autres (ASEAN, divers)",                None,       3.87),
+        ("Reste (ASEAN, divers)", 3.87, []),
     ],
 }
 
@@ -69,23 +102,24 @@ WORLD = {
     "ref_ticker": "WPEA.PA",
     "controles": ["EUNL.DE"],
     "agregats": [
-        ("Technologie",                  "XDWT.DE", 29.75),
-        ("Finance",                      "XDWF.DE", 16.44),
-        ("Industrie",                    "XDWI.DE", 11.42),
-        ("Sante",                        "XDWH.DE",  9.00),
-        ("Consommation discretionnaire", "XDWC.DE",  8.97),
-        ("Telecoms et medias",           "XDWS.DE",  7.97),
-        ("Consommation de base",         "XDWY.DE",  4.94),
-        ("Energie",                      "XDW0.DE",  3.76),
-        ("Materiaux",                    "XDWM.DE",  3.32),
-        ("Services publics",             "XDWU.DE",  2.39),
-        ("Autres (immobilier, divers)",  None,       2.04),
+        ("Technologie",                  29.75, [("XDWT.DE", 1.0, None)]),
+        ("Finance",                      16.44, [("XDWF.DE", 1.0, None)]),
+        ("Industrie",                    11.42, [("XDWI.DE", 1.0, None)]),
+        ("Sante",                         9.00, [("XDWH.DE", 1.0, None)]),
+        ("Consommation discretionnaire",  8.97, [("XDWC.DE", 1.0, None)]),
+        ("Telecoms et medias",            7.97, [("XDWS.DE", 1.0, None)]),
+        ("Consommation de base",          4.94, [("XDWY.DE", 1.0, None)]),
+        ("Energie",                       3.76, [("XDW0.DE", 1.0, None)]),
+        ("Materiaux",                     3.32, [("XDWM.DE", 1.0, None)]),
+        ("Services publics",              2.39, [("XDWU.DE", 1.0, None)]),
+        ("Autres (immobilier, divers)",   2.04, []),
     ],
 }
 
-FONDS = [PAASI, WORLD]
+FONDS = [WORLD, PAASI]
 
 
+# ----------------------------------------------------------------------
 def http_get(url, **kw):
     kw.setdefault("timeout", 20)
     if HAVE_CFFI:
@@ -95,121 +129,145 @@ def http_get(url, **kw):
     return creq.get(url, **kw)
 
 
-def yahoo_serie(symbol):
-    """Retourne {date iso: cloture}, {} si indisponible."""
+_cache = {}
+
+
+def yahoo(symbol):
+    """Cours ajustes des dividendes : {date iso: cours}."""
+    if symbol in _cache:
+        return _cache[symbol]
     url = (f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
-           f"?range={RANGE}&interval=1d")
+           f"?range={RANGE}&interval=1d&events=div%2Csplit")
     print(f"  [yahoo] {symbol}", flush=True)
+    serie = {}
     try:
         r = http_get(url)
         if r.status_code != 200:
             print(f"    [!] HTTP {r.status_code}", flush=True)
-            return {}
+            _cache[symbol] = serie
+            return serie
         res = r.json()["chart"]["result"][0]
+        stamps = res.get("timestamp") or []
+        ind = res.get("indicators", {})
+        adj = ind["adjclose"][0].get("adjclose") if ind.get("adjclose") else None
+        vals = adj if adj and any(v is not None for v in adj) \
+            else (ind.get("quote") or [{}])[0].get("close") or []
+        for t, v in zip(stamps, vals):
+            if v is not None:
+                serie[dt.datetime.utcfromtimestamp(t).date().isoformat()] = float(v)
     except Exception as exc:
         print(f"    [!] {exc.__class__.__name__}", flush=True)
-        return {}
-    stamps = res.get("timestamp") or []
-    closes = (res.get("indicators", {}).get("quote") or [{}])[0].get("close") or []
-    return {dt.datetime.utcfromtimestamp(t).date().isoformat(): float(c)
-            for t, c in zip(stamps, closes) if c is not None}
+    _cache[symbol] = serie
+    time.sleep(0.4)
+    return serie
 
 
 def aligner(serie, calendrier):
-    """Projette une serie sur le calendrier de reference en reportant la
-    derniere cloture connue (places boursieres non synchrones). Les dates
-    anterieures a la premiere cotation connue restent a None."""
+    """Projette sur le calendrier commun en reportant la derniere cloture."""
     out, dernier = [], None
     for d in calendrier:
         if d in serie:
             dernier = serie[d]
         out.append(dernier)
-    return out
-
-
-def combler_debut(cours):
-    """Remplit d'eventuels None de tete par la premiere valeur connue."""
-    prem = None
-    for v in cours:
-        if v is not None:
-            prem = v
-            break
+    prem = next((v for v in out if v is not None), None)
     if prem is None:
         return None
-    return [prem if v is None else v for v in cours]
+    return [prem if v is None else v for v in out]
 
 
+def cours_en_euros(ticker, fx, calendrier):
+    """Cours alignes, convertis en euros si un ticker de change est donne."""
+    c = aligner(yahoo(ticker), calendrier)
+    if c is None:
+        return None
+    if fx:
+        t = aligner(yahoo(fx), calendrier)
+        if t is None:
+            return None
+        c = [p / x for p, x in zip(c, t)]      # fx = unites locales par euro
+    return c
+
+
+def synthetique(termes, calendrier):
+    """Serie de cours reconstituee a partir d'une combinaison de rendements."""
+    parts = []
+    for ticker, coef, fx in termes:
+        c = cours_en_euros(ticker, fx, calendrier)
+        if c is None:
+            return None, f"{ticker} indisponible"
+        parts.append((coef, c))
+    n = len(calendrier)
+    cours, niveau = [100.0], 100.0
+    for i in range(1, n):
+        r = sum(coef * (c[i] / c[i - 1] - 1) for coef, c in parts)
+        niveau *= (1 + r)
+        cours.append(niveau)
+    return cours, None
+
+
+# ----------------------------------------------------------------------
 def traiter(fonds):
     print(f"\n=== {fonds['nom']} ===", flush=True)
 
-    ref = yahoo_serie(fonds["ref_ticker"])
+    ref = yahoo(fonds["ref_ticker"])
     if len(ref) < 30:
-        raise RuntimeError(f"Serie de reference {fonds['ref_ticker']} trop courte")
+        raise RuntimeError(f"Serie {fonds['ref_ticker']} trop courte")
     calendrier = sorted(ref)[-GARDE_JOURS:]
     prix_ref = [round(ref[d], 4) for d in calendrier]
     n = len(calendrier)
 
-    resultats, somme, poids_muet = [], 0.0, 0.0
+    resultats, somme, poids_fige = [], 0.0, 0.0
 
-    for libelle, ticker, poids in fonds["agregats"]:
-        item = {"libelle": libelle, "ticker": ticker, "poids": poids}
+    for libelle, poids, termes in fonds["agregats"]:
+        item = {"libelle": libelle, "poids": poids,
+                "instruments": [t[0] for t in termes]}
 
-        cours = None
-        if ticker:
-            time.sleep(0.4)
-            cours = combler_debut(aligner(yahoo_serie(ticker), calendrier))
-
-        if not cours:
-            poids_muet += poids
+        if not termes:
+            poids_fige += poids
             item.update({"suivi": False, "cours": None,
                          "perf_pct": None, "contrib": None})
-            if ticker:
-                item["erreur"] = "serie indisponible"
+            resultats.append(item)
+            continue
+
+        cours, err = synthetique(termes, calendrier)
+        if cours is None:
+            poids_fige += poids
+            item.update({"suivi": False, "cours": None, "perf_pct": None,
+                         "contrib": None, "erreur": err})
+            print(f"    [!] {libelle} : {err}", flush=True)
             resultats.append(item)
             continue
 
         perf = (cours[-1] / cours[0] - 1) * 100.0
         contrib = poids * perf / 100.0
         somme += contrib
-        item.update({
-            "suivi": True,
-            "cours": [round(v, 4) for v in cours],
-            "perf_pct": round(perf, 2),
-            "contrib": round(contrib, 3),
-        })
+        item.update({"suivi": True, "cours": [round(v, 5) for v in cours],
+                     "perf_pct": round(perf, 2), "contrib": round(contrib, 3)})
         resultats.append(item)
 
     controles = {}
     for sym in fonds.get("controles", []):
-        time.sleep(0.4)
-        s = combler_debut(aligner(yahoo_serie(sym), calendrier))
+        s = aligner(yahoo(sym), calendrier)
         if s:
             controles[sym] = round((s[-1] / s[0] - 1) * 100.0, 2)
 
     perf_ref = (prix_ref[-1] / prix_ref[0] - 1) * 100.0
     residu = perf_ref - somme
-    print(f"  fenetre complete : {calendrier[0]} -> {calendrier[-1]} "
-          f"({n} cotations)", flush=True)
-    print(f"  prix {prix_ref[0]:.4f} -> {prix_ref[-1]:.4f} EUR "
-          f"({perf_ref:+.2f} %)", flush=True)
-    print(f"  somme {somme:+.2f} pt | residu {residu:+.2f} pt "
-          f"| poids fige {poids_muet:.2f} %", flush=True)
+    print(f"  {calendrier[0]} -> {calendrier[-1]} ({n} cotations)", flush=True)
+    print(f"  {fonds['ref_ticker']} {perf_ref:+.2f} % | somme {somme:+.2f} pt "
+          f"| residu {residu:+.2f} pt | poids fige {poids_fige:.2f} %", flush=True)
     for r in resultats:
-        if not r["suivi"]:
-            print(f"    {r['libelle'][:34]:36s} poids {r['poids']:5.2f} %"
-                  f"   (fige)", flush=True)
+        if r["suivi"]:
+            print(f"    {r['libelle'][:32]:34s} {r['poids']:5.2f} % "
+                  f"perf {r['perf_pct']:+7.2f} % contrib {r['contrib']:+6.2f} pt",
+                  flush=True)
         else:
-            print(f"    {r['libelle'][:34]:36s} poids {r['poids']:5.2f} %"
-                  f"  perf {r['perf_pct']:+7.2f} %"
-                  f"  contrib {r['contrib']:+6.2f} pt", flush=True)
+            print(f"    {r['libelle'][:32]:34s} {r['poids']:5.2f} %  (fige)",
+                  flush=True)
     for k, v in controles.items():
         print(f"    [controle] {k} {v:+.2f} %", flush=True)
-
-    total_poids = sum(r["poids"] for r in resultats)
-    print(f"  [verif] somme des poids {total_poids:.2f} % "
-          f"| longueur des series : " +
-          ", ".join(str(len(r["cours"])) if r["cours"] else "0"
-                    for r in resultats), flush=True)
+    print(f"  [verif] somme des poids "
+          f"{sum(r['poids'] for r in resultats):.2f} %", flush=True)
 
     return {
         "cle": fonds["cle"],
@@ -221,13 +279,20 @@ def traiter(fonds):
         "perf_ref_pct": round(perf_ref, 2),
         "somme_contrib": round(somme, 3),
         "residu": round(residu, 3),
-        "poids_non_suivi": round(poids_muet, 2),
+        "poids_non_suivi": round(poids_fige, 2),
         "controles": controles,
         "agregats": resultats,
     }
 
 
 def main():
+    print(f"coefficients : Taiwan reste = {kTW:.4f} ETF "
+          f"{-ETF_TSMC * kTW:+.4f} TSMC | Coree reste = {kKR:.4f} ETF "
+          f"{-ETF_SS * kKR:+.4f} Samsung {-ETF_SK * kKR:+.4f} SKHynix",
+          flush=True)
+    print(f"memoire coreenne : {MEM_SS:.3f} Samsung + {MEM_SK:.3f} SKHynix",
+          flush=True)
+
     fonds = []
     for f in FONDS:
         try:
