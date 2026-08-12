@@ -488,18 +488,18 @@
       curseurs = [i];
       var lg = W.series.map(function (S, s) {
         return { n: S.a.libelle, c: COULEURS[s % COULEURS.length],
-                 pa: S.part[i], pt: S.pts[i] };
-      }).sort(function (a, b) { return b.pa - a.pa; })
+                 ap: S.contrib[i], pa: S.part[i] };
+      }).sort(function (a, b) { return b.ap - a.ap; })
         .map(function (l) {
           return { n: l.n, c: l.c, v: [
-            { t: num(l.pa, 1) + " %" },
-            { t: num(l.pt, 2), col: "#8a91a3" }
+            { t: fmt(l.ap, 2) + " pt", col: coul(l.ap) },
+            { t: num(l.pa, 1) + " %", col: "#8a91a3" }
           ] };
         });
       tip.innerHTML = '<span class="hd">' + jour(W.dates[i]) +
         " · indice " + num(W.reel[i], 2) + " · reconstruit " +
         num(W.rec[i], 2) + "</span>" +
-        tableau(["Secteur", "Part", "Points"], lg);
+        tableau(["Secteur", "Apport", "Part"], lg);
     }
 
     tip.style.display = "block";
