@@ -1,0 +1,378 @@
+{
+ "generated": "2026-08-12T06:47:20Z",
+ "coefficients": {
+  "taiwan": {
+   "etf": 0.6259,
+   "tsmc": 0.3741
+  },
+  "coree": {
+   "etf": 0.752,
+   "samsung": 0.1411,
+   "skhynix": 0.107
+  }
+ },
+ "diagnostics": [
+  {
+   "ticker": "PAASI.PA",
+   "status": "ok",
+   "detail": "",
+   "nom": "Amundi PEA Asie Émergente (MSCI Emerging Asia) Screened UCITS ETF Acc",
+   "devise": "EUR",
+   "place": "Paris",
+   "source_cours": "adjclose",
+   "n": 126,
+   "debut": "2026-02-11",
+   "fin": "2026-08-10",
+   "perf_6m_pct": 13.54,
+   "trou_max_j": 5,
+   "jours_plats_pct": 0.0,
+   "volume_median": 51868,
+   "role": "ref"
+  },
+  {
+   "ticker": "CEBL.DE",
+   "status": "ok",
+   "detail": "",
+   "nom": "iShares VII PLC - iShares MSCI EM Asia ETF USD Acc",
+   "devise": "EUR",
+   "place": "XETRA",
+   "source_cours": "adjclose",
+   "n": 125,
+   "debut": "2026-02-11",
+   "fin": "2026-08-10",
+   "perf_6m_pct": 13.03,
+   "trou_max_j": 5,
+   "jours_plats_pct": 0.0,
+   "volume_median": 25733,
+   "role": "temoin"
+  },
+  {
+   "ticker": "ITWN.AS",
+   "status": "ok",
+   "detail": "",
+   "nom": "iShares MSCI Taiwan UCITS ETF USD (Dist)",
+   "devise": "EUR",
+   "place": "Amsterdam",
+   "source_cours": "adjclose",
+   "n": 125,
+   "debut": "2026-02-11",
+   "fin": "2026-08-10",
+   "perf_6m_pct": 42.14,
+   "trou_max_j": 5,
+   "jours_plats_pct": 0.0,
+   "volume_median": 4034,
+   "role": "tw"
+  },
+  {
+   "ticker": "KRW.PA",
+   "status": "ok",
+   "detail": "",
+   "nom": "Amundi MSCI Korea UCITS ETF",
+   "devise": "EUR",
+   "place": "Paris",
+   "source_cours": "adjclose",
+   "n": 126,
+   "debut": "2026-02-11",
+   "fin": "2026-08-10",
+   "perf_6m_pct": 31.36,
+   "trou_max_j": 5,
+   "jours_plats_pct": 0.0,
+   "volume_median": 14969,
+   "role": "kr"
+  },
+  {
+   "ticker": "ICGA.DE",
+   "status": "ok",
+   "detail": "",
+   "nom": "iShares MSCI China UCITS ETF USD Acc",
+   "devise": "EUR",
+   "place": "XETRA",
+   "source_cours": "adjclose",
+   "n": 125,
+   "debut": "2026-02-11",
+   "fin": "2026-08-10",
+   "perf_6m_pct": -4.63,
+   "trou_max_j": 5,
+   "jours_plats_pct": 0.0,
+   "volume_median": 409415,
+   "role": "cn"
+  },
+  {
+   "ticker": "PINR.PA",
+   "status": "ok",
+   "detail": "",
+   "nom": "Amundi PEA Inde (MSCI India) UCITS ETF Acc",
+   "devise": "EUR",
+   "place": "Paris",
+   "source_cours": "adjclose",
+   "n": 126,
+   "debut": "2026-02-11",
+   "fin": "2026-08-10",
+   "perf_6m_pct": -5.18,
+   "trou_max_j": 5,
+   "jours_plats_pct": 0.8,
+   "volume_median": 24075,
+   "role": "in"
+  },
+  {
+   "ticker": "2330.TW",
+   "status": "ok",
+   "detail": "",
+   "nom": "Taiwan Semiconductor Manufacturing Company Limited",
+   "devise": "TWD",
+   "place": "Taiwan",
+   "source_cours": "adjclose",
+   "n": 118,
+   "debut": "2026-02-23",
+   "fin": "2026-08-12",
+   "perf_6m_pct": 27.86,
+   "trou_max_j": 5,
+   "jours_plats_pct": 6.0,
+   "volume_median": 32795780,
+   "role": "tsmc"
+  },
+  {
+   "ticker": "005930.KS",
+   "status": "ok",
+   "detail": "",
+   "nom": "Samsung Electronics Co., Ltd.",
+   "devise": "KRW",
+   "place": "KSE",
+   "source_cours": "adjclose",
+   "n": 121,
+   "debut": "2026-02-12",
+   "fin": "2026-08-12",
+   "perf_6m_pct": 43.51,
+   "trou_max_j": 6,
+   "jours_plats_pct": 0.8,
+   "volume_median": 29522650,
+   "role": "ss"
+  },
+  {
+   "ticker": "000660.KS",
+   "status": "ok",
+   "detail": "",
+   "nom": "SK hynix Inc.",
+   "devise": "KRW",
+   "place": "KSE",
+   "source_cours": "adjclose",
+   "n": 121,
+   "debut": "2026-02-12",
+   "fin": "2026-08-12",
+   "perf_6m_pct": 69.37,
+   "trou_max_j": 6,
+   "jours_plats_pct": 1.7,
+   "volume_median": 5002539,
+   "role": "sk"
+  },
+  {
+   "ticker": "EURTWD=X",
+   "status": "ok",
+   "detail": "",
+   "nom": "EUR/TWD",
+   "devise": "TWD",
+   "place": "CCY",
+   "source_cours": "adjclose",
+   "n": 130,
+   "debut": "2026-02-12",
+   "fin": "2026-08-12",
+   "perf_6m_pct": -0.03,
+   "trou_max_j": 3,
+   "jours_plats_pct": 0.0,
+   "volume_median": 0,
+   "role": "fx:twd"
+  },
+  {
+   "ticker": "EURKRW=X",
+   "status": "ok",
+   "detail": "",
+   "nom": "EUR/KRW",
+   "devise": "KRW",
+   "place": "CCY",
+   "source_cours": "adjclose",
+   "n": 130,
+   "debut": "2026-02-12",
+   "fin": "2026-08-12",
+   "perf_6m_pct": -4.74,
+   "trou_max_j": 3,
+   "jours_plats_pct": 0.0,
+   "volume_median": 0,
+   "role": "fx:krw"
+  },
+  {
+   "ticker": "TWD=X",
+   "status": "ok",
+   "detail": "",
+   "nom": "USD/TWD",
+   "devise": "TWD",
+   "place": "CCY",
+   "source_cours": "adjclose",
+   "n": 130,
+   "debut": "2026-02-12",
+   "fin": "2026-08-12",
+   "perf_6m_pct": 2.77,
+   "trou_max_j": 3,
+   "jours_plats_pct": 0.0,
+   "volume_median": 0,
+   "role": "fx:usd_twd"
+  },
+  {
+   "ticker": "KRW=X",
+   "status": "ok",
+   "detail": "",
+   "nom": "USD/KRW",
+   "devise": "KRW",
+   "place": "CCY",
+   "source_cours": "adjclose",
+   "n": 130,
+   "debut": "2026-02-12",
+   "fin": "2026-08-12",
+   "perf_6m_pct": -1.89,
+   "trou_max_j": 3,
+   "jours_plats_pct": 0.0,
+   "volume_median": 0,
+   "role": "fx:usd_krw"
+  },
+  {
+   "ticker": "EURUSD=X",
+   "status": "ok",
+   "detail": "",
+   "nom": "EUR/USD",
+   "devise": "USD",
+   "place": "CCY",
+   "source_cours": "adjclose",
+   "n": 130,
+   "debut": "2026-02-12",
+   "fin": "2026-08-12",
+   "perf_6m_pct": -2.84,
+   "trou_max_j": 3,
+   "jours_plats_pct": 0.0,
+   "volume_median": 0,
+   "role": "fx:eurusd"
+  }
+ ],
+ "ablation": [
+  {
+   "fenetre": "30 jours",
+   "du": "2026-06-29",
+   "au": "2026-08-10",
+   "temoin_CEBL": -4.58,
+   "ref_PAASI": -5.4,
+   "variantes": {
+    "A": {
+     "libelle": "A  poids fin  + ETF bruts",
+     "somme": -1.81,
+     "ecart_temoin": 2.773,
+     "ecart_ref": 3.59,
+     "poids": {
+      "tw": 32.9,
+      "kr": 22.74,
+      "cn": 26.28,
+      "in": 14.2,
+      "autres": 3.87
+     }
+    },
+    "B": {
+     "libelle": "B  poids debut + ETF bruts",
+     "somme": -2.672,
+     "ecart_temoin": 1.91,
+     "ecart_ref": 2.728,
+     "poids": {
+      "tw": 33.14,
+      "kr": 26.18,
+      "cn": 23.19,
+      "in": 13.72,
+      "autres": 3.77
+     }
+    },
+    "C": {
+     "libelle": "C  poids fin  + decapage",
+     "somme": -2.269,
+     "ecart_temoin": 2.313,
+     "ecart_ref": 3.131,
+     "poids": {
+      "tw": 32.9,
+      "kr": 22.74,
+      "cn": 26.28,
+      "in": 14.2,
+      "autres": 3.87
+     }
+    },
+    "D": {
+     "libelle": "D  poids debut + decapage",
+     "somme": -3.41,
+     "ecart_temoin": 1.172,
+     "ecart_ref": 1.99,
+     "poids": {
+      "tw": 32.59,
+      "kr": 27.05,
+      "cn": 23.02,
+      "in": 13.61,
+      "autres": 3.74
+     }
+    }
+   }
+  },
+  {
+   "fenetre": "3 mois",
+   "du": "2026-05-08",
+   "au": "2026-08-10",
+   "temoin_CEBL": -1.62,
+   "ref_PAASI": -2.26,
+   "variantes": {
+    "A": {
+     "libelle": "A  poids fin  + ETF bruts",
+     "somme": 0.004,
+     "ecart_temoin": 1.625,
+     "ecart_ref": 2.259,
+     "poids": {
+      "tw": 32.9,
+      "kr": 22.74,
+      "cn": 26.28,
+      "in": 14.2,
+      "autres": 3.87
+     }
+    },
+    "B": {
+     "libelle": "B  poids debut + ETF bruts",
+     "somme": -0.528,
+     "ecart_temoin": 1.092,
+     "ecart_ref": 1.727,
+     "poids": {
+      "tw": 30.47,
+      "kr": 25.64,
+      "cn": 26.28,
+      "in": 13.76,
+      "autres": 3.85
+     }
+    },
+    "C": {
+     "libelle": "C  poids fin  + decapage",
+     "somme": 0.102,
+     "ecart_temoin": 1.723,
+     "ecart_ref": 2.357,
+     "poids": {
+      "tw": 32.9,
+      "kr": 22.74,
+      "cn": 26.28,
+      "in": 14.2,
+      "autres": 3.87
+     }
+    },
+    "D": {
+     "libelle": "D  poids debut + decapage",
+     "somme": -0.269,
+     "ecart_temoin": 1.351,
+     "ecart_ref": 1.986,
+     "poids": {
+      "tw": 30.87,
+      "kr": 25.13,
+      "cn": 26.35,
+      "in": 13.8,
+      "autres": 3.86
+     }
+    }
+   }
+  }
+ ]
+}
