@@ -1,0 +1,32 @@
+name: Categories PAASI
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  categories:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Dependances
+        run: pip install curl_cffi
+
+      - name: Categories
+        run: python -u check_categories.py
+
+      - name: Commit
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add categories.json
+          git diff --cached --quiet || git commit -m "Categories $(date -u +%F)"
+          git push
