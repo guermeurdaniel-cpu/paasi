@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-09T21:49:28Z",
+ "generated": "2026-10-12T23:43:43Z",
  "poids_date": "2026-08-12",
  "fonds": [
   {
@@ -1112,8 +1112,8 @@
     40.435
    ],
    "perf_ref_pct": 3.8,
-   "somme_contrib": 1.974,
-   "residu": 1.825,
+   "somme_contrib": 1.938,
+   "residu": 1.861,
    "poids_non_suivi": 3.87,
    "controles": {
     "CEBL.DE": 3.28
@@ -1194,10 +1194,10 @@
       107.86318,
       108.13003,
       106.29159,
-      106.46179
+      106.29159
      ],
-     "perf_pct": 6.46,
-     "contrib": 1.184
+     "perf_pct": 6.29,
+     "contrib": 1.153
     },
     {
      "libelle": "Chaine IA taiwanaise",
@@ -1275,10 +1275,10 @@
       118.04631,
       115.96829,
       114.16364,
-      113.58437
+      113.65995
      ],
-     "perf_pct": 13.58,
-     "contrib": 1.979
+     "perf_pct": 13.66,
+     "contrib": 1.99
     },
     {
      "libelle": "Memoire coreenne",
@@ -1356,10 +1356,10 @@
       106.33419,
       104.79419,
       101.96069,
-      102.19586
+      101.96069
      ],
-     "perf_pct": 2.2,
-     "contrib": 0.312
+     "perf_pct": 1.96,
+     "contrib": 0.278
     },
     {
      "libelle": "Coree hors memoire",
@@ -1438,10 +1438,10 @@
       96.10151,
       93.14204,
       89.32546,
-      88.19255
+      88.39857
      ],
-     "perf_pct": -11.81,
-     "contrib": -1.01
+     "perf_pct": -11.6,
+     "contrib": -0.992
     },
     {
      "libelle": "Chine — plateformes et banques",
