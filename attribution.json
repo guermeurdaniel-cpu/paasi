@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-13T21:55:43Z",
+ "generated": "2026-10-14T20:52:39Z",
  "poids_date": "2026-08-12",
  "fonds": [
   {
@@ -75,7 +75,7 @@
     "2026-10-08",
     "2026-10-09",
     "2026-10-12",
-    "2026-10-13"
+    "2026-10-14"
    ],
    "prix_ref": [
     6.913,
@@ -145,14 +145,14 @@
     7.18,
     7.215,
     7.249,
-    7.217
+    7.221
    ],
-   "perf_ref_pct": 4.4,
-   "somme_contrib": 4.323,
-   "residu": 0.075,
+   "perf_ref_pct": 4.46,
+   "somme_contrib": 4.473,
+   "residu": -0.018,
    "poids_non_suivi": 2.04,
    "controles": {
-    "EUNL.DE": 4.44
+    "EUNL.DE": 4.48
    },
    "agregats": [
     {
@@ -230,10 +230,10 @@
       111.94562,
       110.99061,
       110.35934,
-      109.32341
+      108.99967
      ],
-     "perf_pct": 9.32,
-     "contrib": 2.774
+     "perf_pct": 9.0,
+     "contrib": 2.677
     },
     {
      "libelle": "Finance",
@@ -310,10 +310,10 @@
       98.08694,
       99.46725,
       100.67805,
-      100.92021
+      99.97579
      ],
-     "perf_pct": 0.92,
-     "contrib": 0.151
+     "perf_pct": -0.02,
+     "contrib": -0.004
     },
     {
      "libelle": "Industrie",
@@ -390,10 +390,10 @@
       96.24425,
       97.54432,
       98.14839,
-      96.83519
+      97.30794
      ],
-     "perf_pct": -3.16,
-     "contrib": -0.361
+     "perf_pct": -2.69,
+     "contrib": -0.307
     },
     {
      "libelle": "Sante",
@@ -470,10 +470,10 @@
       102.39316,
       104.67236,
       105.77397,
-      104.88129
+      107.12251
      ],
-     "perf_pct": 4.88,
-     "contrib": 0.439
+     "perf_pct": 7.12,
+     "contrib": 0.641
     },
     {
      "libelle": "Consommation discretionnaire",
@@ -550,10 +550,10 @@
       98.2089,
       99.36391,
       99.8326,
-      99.58152
+      99.28021
      ],
-     "perf_pct": -0.42,
-     "contrib": -0.038
+     "perf_pct": -0.72,
+     "contrib": -0.065
     },
     {
      "libelle": "Telecoms et medias",
@@ -630,10 +630,10 @@
       100.94832,
       101.47978,
       102.4281,
-      102.93872
+      104.68945
      ],
-     "perf_pct": 2.94,
-     "contrib": 0.234
+     "perf_pct": 4.69,
+     "contrib": 0.374
     },
     {
      "libelle": "Consommation de base",
@@ -790,10 +790,10 @@
       119.53099,
       120.69497,
       121.46525,
-      123.15988
+      124.3581
      ],
-     "perf_pct": 23.16,
-     "contrib": 0.871
+     "perf_pct": 24.36,
+     "contrib": 0.916
     },
     {
      "libelle": "Materiaux",
@@ -870,10 +870,10 @@
       102.70433,
       104.64243,
       105.01803,
-      104.07151
+      103.5006
      ],
-     "perf_pct": 4.07,
-     "contrib": 0.135
+     "perf_pct": 3.5,
+     "contrib": 0.116
     },
     {
      "libelle": "Services publics",
@@ -950,10 +950,10 @@
       94.07147,
       94.93849,
       95.89924,
-      96.08671
+      96.40305
      ],
-     "perf_pct": -3.91,
-     "contrib": -0.094
+     "perf_pct": -3.6,
+     "contrib": -0.086
     },
     {
      "libelle": "Autres (immobilier, divers)",
@@ -1039,7 +1039,7 @@
     "2026-10-08",
     "2026-10-09",
     "2026-10-12",
-    "2026-10-13"
+    "2026-10-14"
    ],
    "prix_ref": [
     40.015,
@@ -1109,14 +1109,14 @@
     40.235,
     40.435,
     40.19,
-    39.515
+    39.255
    ],
-   "perf_ref_pct": -1.25,
-   "somme_contrib": -2.29,
-   "residu": 1.041,
+   "perf_ref_pct": -1.9,
+   "somme_contrib": -2.788,
+   "residu": 0.888,
    "poids_non_suivi": 3.87,
    "controles": {
-    "CEBL.DE": -0.97
+    "CEBL.DE": -1.8
    },
    "agregats": [
     {
@@ -1194,10 +1194,10 @@
       107.20214,
       107.20214,
       107.28373,
-      104.00634
+      104.31904
      ],
-     "perf_pct": 4.01,
-     "contrib": 0.734
+     "perf_pct": 4.32,
+     "contrib": 0.792
     },
     {
      "libelle": "Chaine IA taiwanaise",
@@ -1275,10 +1275,10 @@
       109.31314,
       108.83085,
       109.83342,
-      108.16797
+      107.26632
      ],
-     "perf_pct": 8.17,
-     "contrib": 1.19
+     "perf_pct": 7.27,
+     "contrib": 1.059
     },
     {
      "libelle": "Memoire coreenne",
@@ -1356,10 +1356,10 @@
       97.61095,
       97.61095,
       94.25069,
-      85.60984
+      85.30554
      ],
-     "perf_pct": -14.39,
-     "contrib": -2.042
+     "perf_pct": -14.69,
+     "contrib": -2.085
     },
     {
      "libelle": "Coree hors memoire",
@@ -1438,10 +1438,10 @@
       84.05905,
       83.18682,
       80.21641,
-      81.3899
+      79.79081
      ],
-     "perf_pct": -18.61,
-     "contrib": -1.591
+     "perf_pct": -20.21,
+     "contrib": -1.728
     },
     {
      "libelle": "Chine — plateformes et banques",
@@ -1518,10 +1518,10 @@
       98.10179,
       100.54235,
       100.27117,
-      99.91656
+      99.15519
      ],
-     "perf_pct": -0.08,
-     "contrib": -0.022
+     "perf_pct": -0.84,
+     "contrib": -0.222
     },
     {
      "libelle": "Inde — banques et consommation",
@@ -1598,10 +1598,10 @@
       91.87608,
       93.30589,
       94.45407,
-      96.05719
+      95.7539
      ],
-     "perf_pct": -3.94,
-     "contrib": -0.56
+     "perf_pct": -4.25,
+     "contrib": -0.603
     },
     {
      "libelle": "Reste (ASEAN, divers)",
